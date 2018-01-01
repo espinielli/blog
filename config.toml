@@ -1,7 +1,7 @@
 # baseurl = "http://enrico.spinielli.net/"  # End your URL with a `/` trailing slash.
 baseurl = "/"
 title = "Enrico's Blog"
-copyright = "&copy; 2017 Enrico Spinielli"
+copyright = "&copy; 2018 Enrico Spinielli"
 theme = "hugo-academic"
 enableEmoji = true
 footnotereturnlinkcontents = "<sup>^</sup>"

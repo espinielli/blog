@@ -34,15 +34,18 @@ the other side by Machine Learning.
 
 For ML I am very slowly going thru some [MOOC][mooc]:
 
-* [Andrew Ng][ng]'s [Machine Learning][ml], and
+* [Andrew Ng][ng]'s [Machine Learning][ml].
 * [Statistical Learning][statlearning] by Stanford University Profs.
   [Trevor Hastie][trev] and [Rob Tibshirani][rob].
+* [Daphne Koller][dk]'s [Probabilistic Graphical Models][pgm].
 
 Wish me luck.
 
 
 
 [ng]: <http://www.andrewng.org/> "Andrew Ng's Home Page"
+[dk]: <http://ai.stanford.edu/~koller/> "Daphne Koller's Home Page"
+[pgm]: <https://www.coursera.org/specializations/probabilistic-graphical-models> "Probabilistic Graphical Models"
 [ml]: <https://www.coursera.org/learn/machine-learning> "Coursera: Machine Learning"
 [statlearning]: <https://statlearning.class.stanford.edu/> "Statistical Learning MOOC"
 [mooc]: <https://en.wikipedia.org/wiki/Massive_open_online_course> "wikipedia: MOOC"
