@@ -9,7 +9,7 @@ relativeURLs = false
 
 publishDir = "../espinielli.github.io"
 
-ignoreFiles = ["\\.Rmd$", "\\.Rmarkdown$", "_files$", "_cache$"]
+ignoreFiles = ["\\.Rmd$", "\\.Rmarkdown$", "_files$", "_cache$", "Readme.md"]
 
 
 dateformat = "2016-10-31T00:00:00"
