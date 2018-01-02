@@ -7,6 +7,8 @@ enableEmoji = true
 footnotereturnlinkcontents = "<sup>^</sup>"
 relativeURLs = false
 
+publishDir = "../espinielli.github.io"
+
 ignoreFiles = ["\\.Rmd$", "\\.Rmarkdown$", "_files$", "_cache$"]
 
 
