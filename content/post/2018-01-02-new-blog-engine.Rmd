@@ -15,4 +15,14 @@ switch to [Netlify](https://bookdown.org/yihui/blogdown/netlify.html)
 I got everyting messed up with my OVH setup so I am still
 with Github Pages...one step at a time...
 
-I hope this setup will lower the barrier and allow me to blog and share  more.
+I hope this setup will lower the barrier and allow me to blog and share more.
+
+I am already looking forward to using the amazing features provided by
+Hugo, e.g. [shortcodes](https://gohugo.io/content-management/shortcodes/).
+So if I want to cite one of my tweets I simply use `blogdown::shortcode(...)`
+
+
+```{r echo=FALSE}
+blogdown::shortcode('tweet', '917040685437652992')
+```
+
