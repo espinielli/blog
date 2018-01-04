@@ -12,7 +12,6 @@ publishDir = "../espinielli.github.io"
 ignoreFiles = ["\\.Rmd$", "\\.Rmarkdown$", "_files$", "_cache$", "Readme.md"]
 
 
-dateformat = "2016-10-31T00:00:00"
 
 # Enable comments by entering your Disqus shortname
 disqusShortname = "enricospinielli"
@@ -50,7 +49,7 @@ defaultContentLanguageInSubdir = false
 
   # Date format (refer to Go's date format: http://flippinggodateformat.com )
   #   Examples: "Mon, Jan 2, 2006" or "2006-01-02"
-  date_format = "2006 January _2"
+  date_format = "2006 January _2 15:04 UTC"
 
   # Enable global LaTeX math rendering?
   #   If false, you can enable it locally on a per page basis.
