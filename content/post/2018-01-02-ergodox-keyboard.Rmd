@@ -4,9 +4,7 @@ author: Enrico Spinielli
 date: '2018-01-03T15:00:00'
 tags:
   - keyboard
-slug: ergodox-keyboard
 ---
-
 
 
 Now that I have a new blog setup, I can more quickly post

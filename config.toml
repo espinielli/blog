@@ -1,5 +1,5 @@
-# baseurl = "http://enrico.spinielli.net/"  # End your URL with a `/` trailing slash.
-baseurl = "/"
+baseurl = "http://enrico.spinielli.net/"  # End your URL with a `/` trailing slash.
+# baseurl = "/"
 title = "Enrico's Blog"
 copyright = "&copy; 2018 Enrico Spinielli"
 theme = "hugo-academic"
