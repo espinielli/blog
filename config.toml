@@ -1,5 +1,5 @@
 baseurl = "http://enrico.spinielli.net/"  # End your URL with a `/` trailing slash.
-# baseurl = "/"
+#baseurl = "/"
 title = "Enrico's Blog"
 copyright = "&copy; 2018 Enrico Spinielli"
 theme = "hugo-academic"
@@ -154,6 +154,11 @@ defaultContentLanguageInSubdir = false
     icon = "linkedin"
     icon_pack = "fa"
     link = "//linkedin.com/in/espinielli"
+
+  [[params.social]]
+    icon = "orcid"
+    icon_pack = "ai"
+    link = "//orcid.org/0000-0001-8584-9131"
 
   [[params.social]]
     icon = "stack-overflow"
