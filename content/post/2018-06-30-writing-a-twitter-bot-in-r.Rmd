@@ -252,7 +252,8 @@ Step 3. is about setting some message and credits, but sparingly so as not to an
 Finally step 4 is about posting the tweet, followed by writing out the index of the
 comune.
 
- # ToDo's
+
+# ToDo's
  
  I am now at the stage where I can execute the 4 steps above and tweet a new map.
  I can execute all the steps on the command line by issuing
