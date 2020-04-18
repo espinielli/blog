@@ -23,6 +23,7 @@ weight = 1
 
 # Biography
 
-Enrico is a curious geek.
-He loves map projections and calendrical algorithms.
-He sort of likes to tinker with electronics but software is much more malleable and faster, so, due to lack of time, he mainly plays with software.
+I am a curious geek.
+I loves map projections and calendrical algorithms.
+I sort of likes to tinker with electronics but software is much more malleable and
+faster to work with, so, due to lack of time, I mainly play with software.
