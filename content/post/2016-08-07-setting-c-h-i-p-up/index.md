@@ -78,4 +78,4 @@ selected the *Set system hostname* item then rebooted: all worked smoothly.
 [pockchip]: <https://getchip.com/pages/pocketchip> "PocketC.H.I.P. the super handy fun computer"
 [kickchip]: <https://www.kickstarter.com/projects/1598272670/chip-the-worlds-first-9-computer> "C.H.I.P. Kickstarter"
 [headlesschip]: <https://bbs.nextthing.co/t/setting-up-chip-as-a-headless-server-with-minimal-tools/1505> "Setting up CHIP as a headless server with minimal tools"
-[wifi]: <http://docs.getchip.com/chip.html#wifi-connection> "C.H.I.P. WiFi Connection"
+[wifi]: <https://docs.getchip.com/chip.html#wifi-connection> "C.H.I.P. WiFi Connection"

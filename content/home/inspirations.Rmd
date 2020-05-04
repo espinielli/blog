@@ -20,8 +20,8 @@ weight: 100  # Order that this section will appear.
 * [R][r], [RStudio][rstudio], [tidyverse][tv]
 * [Inventing fundamental new computing technologies][ifnct]
    - [Fonc][fonc], [Ian's ee380 at Stanford][ian_ee380], [To trap a better mouse][trap]
-* [N. Dershowitz](http://www.math.tau.ac.il/~nachumd/), [E. M. Reingold](http://reingold.co/) "[Calendrical Calculations, 3rd Edition][calcal]"
-* [Cargo Cult Science][cargocult] ([PDF](http://calteches.library.caltech.edu/51/02/CargoCult.pdf)) 
+* [N. Dershowitz](https://www.math.tau.ac.il/~nachumd/), [E. M. Reingold](https://reingold.co/) "[Calendrical Calculations, 3rd Edition][calcal]"
+* [Cargo Cult Science][cargocult] ([PDF](https://calteches.library.caltech.edu/51/02/CargoCult.pdf)) 
 * [Tufte][tufte]
 * [D3.js](https://d3js.org)
 * [Kahan][kahan]'s writings, i.e. [Why I can Debug some Numerical Programs You can't][debugnum]
@@ -31,37 +31,37 @@ weight: 100  # Order that this section will appear.
 
 ## Books ##
 
-* (some of) the ones I [read](http://www.goodreads.com/review/list/2866523-enrico?shelf=read)
-* the ones I own and would like [to read someday](http://www.goodreads.com/review/list/2866523-enrico?shelf=to-read)
+* (some of) the ones I [read](https://www.goodreads.com/review/list/2866523-enrico?shelf=read)
+* the ones I own and would like [to read someday](https://www.goodreads.com/review/list/2866523-enrico?shelf=to-read)
 
-[r]: <http://www.r-project.org/> "R language for Statistical Computing"
-[rstudio]: <http://www.rstudio.com/> "RStudio"
-[sicp]: <http://mitpress.mit.edu/sicp/full-text/book/book.html> "Structure and Interpretation of Computer Programs"
-[isicp]: <http://xuanji.appspot.com/isicp/index.html> "Interactive SICP"
-[squeak]: <http://www.squeak.org/> "Squeak"
-[squeakland]: <http://www.squeakland.org/> "Squeakland"
+[r]: <https://www.r-project.org/> "R language for Statistical Computing"
+[rstudio]: <https://www.rstudio.com/> "RStudio"
+[sicp]: <https://mitpress.mit.edu/sicp/full-text/book/book.html> "Structure and Interpretation of Computer Programs"
+[isicp]: <https://xuanji.appspot.com/isicp/index.html> "Interactive SICP"
+[squeak]: <https://www.squeak.org/> "Squeak"
+[squeakland]: <https://www.squeakland.org/> "Squeakland"
 [squeakjs]: <https://squeak.js.org/> "SqueakJS"
 [ipython]: <https://jupyter.org/> "jupyter"
 [sagemathcloud]: <https://cocalc.com/> "SageMath Cloud"
-[olpc]: <http://one.laptop.org/> "One Laptop Per Child"
-[scratch]: http://scratch.mit.edu/ "Scratch"
+[olpc]: <https://one.laptop.org/> "One Laptop Per Child"
+[scratch]: https://scratch.mit.edu/ "Scratch"
 [croquet]: <https://en.wikipedia.org/wiki/Croquet_Project> "Croquet"
 [openqwaq]: <https://code.google.com/p/openqwaq/> "OpenQwaq"
-[newspeak]: <http://newspeaklanguage.org/> "Newspeak"
-[ifnct]: <http://vpri.org/html/work/ifnct.htm> "Inventing fundamental new computing technologies"
-[fonc]: <http://vpri.org/fonc_wiki/index.php?title=Main_Page> "Fundamental New Computing Technologies"
-[ian_ee380]: <http://www.stanford.edu/class/ee380/Abstracts/070214.html> "Ian at Stanford EE Computer Systems Colloquium"
+[newspeak]: <https://newspeaklanguage.org/> "Newspeak"
+[ifnct]: <https://vpri.org/html/work/ifnct.htm> "Inventing fundamental new computing technologies"
+[fonc]: <https://vpri.org/fonc_wiki/index.php?title=Main_Page> "Fundamental New Computing Technologies"
+[ian_ee380]: <https://www.stanford.edu/class/ee380/Abstracts/070214.html> "Ian at Stanford EE Computer Systems Colloquium"
 [trap]: <https://www.youtube.com/watch?v=EGeN2IC7N0Q> "To trap a better mouse"
 [calcal]: <https://www.cs.tau.ac.il/~nachum/calendar-book/third-edition/> "Calendrical Calculations"
-[cargocult]: <http://en.wikipedia.org/wiki/Cargo_cult_science> "Cargo Cult Science"
-[tufte]: <http://www.edwardtufte.com/tufte/> "Tufte"
-[kahan]: <http://www.cs.berkeley.edu/~wkahan/> "Kahan"
-[debugnum]: <http://www.cs.berkeley.edu/~wkahan/Stnfrd50.pdf> "Why I can Debug some Numerical Programs You can't"
-[primavera]: <http://notrombone.files.wordpress.com/2007/06/botticelli-primavera.jpg> "Botticelli's Primavera"
-[prim_wp]: <http://en.wikipedia.org/wiki/Primavera_%28Botticelli%29> "Primavera"
-[venus]: <http://notrombone.files.wordpress.com/2007/06/botticelli_birth_venus.jpg> "Botticelli's Birth of Venus"
-[venus_wp]: <http://en.wikipedia.org/wiki/The_Birth_of_Venus_%28Botticelli%29> "Birth of Venus"
-[arnolfini]: <http://en.wikipedia.org/wiki/Arnolfini_Portrait> "Van Dyck's Arnolfini's Marriage"
+[cargocult]: <https://en.wikipedia.org/wiki/Cargo_cult_science> "Cargo Cult Science"
+[tufte]: <https://www.edwardtufte.com/tufte/> "Tufte"
+[kahan]: <https://www.cs.berkeley.edu/~wkahan/> "Kahan"
+[debugnum]: <https://www.cs.berkeley.edu/~wkahan/Stnfrd50.pdf> "Why I can Debug some Numerical Programs You can't"
+[primavera]: <https://notrombone.files.wordpress.com/2007/06/botticelli-primavera.jpg> "Botticelli's Primavera"
+[prim_wp]: <https://en.wikipedia.org/wiki/Primavera_%28Botticelli%29> "Primavera"
+[venus]: <https://notrombone.files.wordpress.com/2007/06/botticelli_birth_venus.jpg> "Botticelli's Birth of Venus"
+[venus_wp]: <https://en.wikipedia.org/wiki/The_Birth_of_Venus_%28Botticelli%29> "Birth of Venus"
+[arnolfini]: <https://en.wikipedia.org/wiki/Arnolfini_Portrait> "Van Dyck's Arnolfini's Marriage"
 [vwf]: <https://virtual.wf/> "Virtual World Framework"
 [vw]: <https://sandbox.adlnet.gov/904/adl/sandbox/> "Virtual Worlds"
 [tv]: <https://www.tidyverse.org/> "Tidyverse"

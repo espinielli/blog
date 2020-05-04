@@ -10,7 +10,7 @@ tags:
 Now that I have a new blog setup, I can more quickly post
 what has been since long time in the making: my ErgoDox keyboard.
 
-It all started with me reading [Steve Yegge's blog on touch typing](http://steve-yegge.blogspot.be/2008/09/programmings-dirtiest-little-secret.html)
+It all started with me reading [Steve Yegge's blog on touch typing](https://steve-yegge.blogspot.be/2008/09/programmings-dirtiest-little-secret.html)
 and being convinced I should give it a try with a proper keyboard.
 
 So on 2014-03-24 I joined a [Massdrop purchase](https://www.massdrop.com/buy/ergodox)
@@ -69,7 +69,7 @@ I started with the USB connector.
 It has been immediately evident that soldering SMD diodes is a pain in the neck:
 they are so tiny (3 mm long, 1.5 mm wide) and my tools/eyes not really up to the task.
 
-So I went to the VUB University [Fablab](http://www.fablab-brussels.be/fablab-english/):
+So I went to the VUB University [Fablab](https://www.fablab-brussels.be/fablab-english/):
 on Wednesdays it is open to the public. I did some ten/twenty SMD diodes.
 
 Then I continued with my little iron but soon after it failed miserably of old age.

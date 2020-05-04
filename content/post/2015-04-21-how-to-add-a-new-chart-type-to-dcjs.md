@@ -9,12 +9,12 @@ url = "/2015/04/21/how-to-add-a-new-chart-type-to-dcjs/"
 
 +++
 
-This is a step by step description of how I extended dc.js with a new chart type. It is inspired by a [wiki page](https://github.com/loganalysis/analytics/wiki/Adding-a-new-chart) by [Thomas Robert](http://www.thomas-robert.fr/en/).
+This is a step by step description of how I extended dc.js with a new chart type. It is inspired by a [wiki page](https://github.com/loganalysis/analytics/wiki/Adding-a-new-chart) by [Thomas Robert](https://www.thomas-robert.fr/en/).
 
 ## A Bullet chart ##
-[Mike Bostock](http://bost.ocks.org/mike/) already implemented a [bullet chart](http://bl.ocks.org/mbostock/4061961) in [D3.js](http://d3js.org). The [vertical version](http://bl.ocks.org/jasondavies/5452290) from [Jason Davies](http://www.jasondavies.com/) uses the official code which is available as a [d3-plugin](https://github.com/d3/d3-plugins/tree/master/bullet). (I have submitted a [proposal for a bug fix](https://github.com/d3/d3-plugins/issues/130) and will use it instead.)
+[Mike Bostock](https://bost.ocks.org/mike/) already implemented a [bullet chart](https://bl.ocks.org/mbostock/4061961) in [D3.js](https://d3js.org). The [vertical version](https://bl.ocks.org/jasondavies/5452290) from [Jason Davies](https://www.jasondavies.com/) uses the official code which is available as a [d3-plugin](https://github.com/d3/d3-plugins/tree/master/bullet). (I have submitted a [proposal for a bug fix](https://github.com/d3/d3-plugins/issues/130) and will use it instead.)
 
-So how can I make it available in [dc.js](http://dc-js.github.io/dc.js/)?
+So how can I make it available in [dc.js](https://dc-js.github.io/dc.js/)?
 
 <br>
 <br>
@@ -127,11 +127,11 @@ the concrete charts.
 ## Rendering the chart
 
 Luckily for bullet charts there are examples to get inspired from both for the
-[horizontal](http://bl.ocks.org/mbostock/4061961) and the
-[vertical](http://bl.ocks.org/jasondavies/5452290) layout.
+[horizontal](https://bl.ocks.org/mbostock/4061961) and the
+[vertical](https://bl.ocks.org/jasondavies/5452290) layout.
 
 The `_doRender` function is mimicking what done by
-[Mike Bostock](http://bost.ocks.org/mike/) in his horizontal layout with the
+[Mike Bostock](https://bost.ocks.org/mike/) in his horizontal layout with the
 parametrization of the title `transform`.
 
 
@@ -377,7 +377,7 @@ var ndx        = crossfilter(data),
         return data;
     }};
 
-// dims from Mike Bostock's bl.ock, http://bl.ocks.org/mbostock/4061961
+// dims from Mike Bostock's bl.ock, https://bl.ocks.org/mbostock/4061961
 chart1
   .width(960)
   .height(450)
@@ -390,7 +390,7 @@ chart1
 
 chart1.render();
 
-// dims from Jason Davies's bl.ock, http://bl.ocks.org/jasondavies/5452290
+// dims from Jason Davies's bl.ock, https://bl.ocks.org/jasondavies/5452290
 chart2
   .width(185)
   .height(450)

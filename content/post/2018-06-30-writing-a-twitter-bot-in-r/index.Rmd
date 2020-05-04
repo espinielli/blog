@@ -68,7 +68,7 @@ I found a lot of examples for developing Twitter bots in Python but I wanted to
 write it in R which we are starting to use more and more at work.
 
 Of course we all stand on the shoulder of Giants, and there is always somebody who has
-already done bits and pieces of what you need: [rtweet](http://rtweet.info/)
+already done bits and pieces of what you need: [rtweet](https://rtweet.info/)
 does all you need as a client for accessing Twitter API, while the usual suspects
 [ggplot2](https://ggplot2.tidyverse.org/), [sf](https://r-spatial.github.io/sf/) and
 [ggmap](https://cran.r-project.org/package=ggmap) cover the maps aspects.
@@ -173,7 +173,7 @@ in the longitude and latitude direction.
 ## Crop Map to Polygon
 
 I had no idea how to crop the Google Map to the comune's boundary, but Giants exist
-and I have found a nice solution (by [Robin Lovelace](http://www.robinlovelace.net/)) 
+and I have found a nice solution (by [Robin Lovelace](https://www.robinlovelace.net/)) 
 [posted on GIS SO](https://gis.stackexchange.com/a/155495/7617).
 
 It boils down to transforming the Google Map to raster and `mask`ing it with the
@@ -277,6 +277,6 @@ What I would really like would be to
 If you have any suggestions or comments on the above, feel free to get in touch with me!
 
 
-[gis2016wsg84]: http://www.istat.it/storage/cartografia/confini_amministrativi/archivio-confini/non_generalizzati/2016/Limiti_2016_WGS84.zip
+[gis2016wsg84]: https://www.istat.it/storage/cartografia/confini_amministrativi/archivio-confini/non_generalizzati/2016/Limiti_2016_WGS84.zip
 
 [twitter-bot-repo]: https://github.com/espinielli/italian-comuni-bot/

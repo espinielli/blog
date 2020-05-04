@@ -125,7 +125,7 @@ I found:
 
 * and connect to it (the IP `192.168.99.100` is the one from above;
   `sql` is new Oracle's command line interface,
-  see [sqlcl](http://www.oracle.com/technetwork/developer-tools/sqlcl/overview/index.html)):
+  see [sqlcl](https://www.oracle.com/technetwork/developer-tools/sqlcl/overview/index.html)):
   
   ```shell
   $ ~/tools/sqlcl/bin/sql system/cucu@//192.168.99.100:1521/XE

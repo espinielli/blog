@@ -23,11 +23,11 @@ Maps in [D3.js][d3] via my [bl.ocks][egists]:
 * [Cahill-Keyes map projection][ck]
   ![Cahill-Keys](ck-d3.png)
 
-[egists]: <http://bl.ocks.org/espinielli> "Enrico Spinielli's blocks"
+[egists]: <https://bl.ocks.org/espinielli> "Enrico Spinielli's blocks"
 [d3]: <//d3js.org> "D3.js"
-[usaflags]: <http://bl.ocks.org/espinielli/78185d7b29948d105634beb7bcc0d34b> "Flags of the USA"
+[usaflags]: <https://bl.ocks.org/espinielli/78185d7b29948d105634beb7bcc0d34b> "Flags of the USA"
 [boetti]: <https://bl.ocks.org/espinielli/9ea56e041f6847dbe944> "Boetti's map in D3.js"
 [cube1]: <https://bl.ocks.org/espinielli/1018c88657010f8ee93ea4224652e3cf> "Earth in a cube, 1"
 [cube2]: <https://bl.ocks.org/espinielli/0c130de06ee3c01c0a63ba9ce06bc7bd> "Earth in a cube, 2"
 [cube3]: <https://bl.ocks.org/espinielli/cf662b91b58da57aecc8125649d84604> "Earth in a cube, 3"
-[ck]: <http://bl.ocks.org/espinielli/5689783> "Cahill-Keyes map projection in D3.js"
+[ck]: <https://bl.ocks.org/espinielli/5689783> "Cahill-Keyes map projection in D3.js"

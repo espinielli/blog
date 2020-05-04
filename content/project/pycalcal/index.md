@@ -9,5 +9,5 @@ caption: "Figure 3. Exploded computer reconstruction of the Antikythera Mechanis
 tags: ["calendrica", "python"]
 categories: ["software"]
 # Optional external URL for project (replaces project detail page).
-external_link: "http://enrico.spinielli.net/pycalcal/"
+external_link: "https://enrico.spinielli.net/pycalcal/"
 ---

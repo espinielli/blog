@@ -11,7 +11,7 @@ highlight: yes
 math: no
 ---
 
-I am just more and more amazed by the opportunities offered by the current Internet connectivity: they call it the [long tail](http://en.wikipedia.org/wiki/Long_tail).
+I am just more and more amazed by the opportunities offered by the current Internet connectivity: they call it the [long tail](https://en.wikipedia.org/wiki/Long_tail).
 
 It strikes me that just few years ago what I have done would have been extreemely difficult or very expensive ... or both.
 
@@ -50,7 +50,7 @@ So I decided to give it a go and try to fix it: it is all about taking some scre
 ## Where to buy the parts ##
 So once I decided to repair, where to find the parts? Brussels is not the paradise for electronics hobbists.
 
-EBay to [the rescue](http://www.ebay.com/bhp/samsung-galaxy-s2-charging-port): one piece can cost as little as 0.30 EUR if bought in lots of thousands (but I need just one!), then I found a single piece at 3.29 CAD (shipping included), still a cheap enough option.
+EBay to [the rescue](https://www.ebay.com/bhp/samsung-galaxy-s2-charging-port): one piece can cost as little as 0.30 EUR if bought in lots of thousands (but I need just one!), then I found a single piece at 3.29 CAD (shipping included), still a cheap enough option.
 The order date is Nov 27, 2014, shipped the day after.
 
 ## A long wait ##
@@ -79,8 +79,8 @@ Hhuumm, maybe that is due to the fact that the replacement piece I bought was re
 
 <br/>
 Back to basics, google search to the rescue: I found an 
-[article by Rich O’Neil](http://www.oneilusm.com/?p=518) citing a 
-[post on xda-developers ](http://forum.xda-developers.com/showpost.php?p=37914192&postcount=32) 
+[article by Rich O’Neil](https://www.oneilusm.com/?p=518) citing a 
+[post on xda-developers ](https://forum.xda-developers.com/showpost.php?p=37914192&postcount=32) 
 from a certain Serathian who simply cut the PCB in two.
 
 Here is what he did:
@@ -95,4 +95,4 @@ Ok, few days later I take a scissor and use the radio part from the old piece (r
 
 Phone is now fixed! (It is 6th Jan 2015.)
 <br/>
-Thanks all for sharing (and some [huge company](http://google.com) to let me find it)!
+Thanks all for sharing (and some [huge company](https://google.com) to let me find it)!

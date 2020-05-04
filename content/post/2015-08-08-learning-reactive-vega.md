@@ -26,10 +26,10 @@ Vega 2.0 adds a _grammar of interaction_ to the _grammar of graphics_ implemente
 When you say _grammar of graphics_ all roads bring you to
 
 > Leland Wilkinson
-> [The Grammar of Graphics](http://books.google.com/books/about/The_Grammar_of_Graphics.html?id=_kRX4LoFfGQC)
+> [The Grammar of Graphics](https://books.google.com/books/about/The_Grammar_of_Graphics.html?id=_kRX4LoFfGQC)
 > Springer Science & Business Media, Jul 15, 2005
 
-But given [the price of 100+ USD](http://www.amazon.com/Grammar-Graphics-Statistics-Computing/dp/0387245448/),
+But given [the price of 100+ USD](https://www.amazon.com/Grammar-Graphics-Statistics-Computing/dp/0387245448/),
 I am not even thinking of getting my hands on it.
 
 So the next thing you can look at is who has build upon this conceptual framework.
@@ -38,7 +38,7 @@ And then we bump into
 > Hadley Wickham.
 > A layered grammar of graphics.
 > Journal of Computational and Graphical Statistics, vol. 19, no. 1, pp. 3–28, 2010.
-> http://vita.had.co.nz/papers/layered-grammar.html
+> https://vita.had.co.nz/papers/layered-grammar.html
 
 which implements a (layered) grammar of graphics as a package for the excellent
 [R language](https://www.r-project.org/).
@@ -55,7 +55,7 @@ The _interactive_ was not present in the first implementation as of Apr 2014, it
 > Arvind Satyanarayan, Kanit Wongsuphasawat, Jeffrey Heer
 > Declarative Interaction Design for Data Visualization
 > ACM User Interface Software & Technology (UIST), 2014,
-http://idl.cs.washington.edu/papers/reactive-vega
+https://idl.cs.washington.edu/papers/reactive-vega
 
 The companion video explains things further:
 
@@ -63,12 +63,12 @@ The companion video explains things further:
 
 ## And now let's use it ##
 All that reading is ok but without doing I do not fully get it (and even then ... ;-)
-I need [examples](http://bost.ocks.org/mike/example/)
+I need [examples](https://bost.ocks.org/mike/example/)
 
 So the [Vega tutorial](https://github.com/vega/vega/wiki/Tutorial) is a very good starting point
 (and like all tutorials [it can be perfected](https://github.com/vega/vega/issues/308) by
 [inspirational minds](https://github.com/vega/vega/issues/308#issuecomment-125266356)),
-as well as the interactive and non examples in the [Vega Editor](http://vega.github.io/vega-editor/?spec=bar).
+as well as the interactive and non examples in the [Vega Editor](https://vega.github.io/vega-editor/?spec=bar).
 
 Here of course you have less textual description about the what's and why's.
 
@@ -102,7 +102,7 @@ The following questions remain for me:
    This [issue](https://github.com/vega/vega/issues/104) calls for an offset to be added to the spec.
 
 2. How do I link events from widgets external to the graph to interactions in the graph?
-   (Here I think the [Reactive Vega](http://idl.cs.washington.edu/papers/reactive-vega)
+   (Here I think the [Reactive Vega](https://idl.cs.washington.edu/papers/reactive-vega)
    supplemental material, i.e. `ex_jobs.json`, watch at min 3:19 of reactive vega video above, will help,
    as well as [CSS selector for Signals](https://github.com/vega/vega/wiki/Signals#user-content-event-stream-selectors)
    in the Vega documentation)

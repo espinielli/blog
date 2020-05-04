@@ -20,17 +20,17 @@ So I thought I could do some [web scraping][ws] and extract my clockings from th
 ## [HTML Scraping][ws] to the rescue ##
 Let's take the page for the weekly clockings (in case of anomalies the rows like "Temps pointe" / "Temps valide" are empty):
 
-!["clockings"](http://auto.img.v4.skyrock.net/7206/74747206/pics/3180490115_1_2_jmuRu7c0.png)
+!["clockings"](https://auto.img.v4.skyrock.net/7206/74747206/pics/3180490115_1_2_jmuRu7c0.png)
 
-I initially tried with [some](http://docs.python-guide.org/en/latest/scenarios/scrape/) [Python examples](https://impythonist.wordpress.com/2015/01/06/ultimate-guide-for-scraping-javascript-rendered-web-pages/) using [lxml][lxml] but got stuck.
+I initially tried with [some](https://docs.python-guide.org/en/latest/scenarios/scrape/) [Python examples](https://impythonist.wordpress.com/2015/01/06/ultimate-guide-for-scraping-javascript-rendered-web-pages/) using [lxml][lxml] but got stuck.
 CG complaines if you are using Google Chrome (and the tools above use Webkit, the web browser engine, behind the scene).
 
 Also I soon realized CG does a lot of rendering via Javascript while I initially assumed it would have been a simple HTML page with a static table for the clockings. (This would have been to simple to implement! What a mess!)
 
-I decided to go for [SlimerJS](http://slimerjs.org/) the scriptable browser that runs on top of [Gecko](http://en.wikipedia.org/wiki/Gecko_(software)), the web engine of [Mozilla Firefox](mozilla.org/firefox). ([PhantomJS](http://phantomjs.org/) is the equivalent for [Blink/WebKit](http://en.wikipedia.org/wiki/Blink_(layout_engine)) used in [Google Chrome](http://www.google.com/chrome).)
+I decided to go for [SlimerJS](https://slimerjs.org/) the scriptable browser that runs on top of [Gecko](https://en.wikipedia.org/wiki/Gecko_(software)), the web engine of [Mozilla Firefox](mozilla.org/firefox). ([PhantomJS](https://phantomjs.org/) is the equivalent for [Blink/WebKit](https://en.wikipedia.org/wiki/Blink_(layout_engine)) used in [Google Chrome](https://www.google.com/chrome).)
 
 Nothing strange about using Javascript of course but *CG sucks at it*: it is a last millenium tool which has been hastily brought to this century without any knowledge of the web technologies (and any taste for usability and beauty.)
-Just check the generated DOM elements and you will see that the [uniqueness (within a page) of `id`](http://www.w3.org/TR/html5/dom.html#the-id-attribute) is not at all respected.
+Just check the generated DOM elements and you will see that the [uniqueness (within a page) of `id`](https://www.w3.org/TR/html5/dom.html#the-id-attribute) is not at all respected.
 
 From the page for the weekly clockings shown above, using [Firefox Developer Tools](https://developer.mozilla.org/en/docs/Tools) you can see that the table for the clockings ("Entrées/Sorties" row) can be selected via the following CSS path (line 58):
 
@@ -74,7 +74,7 @@ The rest is a matter of summing up the minutes and printing the values. Lines 78
 
 
 
-[cg]: http://www.gfi.fr/gestion-des-temps/gestion-des-temps.php "Chronogestor"
-[opx]: http://en.wikipedia.org/wiki/Planisware "Planisware"
-[ws]: http://en.wikipedia.org/wiki/Web_scraping "Web Scraping"
-[lxml]: http://lxml.de/ "lxml"
+[cg]: https://www.gfi.fr/gestion-des-temps/gestion-des-temps.php "Chronogestor"
+[opx]: https://en.wikipedia.org/wiki/Planisware "Planisware"
+[ws]: https://en.wikipedia.org/wiki/Web_scraping "Web Scraping"
+[lxml]: https://lxml.de/ "lxml"
