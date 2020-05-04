@@ -1,6 +1,0 @@
-Package: placeholder
-Version: 0.0.1
-Title: Does not matter.
-Description: A trick for having TravisCI build and deploy my website.
-Imports: blogdown
-Remotes: rstudio/blogdown

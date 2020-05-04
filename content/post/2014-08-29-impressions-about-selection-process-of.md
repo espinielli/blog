@@ -13,7 +13,7 @@ This post title to be frank should have been "*Impressions about the selection p
 
 So I only kept the *failure* part with the aim to bring home some lessons from it ! :smirk:
 
-### Chronology, more or less###
+### Chronology, more or less
 It all started with an email at the end of July 2014 from the company's recruiter, let's call her Alice.
 
 My first reaction was: SPAM!!!! :scream:
@@ -42,12 +42,12 @@ And then the technical questions starts: and frankly it has been a *disaster*!
 
 Even on questions (Unix file system and inode [4.14 of [Advance Programming in the UNIX Environment](http://www.kohala.com/start/apue.html) {yes, I still have the 1992 edition!}]) I used to ask to people I was recruiting some 12 years ago!
 
-### Lessons learnt for when I am recruiting###
+### Lessons learnt for when I am recruiting
 
 * Make sure the context of the interview is clear: subject, what is expected, timing, steps, process.
   I usually do this but we all tend to forget. This is a reminder for myself.
 
-### Lessons learnt (for when I want to be recruited ;-)###
+### Lessons learnt (for when I want to be recruited ;-)
 
 * I should have clearly asked to separate the chat on current/future position from the technical chat as in the *declaration of intents* above.
   Maybe I assumed it would have been in 2 separate sessions but I was taken off balance by it happening in the same video conf.
@@ -55,7 +55,7 @@ Even on questions (Unix file system and inode [4.14 of [Advance Programming in t
 * I should have asked more about the technical interview, i.e. examples of questions
 * I should have asked more time to prepare if I felt I was too rusty on the subjects
 
-### Observations about the specific recruiting techniques ###
+### Observations about the specific recruiting techniques
 
 * I was positively impressed by the fact I follow similar steps as in big Internet companies: we have a phone interview to assess the minimum level of technical competencies before we proceed with deeper *hands-on* assessments.
 *  The post and place descriptions and the videos were good.

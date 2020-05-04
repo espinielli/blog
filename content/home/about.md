@@ -1,29 +1,15 @@
 +++
-# About/Biography widget.
+# About widget.
+widget = "about"  # See https://sourcethemes.com/academic/docs/page-builder/
+headless = true  # This file represents a page section.
+active = true  # Activate this widget? true/false
+weight = 20  # Order that this section will appear in.
 
+title = "Biography"
 date = "2016-04-20T00:00:00"
-draft = false
 
-widget = "about"
-
-# Order that this section will appear in.
-weight = 1
-
-# List your academic interests.
-[interests]
-  interests = [
-    "Aviation",
-    "Artificial Intelligence",
-    "Maps",
-    "GIS",
-    "Calendars"
-  ]
-
+# Choose the user profile to display
+# This should be the username of a profile in your `content/authors/` folder.
+# See https://sourcethemes.com/academic/docs/get-started/#introduce-yourself
+author = "admin"
 +++
-
-# Biography
-
-I am a curious geek.
-I loves map projections and calendrical algorithms.
-I sort of likes to tinker with electronics but software is much more malleable and
-faster to work with, so, due to lack of time, I mainly play with software.

@@ -1,14 +1,7 @@
-_site
-.sass-cache
-.DS_Store
-*.sublime-project
-*.sublime-workspace
-codekit-config.json
-node_modules
-_asset_bundler_cache
-Gemfile.lock
-public
+# IDEs
+.idea/
+
+# Hugo
+resources/
+public/
 .Rproj.user
-.Rhistory
-blogdown
-content/post/2018-*.html
