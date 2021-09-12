@@ -10,6 +10,8 @@ options(
   blogdown.ext = ".Rmd",
   blogdown.yaml.empty = TRUE,
   blogdown.new_bundle = TRUE,
-  blogdown.title_case = TRUE
+  blogdown.title_case = TRUE,
+  blogdown.hugo.version = "0.88.1"
   # blogdown.publishDir = '../espinielli.github.io'
 )
+
