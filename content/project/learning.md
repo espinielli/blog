@@ -29,11 +29,12 @@ caption = ""
 +++
 
 On one side I am intrigued by Data
-Analysis and Visualization (see some of my [D3 [et al.] blocks][egists] or my [R project](/project/r-and-co/)) and on
+Analysis and Visualization (see some of my [D3 [et al.] blocks][egists], [Observable notebooks][on] or my [R project](/project/r-and-co/)) and on
 the other side by Machine Learning.
 
 For ML I am very slowly going thru some [MOOC][mooc]:
 
+* [Richard McElreath][rme]'s [Statistical Rethinking][srt]
 * [Andrew Ng][ng]'s [Machine Learning][ml].
 * [Statistical Learning][statlearning] by Stanford University Profs.
   [Trevor Hastie][trev] and [Rob Tibshirani][rob].
@@ -51,6 +52,7 @@ Wish me luck.
 [mooc]: <https://en.wikipedia.org/wiki/Massive_open_online_course> "wikipedia: MOOC"
 [rob]: <https://statweb.stanford.edu/~tibs/> "Prof Rob Tibshirani"
 [trev]: <https://web.stanford.edu/~hastie/> "Prof Trevor Hastie"
+[rme]: <https://xcelab.net/rm/> "Richard McElreath"
 
 [ggplot2]: <https://ggplot2.org/> "ggplot2"
 [hadley]: <https://hadley.nz/> "Hadley Wickham's Home Page"
@@ -63,3 +65,5 @@ Wish me luck.
 [r]: <https://www.r-project.org/> "The R Project for Statistical Computing"
 [egithub]: <https://github.com/espinielli> "Enrico's Github"
 [etwitter]: <https://twitter.com/espinielli> "Enrico's Twitter"
+[srt]: <https://github.com/rmcelreath/stat_rethinking_2020> "Statistical Rethinking"
+[on]: <https://observablehq.com/@espinielli> "Enrico's Observable notebooks"

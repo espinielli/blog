@@ -10,6 +10,16 @@ of [R][r] for reproducibility, exploratory data analysis and for visualization
 too (using for example [Hadley Wickham][hadley]'s [ggplot2][ggplot2]!)
 
 
+Some of the R packages I have developed/am developing are:
+
+* [`trrrj`][trrrj]: dealing with flight trajectories in R
+* [`nvctr`][nvctr]: n-vector approach to geographical position calculations using an ellipsoidal model of Earth
+* [`pruatlas`][pruatlas]: some maps facilities for aviation
+
+[trrrj]: <https://trrrj.ansperformance.eu> "trrrj R package"
+[nvctr]: <https://nvctr.ansperformance.eu> "nvctr R package"
+[pruatlas]: <https://pruatlas.ansperformance.eu> "pruatlas R package"
+
 [ggplot2]: <https://ggplot2.org/> "ggplot2"
 [hadley]: <https://hadley.nz/> "Hadley Wickham's Home Page"
 
