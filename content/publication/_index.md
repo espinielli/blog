@@ -1,15 +1,14 @@
 ---
-title: A Blog That Works
+title: Publications
 description: |
-  This is a fully featured blog that supports categories, 
-  tags, series, and pagination.
-author: "The R Markdown Team @RStudio"
+  Few things I have published with other friends & collablrators.
+author: "Enrico Spinielli et al."
 show_post_thumbnail: true
 thumbnail_left: true # for list-sidebar only
 show_author_byline: true
 show_post_date: true
 # for listing page layout
-layout: list-sidebar # list, list-sidebar, list-grid
+layout: list # list, list-sidebar, list-grid
 
 # for list-sidebar layout
 sidebar: 
@@ -28,14 +27,14 @@ sidebar:
 
 # set up common front matter for all pages inside blog/
 cascade:
-  author: "The R Markdown Team @RStudio"
+  author: "Enrico Spiniell et al."
   show_author_byline: true
   show_post_date: true
   show_comments: true # see site config to choose Disqus or Utterances
   # for single-sidebar layout
   sidebar:
     text_link_label: View recent posts
-    text_link_url: /blog/
+    text_link_url: /publication/
     show_sidebar_adunit: false # show ad container
 ---
 
