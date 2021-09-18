@@ -8,10 +8,8 @@ tags:
   - environment
   - aviation
   - contrails
-doi: ''
+doi: '10.5194/acp-21-7429-2021'
 publishDate: '2021-08-11T10:00:00-05:00'
-publication_types:
-  - '2'
 publication: 'Atmospheric Chemistry and Physics'
 summary: ''
 subtitle: ''
