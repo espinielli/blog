@@ -1,0 +1,166 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<rss  xmlns:atom="http://www.w3.org/2005/Atom" 
+      xmlns:media="http://search.yahoo.com/mrss/" 
+      xmlns:content="http://purl.org/rss/1.0/modules/content/" 
+      xmlns:dc="http://purl.org/dc/elements/1.1/" 
+      version="2.0">
+<channel>
+<title>Enrico Spinielli</title>
+<link>https://enrico.spinielli.net/projects/index.html</link>
+<atom:link href="https://enrico.spinielli.net/projects/index.xml" rel="self" type="application/rss+xml"/>
+<description></description>
+<image>
+<url>https://enrico.spinielli.net/enrico.png</url>
+<title>Enrico Spinielli</title>
+<link>https://enrico.spinielli.net/projects/index.html</link>
+<height>144</height>
+<width>144</width>
+</image>
+<generator>quarto-1.2.198</generator>
+<lastBuildDate>Sat, 08 Jul 2017 22:00:00 GMT</lastBuildDate>
+<item>
+  <title>Maps and map projections</title>
+  <link>https://enrico.spinielli.net/projects/maps/index.html</link>
+  <description><![CDATA[ 
+
+
+
+<p>The following are some maps I coded and of which I am very proud of.</p>
+<p>Maps in <a href="//d3js.org" title="D3.js">D3.js</a> via my <a href="https://bl.ocks.org/espinielli" title="Enrico Spinielli's blocks">bl.ocks</a>:</p>
+<ul>
+<li><a href="https://bl.ocks.org/espinielli/9ea56e041f6847dbe944" title="Boetti's map in D3.js">Boetti</a> <img src="https://enrico.spinielli.net/projects/maps/boetti-d3.png" class="img-fluid" alt="Boetti"></li>
+<li><a href="https://bl.ocks.org/espinielli/78185d7b29948d105634beb7bcc0d34b" title="Flags of the USA">Flags of the USA</a> <img src="https://enrico.spinielli.net/projects/maps/usa-flags-d3.png" class="img-fluid" alt="Flags of the USA"></li>
+<li>Earth in a Cube <a href="https://bl.ocks.org/espinielli/1018c88657010f8ee93ea4224652e3cf" title="Earth in a cube, 1">I</a>, <a href="https://bl.ocks.org/espinielli/0c130de06ee3c01c0a63ba9ce06bc7bd" title="Earth in a cube, 2">II</a> and <a href="https://bl.ocks.org/espinielli/cf662b91b58da57aecc8125649d84604" title="Earth in a cube, 3">III</a> <img src="https://enrico.spinielli.net/projects/maps/earth-in-a-cube-3.png" class="img-fluid" alt="Earth in a cube"></li>
+<li><a href="https://bl.ocks.org/espinielli/5689783" title="Cahill-Keyes map projection in D3.js">Cahill-Keyes map projection</a> <img src="https://enrico.spinielli.net/projects/maps/ck-d3.png" class="img-fluid" alt="Cahill-Keys"></li>
+</ul>
+
+
+
+ ]]></description>
+  <category>GIS</category>
+  <category>Maps</category>
+  <category>D3</category>
+  <guid>https://enrico.spinielli.net/projects/maps/index.html</guid>
+  <pubDate>Sat, 08 Jul 2017 22:00:00 GMT</pubDate>
+  <media:content url="https://enrico.spinielli.net/projects/maps/boetti-d3.png" medium="image" type="image/png" height="74" width="144"/>
+</item>
+<item>
+  <title>Learning: neither Deep nor Machine, just Human</title>
+  <link>https://enrico.spinielli.net/projects/learning/index.html</link>
+  <description><![CDATA[ 
+
+
+
+<p>On one side I am intrigued by Data Analysis and Visualization (see some of my <a href="https://bl.ocks.org/espinielli" title="Enrico Spinielli's blocks">D3 [et al.] blocks</a>, <a href="https://observablehq.com/@espinielli" title="Enrico's Observable notebooks">Observable notebooks</a> or my <a href="../../project/r-and-co/">R project</a>) and on the other side by Machine Learning.</p>
+<p>For ML I am very slowly going thru some <a href="https://en.wikipedia.org/wiki/Massive_open_online_course" title="wikipedia: MOOC">MOOC</a>:</p>
+<ul>
+<li><a href="https://xcelab.net/rm/" title="Richard McElreath">Richard McElreath</a>’s <a href="https://github.com/rmcelreath/stat_rethinking_2020" title="Statistical Rethinking">Statistical Rethinking</a></li>
+<li><a href="https://www.andrewng.org/" title="Andrew Ng's Home Page">Andrew Ng</a>’s <a href="https://www.coursera.org/learn/machine-learning" title="Coursera: Machine Learning">Machine Learning</a>.</li>
+<li><a href="https://statlearning.class.stanford.edu/" title="Statistical Learning MOOC">Statistical Learning</a> by Stanford University Profs. <a href="https://web.stanford.edu/~hastie/" title="Prof Trevor Hastie">Trevor Hastie</a> and <a href="https://statweb.stanford.edu/~tibs/" title="Prof Rob Tibshirani">Rob Tibshirani</a>.</li>
+<li><a href="https://ai.stanford.edu/~koller/" title="Daphne Koller's Home Page">Daphne Koller</a>’s <a href="https://www.coursera.org/specializations/probabilistic-graphical-models" title="Probabilistic Graphical Models">Probabilistic Graphical Models</a>.</li>
+</ul>
+<p>Wish me luck.</p>
+
+
+
+ ]]></description>
+  <category>Machine Learning</category>
+  <guid>https://enrico.spinielli.net/projects/learning/index.html</guid>
+  <pubDate>Sat, 08 Jul 2017 22:00:00 GMT</pubDate>
+</item>
+<item>
+  <title>PyCalCal</title>
+  <link>https://enrico.spinielli.net/projects/pycalcal/index.html</link>
+  <description><![CDATA[ 
+
+
+
+<div class="quarto-figure quarto-figure-center">
+<figure class="figure">
+<p><img src="https://enrico.spinielli.net/projects/pycalcal/featured.png" class="img-fluid figure-img"></p>
+<p></p><figcaption class="figure-caption">Exploded computer reconstruction of the Antikythera Mechanism</figcaption><p></p>
+</figure>
+</div>
+<p><code>PyCalCal</code> is a Python implementation of the algorithms from the reference Common Lisp of the book Calendrical Calculation <span class="citation" data-cites="calcal2008">(Dershowitz and Reingold 2008)</span>. You can read more at <a href="https://github.com/espinielli/pycalcal/" class="uri">https://github.com/espinielli/pycalcal/</a></p>
+<p>The picture above is an exploded computer reconstruction of the Antikythera Mechanism from Figure 3 in <a href="https://journals.plos.org/plosone/article?id=10.1371/journal.pone.0103275">‘Eclipse Prediction on the Ancient Greek Astronomical Calculating Machine Known as the Antikythera Mechanis’</a> by Tony Freeth”.</p>
+
+
+
+
+<div id="quarto-appendix" class="default"><section class="quarto-appendix-contents"><h2 class="anchored quarto-appendix-heading">References</h2><div id="refs" class="references csl-bib-body hanging-indent">
+<div id="ref-calcal2008" class="csl-entry">
+Dershowitz, Nachum, and Edward M. Reingold. 2008. <em>Calendrical Calculations</em>. <span>Cambridge University Press</span>.
+</div>
+</div></section></div> ]]></description>
+  <category>Calendrica</category>
+  <category>Python</category>
+  <guid>https://enrico.spinielli.net/projects/pycalcal/index.html</guid>
+  <pubDate>Sat, 08 Jul 2017 22:00:00 GMT</pubDate>
+  <media:content url="https://enrico.spinielli.net/projects/pycalcal/featured.png" medium="image" type="image/png" height="91" width="144"/>
+</item>
+<item>
+  <title>Data science and R</title>
+  <link>https://enrico.spinielli.net/projects/r-and-co/index.html</link>
+  <description><![CDATA[ 
+
+
+
+<div class="quarto-figure quarto-figure-center">
+<figure class="figure">
+<p><img src="https://enrico.spinielli.net/projects/r-and-co/featured.png" class="img-fluid figure-img" style="width:20.0%"></p>
+<p></p><figcaption class="figure-caption">R</figcaption><p></p>
+</figure>
+</div>
+<p>Data Analysis is big part of my daily job and I am promoting the use of <a href="https://www.r-project.org/" title="The R Project for Statistical Computing">R</a> for reproducibility, exploratory data analysis and for visualization too (using for example <a href="https://hadley.nz/">Hadley Wickham</a>’s <a href="https://ggplot2-book.org/">ggplot2</a> <span class="citation" data-cites="wickhamGgplot2ElegantGraphics2016">(Wickham 2016)</span>!)</p>
+<p>Some of the R packages I have developed/am developing are:</p>
+<ul>
+<li><a href="https://trrrj.ansperformance.eu" title="trrrj R package"><code>trrrj</code></a>: dealing with flight trajectories in R</li>
+<li><a href="https://nvctr.ansperformance.eu" title="nvctr R package"><code>nvctr</code></a>: n-vector approach to geographical position calculations using an ellipsoidal model of Earth</li>
+<li><a href="https://pruatlas.ansperformance.eu" title="pruatlas R package"><code>pruatlas</code></a>: some maps facilities for aviation</li>
+</ul>
+
+
+
+
+<div id="quarto-appendix" class="default"><section class="quarto-appendix-contents"><h2 class="anchored quarto-appendix-heading">References</h2><div id="refs" class="references csl-bib-body hanging-indent">
+<div id="ref-wickhamGgplot2ElegantGraphics2016" class="csl-entry">
+Wickham, Hadley. 2016. <em>Ggplot2: <span>Elegant Graphics</span> for <span>Data Analysis</span></em>. <span>Springer-Verlag New York</span>.
+</div>
+</div></section></div> ]]></description>
+  <guid>https://enrico.spinielli.net/projects/r-and-co/index.html</guid>
+  <pubDate>Sat, 08 Jul 2017 22:00:00 GMT</pubDate>
+  <media:content url="https://enrico.spinielli.net/projects/r-and-co/featured.png" medium="image" type="image/png" height="112" width="144"/>
+</item>
+<item>
+  <title>nvctr</title>
+  <link>https://enrico.spinielli.net/projects/nvctr/index.html</link>
+  <description><![CDATA[ 
+
+
+
+<div class="quarto-figure quarto-figure-center">
+<figure class="figure">
+<p><img src="https://enrico.spinielli.net/projects/nvctr/featured.png" class="img-fluid figure-img" style="width:20.0%"></p>
+<p></p><figcaption class="figure-caption">nvctr</figcaption><p></p>
+</figure>
+</div>
+<p>The <a href="https://nvctr.ansperformance.eu/"><code>nvctr</code></a> R package implements the n-vector approach to geographical position calculations using an ellipsoidal model of Earth as described in <span class="citation" data-cites="gadeNonsingularHorizontalPosition2010">(Gade 2010)</span> (see also the <code>n-vector</code> project page <span class="citation" data-cites="navigationgroupatffiNvectorPage2010">(Navigation group at FFI 2010)</span>.)</p>
+
+
+
+
+<div id="quarto-appendix" class="default"><section class="quarto-appendix-contents"><h2 class="anchored quarto-appendix-heading">References</h2><div id="refs" class="references csl-bib-body hanging-indent">
+<div id="ref-gadeNonsingularHorizontalPosition2010" class="csl-entry">
+Gade, Kenneth. 2010. <span>“A <span class="nocase">Non-singular Horizontal Position Representation</span>.”</span> <em>Journal of Navigation</em> 63 (03): 395–417. <a href="https://doi.org/10.1017/S0373463309990415">https://doi.org/10.1017/S0373463309990415</a>.
+</div>
+<div id="ref-navigationgroupatffiNvectorPage2010" class="csl-entry">
+Navigation group at FFI. 2010. <span>“The n-Vector Page.”</span> https://www.navlab.net/nvector/.
+</div>
+</div></section></div> ]]></description>
+  <category>R</category>
+  <guid>https://enrico.spinielli.net/projects/nvctr/index.html</guid>
+  <pubDate>Wed, 27 Apr 2016 00:00:00 GMT</pubDate>
+  <media:content url="https://enrico.spinielli.net/projects/nvctr/featured.png" medium="image" type="image/png" height="169" width="144"/>
+</item>
+</channel>
+</rss>

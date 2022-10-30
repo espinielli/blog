@@ -1,0 +1,245 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<rss  xmlns:atom="http://www.w3.org/2005/Atom" 
+      xmlns:media="http://search.yahoo.com/mrss/" 
+      xmlns:content="http://purl.org/rss/1.0/modules/content/" 
+      xmlns:dc="http://purl.org/dc/elements/1.1/" 
+      version="2.0">
+<channel>
+<title>Enrico Spinielli</title>
+<link>https://enrico.spinielli.net/publications/index.html</link>
+<atom:link href="https://enrico.spinielli.net/publications/index.xml" rel="self" type="application/rss+xml"/>
+<description></description>
+<image>
+<url>https://enrico.spinielli.net/enrico.png</url>
+<title>Enrico Spinielli</title>
+<link>https://enrico.spinielli.net/publications/index.html</link>
+<height>144</height>
+<width>144</width>
+</image>
+<generator>quarto-1.2.198</generator>
+<lastBuildDate>Wed, 17 Nov 2021 23:00:00 GMT</lastBuildDate>
+<item>
+  <title>Reference Trajectories: The Dataset Enabling Gate-to-Gate Flight Analysis</title>
+  <dc:creator>John Fitzgerald, Enrico Spinielli, Allan Tart, Rainer Koelle</dc:creator>
+  <link>https://enrico.spinielli.net/publications/reference-trajectories-osn/index.html</link>
+  <description><![CDATA[ 
+
+
+
+<div class="quarto-figure quarto-figure-center">
+<figure class="figure">
+<p><img src="https://enrico.spinielli.net/publications/reference-trajectories-osn/featured.png" class="img-fluid figure-img"></p>
+<p></p><figcaption class="figure-caption">The 9th OpenSky Symposium</figcaption><p></p>
+</figure>
+</div>
+<section id="abstract" class="level2">
+<h2 class="anchored" data-anchor-id="abstract">Abstract</h2>
+<p>Without a doubt, a publicly verifiable data is required to ensure a strong, transparent and independent air traffic management performance review system. Community sourced data (such as ADS-B/Mode S provided by OpenSky Network and others alike) has been used to analyse different aspects of air traffic management. The main drawback of such ADS-B data is the lack of crucial pieces of information that need to be inferred. On the other hand, Eurocontrol has used correlated position reports (CPRs) gathered from European Air Navigation Service Providers (ANSP) to conduct some of its actual/flown trajectory oriented performance analysis. The availability and the granularity of the CPRs vary between Eurocontrol Member States, making it difficult to perform accurate wide-scale studies. Using the strengths of both data sources would obviously result in great benefits. This paper describes the first step in creating a pan-European Flight Table (FT) and its supporting reference trajectories (RT). It is expected that the resulting dataset will be made available for the general public and that the work will continue to improve in scope and accuracy.</p>
+</section>
+<section id="venue" class="level2">
+<h2 class="anchored" data-anchor-id="venue">Venue</h2>
+<p>The 9th OpenSky Workshop, 18–19 November 2021. Hosted by EUROCONTROL in Brussels, Belgium.</p>
+
+
+</section>
+
+ ]]></description>
+  <guid>https://enrico.spinielli.net/publications/reference-trajectories-osn/index.html</guid>
+  <pubDate>Wed, 17 Nov 2021 23:00:00 GMT</pubDate>
+  <media:content url="https://enrico.spinielli.net/publications/reference-trajectories-osn/featured.png" medium="image" type="image/png" height="103" width="144"/>
+</item>
+<item>
+  <title>Building Back Better – Democratization of Performance Monitoring with Open Data</title>
+  <dc:creator>Rainer Koelle, Sam Peeters, Enrico Spinielli</dc:creator>
+  <link>https://enrico.spinielli.net/publications/democratizing-performance-monitoring/index.html</link>
+  <description><![CDATA[ 
+
+
+
+<div class="quarto-figure quarto-figure-center">
+<figure class="figure">
+<p><img src="https://enrico.spinielli.net/publications/democratizing-performance-monitoring/featured.png" class="img-fluid figure-img"></p>
+<p></p><figcaption class="figure-caption">DASC 2021</figcaption><p></p>
+</figure>
+</div>
+<section id="abstract" class="level2">
+<h2 class="anchored" data-anchor-id="abstract">Abstract</h2>
+<p>The COVID-19 pandemic accelerated the use, sharing, and distribution of data on a global basis. Higher levels of transparency were achieved with continual updates of pandemic related information. The air transportation sector – while by definition an information rich industry – is a notable exception. While different organizations offered aggregated data on air traffic developments on national or airport level, complementary data on air traffic movements for further analysis are not available publicly. This creates a deadlock between addressing the societal needs of monitoring how aviation recovers from the COVID-19 pandemic and addresses the aspirational environmental goals. This paper investigates the feasibility of utilizing open data for the operational performance monitoring at airports. The exploratory work focusses on a subset of the indicators proposed under ICAO’s Global Air Navigation Plan used to assess the operational performance in the arrival phase. A novel approach to characterize and assess the arrival flow management and level of traffic synchronization is presented. This will allow to evaluate on-going air traffic recovery and identify operational bottlenecks. The study is performed as a use-case analysis for three major European airports by comparing the observed performance in the months of March and May for the successive years 2019, 2020, and 2021. The results demonstrate the general feasibility and utility of open data for operational performance monitoring. The classical performance measure for the arrival flow are determined based on the open trajectory data. A geospatial-temporal evaluation support the tracking of traffic synchronisation effort. A higher level of transparency therefore available to the interested public, policy decision-makers and strategic planners with direct feedback on the recovery and actual operational performance. The suitability of the traffic synchronization measure and its parameterization requires further validation across a wider set of airports and will be iteratively refined.</p>
+</section>
+<section id="venue" class="level2">
+<h2 class="anchored" data-anchor-id="venue">Venue</h2>
+<p>2021 IEEE/AIAA 40th Digital Avionics Systems Conference (DASC), San Antonio, Texas, USA.</p>
+
+
+</section>
+
+ ]]></description>
+  <guid>https://enrico.spinielli.net/publications/democratizing-performance-monitoring/index.html</guid>
+  <pubDate>Wed, 06 Oct 2021 22:00:00 GMT</pubDate>
+  <media:content url="https://enrico.spinielli.net/publications/democratizing-performance-monitoring/featured.png" medium="image" type="image/png" height="51" width="144"/>
+</item>
+<item>
+  <title>Air Traffic and Contrail Changes Over Europe During Covid 19 a Model Study</title>
+  <dc:creator>Ulrich Schumann, Ian Poll, Roger Teoh, Rainer Koelle, Enrico Spinielli, Jarlath Molloy, George S. Koudis, Robert Baumann, Luca Bugliaro, Marc Stettler, Christiane Voigt</dc:creator>
+  <link>https://enrico.spinielli.net/publications/air-traffic-and-contrail-covid19/index.html</link>
+  <description><![CDATA[ 
+
+
+
+<div class="quarto-figure quarto-figure-center">
+<figure class="figure">
+<p><img src="https://enrico.spinielli.net/publications/air-traffic-and-contrail-covid19/featured.png" class="img-fluid figure-img"></p>
+<p></p><figcaption class="figure-caption">contails and COVID19</figcaption><p></p>
+</figure>
+</div>
+<section id="abstract" class="level2">
+<h2 class="anchored" data-anchor-id="abstract">Abstract</h2>
+<p>The strong reduction of air traffic during the COVID-19 pandemic provides a unique test case for the relationship between air traffic density, contrails, and their radiative forcing of climate change. Here, air traffic and contrail cirrus changes are quantified for a European domain for March to August 2020 and compared to the same period in 2019. Traffic data show a 72 % reduction in flight distance compared with 2019. This paper investigates the induced contrail changes in a model study. The contrail model results depend on various methodological details as discussed in parameter studies. In the reference case, the reduced traffic caused a reduction in contrail length. The reduction is slightly stronger than expected from the traffic change because the weather conditions in 2020 were less favorable for contrail formation than in 2019. Contrail coverage over Europe with an optical depth larger than 0.1 decreased from 4.6 % in 2019 to 1.4 % in 2020; the total cirrus cover amount changed by 28 % to 25 %. The reduced contrail coverage caused 70 % less longwave and 73 % less shortwave radiative forcing but, because of various nonlinearities, only 54 % less net forcing in this case. The methods include recently developed models for performance parameters and soot emissions. The overall propulsion efficiency of the aircraft is about 20 % smaller than estimated in earlier studies, resulting in 3 % fewer contrails. Considerable sensitivity to soot emissions is found, highlighting fuel and engine importance. The contrail model includes a new approximate method to account for water vapor exchange between contrails and background air and for radiative forcing changes due to contrail–contrail overlap. The water vapor exchange reduces available ice supersaturation in the atmosphere, which is critical for contrail formation. Contrail–contrail overlap changes the computed radiative forcing considerably. Comparisons to satellite observations are described and discussed in a parallel publication.</p>
+
+
+
+</section>
+
+<div id="quarto-appendix" class="default"><section class="quarto-appendix-contents"><h2 class="anchored quarto-appendix-heading">References</h2><div id="refs" class="references csl-bib-body hanging-indent">
+<div id="ref-schumannAirTrafficContrail2021" class="csl-entry">
+Schumann, Ulrich, Ian Poll, Roger Teoh, Rainer Koelle, Enrico Spinielli, Jarlath Molloy, George S. Koudis, et al. 2021. <span>“Air Traffic and Contrail Changes over <span>Europe</span> During <span>COVID-19</span>: A Model Study.”</span> <em>Atmospheric Chemistry and Physics</em> 21 (10): 7429–50. <a href="https://doi.org/10.5194/acp-21-7429-2021">https://doi.org/10.5194/acp-21-7429-2021</a>.
+</div>
+</div></section></div> ]]></description>
+  <category>Research</category>
+  <guid>https://enrico.spinielli.net/publications/air-traffic-and-contrail-covid19/index.html</guid>
+  <pubDate>Mon, 17 May 2021 22:00:00 GMT</pubDate>
+  <media:content url="https://enrico.spinielli.net/publications/air-traffic-and-contrail-covid19/featured.png" medium="image" type="image/png" height="189" width="144"/>
+</item>
+<item>
+  <title>Investigating ADS-B MOPS Compliance using Open Data</title>
+  <dc:creator>Enrico Spinielli</dc:creator>
+  <link>https://enrico.spinielli.net/publications/investigating-ads-b-mops-compliance-using-open-data/index.html</link>
+  <description><![CDATA[ 
+
+
+
+<div class="quarto-figure quarto-figure-center">
+<figure class="figure">
+<p><img src="https://enrico.spinielli.net/publications/investigating-ads-b-mops-compliance-using-open-data/featured.png" class="img-fluid figure-img"></p>
+<p></p><figcaption class="figure-caption">Flight milestones</figcaption><p></p>
+</figure>
+</div>
+<section id="abstract" class="level2">
+<h2 class="anchored" data-anchor-id="abstract">Abstract</h2>
+<p>The introduction of Automatic Dependent Surveillance-Broadcast (ADS-B) in Aviation as mandated in the US and in Europe rests on the (at least theoretical) benefits of the switch of paradigm in ATC surveillance from (continuously) active interrogation of aircraft positions by primary radars to (almost always) automatic broadcast of data by the aircraft. The cost/benefit analysis in favour of this shift weights on the 1) higher frequency and precision of the aircraft information (position, speed, . . . ) made available to ATC/neighbouring aircraft leading to increased safety and increased airspace capacity and 2) on the (at least one) order of magnitude reduction in ground infrastructure costs [5]. Infrastructure needs nontheless to be deployed both on the ground and in the air; and in the end it is the passenger who pays via taxes on tickets or airports services: so what is the status of deployment? This paper investigates, using only open and free data, the status of compliance of aircraft in the European airspace, i.e.&nbsp;how many aircraft flying in Europe comply to the EASA ADS-B mandate.</p>
+</section>
+<section id="venue" class="level2">
+<h2 class="anchored" data-anchor-id="venue">Venue</h2>
+<p><a href="https://workshop.opensky-network.org/2019/"><strong>The 7th OpenSky Workshop</strong></a>, 21/22 November 2019. Hosted by Swisscom’s WorkGym, Zurich, Switzerland.</p>
+</section>
+<section id="see-also" class="level2">
+<h2 class="anchored" data-anchor-id="see-also">See Also</h2>
+<ul>
+<li><a href="https://doi.org/10.29007/q4kb">PDF <i class="fa-solid fa-file-pdf" aria-label="file-pdf"></i></a></li>
+</ul>
+
+
+</section>
+
+ ]]></description>
+  <category>Research</category>
+  <category>ADS-B</category>
+  <guid>https://enrico.spinielli.net/publications/investigating-ads-b-mops-compliance-using-open-data/index.html</guid>
+  <pubDate>Sun, 22 Dec 2019 23:00:00 GMT</pubDate>
+  <media:content url="https://enrico.spinielli.net/publications/investigating-ads-b-mops-compliance-using-open-data/featured.png" medium="image" type="image/png" height="100" width="144"/>
+</item>
+<item>
+  <title>Towards Reproducibility in ANS Performance</title>
+  <dc:creator>Enrico Spinielli, Rainer Koelle</dc:creator>
+  <link>https://enrico.spinielli.net/publications/towards-reproducibility-in-ans-performance/index.html</link>
+  <description><![CDATA[ 
+
+
+
+<p><img src="https://enrico.spinielli.net/publications/towards-reproducibility-in-ans-performance/featured.png" class="img-fluid" alt="SESAR Innovation Days 2019"> ## Abstract</p>
+<p>Air transportation is undergoing a fundamental transformation. On the political, strategic, and operational level work is directed to meet the future growth of air traffic. To meet this goal, operational concepts and technological enablers are deployed with the promises of distinct performance improvements. These improvements are typically widely marketed, however, the underlying evidence is not made available. From that respect Air Navigation System Performance faces varying levels of transparency as seen in other industries. This paper implements the reproducibility paradigm by providing data, code, and results openly to enable another researcher or analyst to reproduce - and potentially - improve or build on our work. This work is part of a wider thread to establish Open Data and Open Source based data analytical capabilities for Air Navigation System Performance in Europe. The implementation of the paradigm is demonstrated on the basis of the performance reference trajectory by replicating a classical performance measure, and then moving into investigating the application of trajectory based information for enhancing the current state of performance monitoring for the arrival phase. This paper applies the concept and approach as a use case analysis for 2 European airports with different strategies for sequencing arrival traffic (i.e.&nbsp;stack holding and point merge). The research reported demonstrates the feasibility of the reproducibility approach. This work introduces a novel workflow by making available a companion web repository that provides data, code, and instructions to fully reproduce the paper.</p>
+<section id="venue" class="level2">
+<h2 class="anchored" data-anchor-id="venue">Venue</h2>
+<p><a href="https://www.sesarju.eu/node/3344"><strong>9th SESAR Innovation Days</strong></a>, 2-5 December 2019. Hosted by the National Centre of Scientific Research (NCSR) “Demokritos”, Athens, Greece.</p>
+</section>
+<section id="see-also" class="level2">
+<h2 class="anchored" data-anchor-id="see-also">See Also</h2>
+<ul>
+<li><a href="https://www.sesarju.eu/sites/default/files/documents/sid/2019/papers/SIDs_2019_paper_70.pdf">PDF <i class="fa-solid fa-file-pdf" aria-label="file-pdf"></i></a></li>
+<li>Companion repository, <a href="https://github.com/euctrl-pru/reftrj" class="uri">https://github.com/euctrl-pru/reftrj</a></li>
+</ul>
+
+
+</section>
+
+ ]]></description>
+  <category>Research</category>
+  <category>Reproducubility</category>
+  <guid>https://enrico.spinielli.net/publications/towards-reproducibility-in-ans-performance/index.html</guid>
+  <pubDate>Sun, 01 Dec 2019 23:00:00 GMT</pubDate>
+  <media:content url="https://enrico.spinielli.net/publications/towards-reproducibility-in-ans-performance/featured.png" medium="image" type="image/png" height="36" width="144"/>
+</item>
+<item>
+  <title>Open Flight Trajectories for Reproducible ANS Performance Review</title>
+  <dc:creator>Enrico Spinielli, Rainer Koelle, Ken Barker, Nicholas Korbey</dc:creator>
+  <link>https://enrico.spinielli.net/publications/open-flight-trajectories/index.html</link>
+  <description><![CDATA[ 
+
+
+
+<div class="quarto-figure quarto-figure-center">
+<figure class="figure">
+<p><img src="https://enrico.spinielli.net/publications/open-flight-trajectories/featured.png" class="img-fluid figure-img"></p>
+<p></p><figcaption class="figure-caption">SESAR Innovation Days 2018</figcaption><p></p>
+</figure>
+</div>
+<section id="abstract" class="level2">
+<h2 class="anchored" data-anchor-id="abstract">Abstract</h2>
+<p>Air transportation is undergoing a fundamental transformation. On the political, strategic, and operational level work is directed to meet the future growth of air traffic. To meet this goal, operational concepts and technological enablers are deployed with the promises of distinct performance improvements. These improvements are typically widely marketed, however, the underlying evidence is not made available. From that respect Air Navigation System Performance faces varying levels of transparency as seen in other industries. This paper implements the reproducibility paradigm by providing data, code, and results openly to enable another researcher or analyst to reproduce - and potentially - improve or build on our work. This work is part of a wider thread to establish Open Data and Open Source based data analytical capabilities for Air Navigation System Performance in Europe. The implementation of the paradigm is demonstrated on the basis of the performance reference trajectory by replicating a classical performance measure, and then moving into investigating the application of trajectory based information for enhancing the current state of performance monitoring for the arrival phase. This paper applies the concept and approach as a use case analysis for 2 European airports with different strategies for sequencing arrival traffic (i.e.&nbsp;stack holding and point merge). The research reported demonstrates the feasibility of the reproducibility approach. This work introduces a novel workflow by making available a companion web repository that provides data, code, and instructions to fully reproduce the paper.</p>
+</section>
+<section id="venue" class="level2">
+<h2 class="anchored" data-anchor-id="venue">Venue</h2>
+<p><a href="https://www.sesarju.eu/node/3004"><strong>8th SESAR Innovation Days</strong></a>, 3-7 December 2018. Hosted by University of Salzburg, Salzburg , Austria.</p>
+</section>
+<section id="see-also" class="level2">
+<h2 class="anchored" data-anchor-id="see-also">See Also</h2>
+<ul>
+<li><a href="https://www.sesarju.eu/sites/default/files/documents/sid/2018/papers/SIDs_2018_paper_4.pdf">PDF <i class="fa-solid fa-file-pdf" aria-label="file-pdf"></i></a></li>
+<li>Companion repository, <a href="https://github.com/euctrl-pru/reproducible-ans-performance-paper" class="uri">https://github.com/euctrl-pru/reproducible-ans-performance-paper</a></li>
+</ul>
+
+
+</section>
+
+ ]]></description>
+  <category>Research</category>
+  <category>ADS-B</category>
+  <guid>https://enrico.spinielli.net/publications/open-flight-trajectories/index.html</guid>
+  <pubDate>Thu, 06 Dec 2018 23:00:00 GMT</pubDate>
+  <media:content url="https://enrico.spinielli.net/publications/open-flight-trajectories/featured.png" medium="image" type="image/png" height="36" width="144"/>
+</item>
+<item>
+  <title>Correlation techniques for digital time-of-flight measurement by airborne ultrasonic rangefinders</title>
+  <dc:creator>Angelo M. Sabatini, Enrico Spinielli</dc:creator>
+  <link>https://enrico.spinielli.net/publications/correlation-tecniques-for-airborne-ultrasonic-rangefinders/index.html</link>
+  <description><![CDATA[ 
+
+
+
+<section id="abstract" class="level2">
+<h2 class="anchored" data-anchor-id="abstract">Abstract</h2>
+<p>Ultrasonic pulse-echo ranging systems based on threshold detection methods are popular devices in the robotic field, as a means for determining the proximity of objects in a cost-effective manner. Despite their widespread use, serious concerns are often raised regarding the accuracy of the sensed data, particularly when the return signals are received at low signal-to-noise ratios. In principle, correlation-based detection methods provide better performance for their outstanding capability of detecting and recovering weak signals buried in noise, so as to permit ranging at longer distances, or, the distance being the same, at higher frequencies, with resulting improvements in spatial resolution in spite of the increased attenuation. In this paper the authors describe a simple pulse-echo ranging system whose receiver signal processing is completely digital: the use of appropriate sampling techniques and signal processing algorithms allows one to benefit from the advantages of correlation-based detection methods for accurate ranging of multiple objects, without compromising the most prominent features of pulse-echo sonar systems, namely their relatively low cost and simplicity of operation. The experimental results presented concern the use of relatively high-frequency ultrasonic transducers.</p>
+</section>
+<section id="venue" class="level2">
+<h2 class="anchored" data-anchor-id="venue">Venue</h2>
+<p>International Conference on Intelligent Robots and Systems (IROS’94), 12-16 September 1994, Munich, Germany.</p>
+
+
+</section>
+
+ ]]></description>
+  <guid>https://enrico.spinielli.net/publications/correlation-tecniques-for-airborne-ultrasonic-rangefinders/index.html</guid>
+  <pubDate>Thu, 15 Sep 1994 22:00:00 GMT</pubDate>
+</item>
+</channel>
+</rss>

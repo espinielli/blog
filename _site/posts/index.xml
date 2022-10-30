@@ -1,0 +1,1522 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<rss  xmlns:atom="http://www.w3.org/2005/Atom" 
+      xmlns:media="http://search.yahoo.com/mrss/" 
+      xmlns:content="http://purl.org/rss/1.0/modules/content/" 
+      xmlns:dc="http://purl.org/dc/elements/1.1/" 
+      version="2.0">
+<channel>
+<title>Enrico Spinielli</title>
+<link>https://enrico.spinielli.net/posts/index.html</link>
+<atom:link href="https://enrico.spinielli.net/posts/index.xml" rel="self" type="application/rss+xml"/>
+<description></description>
+<image>
+<url>https://enrico.spinielli.net/enrico.png</url>
+<title>Enrico Spinielli</title>
+<link>https://enrico.spinielli.net/posts/index.html</link>
+<height>144</height>
+<width>144</width>
+</image>
+<generator>quarto-1.2.198</generator>
+<lastBuildDate>Sat, 18 Apr 2020 22:00:00 GMT</lastBuildDate>
+<item>
+  <title>Expandig Kobo Clara HD’s microSD Card</title>
+  <dc:creator>Enrico Spinielli</dc:creator>
+  <link>https://enrico.spinielli.net/posts/2020-04-19-expandig-kobo-s-clara-hd-microsd-card/index.html</link>
+  <description><![CDATA[ 
+
+
+
+<p>The COVID-19 lockdown in Belgium was officially enforced on noon 18th Mar 2020 but at home we were already quarantined (kids since Carnival holidays, 24th Feb; me from EOB 13th Mar). So on my first official telework day, 16th Mar, I finally decided to buy an ebook reader, and selected Kobo Clara HD.</p>
+<p>I like it but still I was curious and looked around for how to hack it. I found that it is possible to change the original SD card (8 GB) with a bigger one and decided to give it a go. This <a href="https://yingtongli.me/blog/2018/07/29/kobo-sd.html">blog post</a> from <a href="https://yingtongli.me/">Lee Yingtong Li</a> got me started.</p>
+<p>I opened it, took the SD card out and copied on a bigger one of 128 GB.</p>
+<div class="cell">
+<div class="cell-output-display">
+<p><img src="https://enrico.spinielli.net/posts/2020-04-19-expandig-kobo-s-clara-hd-microsd-card/kobo.png" class="img-fluid" width="212"></p>
+</div>
+</div>
+<p>It all went well apart from the last 2 lines of text:</p>
+<blockquote class="blockquote">
+<p>Then use a tool like gparted to resize the data partition (the large third partition) on the new microSD card to fill the remaining space.</p>
+</blockquote>
+<p>I tried all kind of things to have <a href="https://gparted.org/"><code>gparted</code></a> running from a Mac (docker image, Virtual Box) but what finally worked for me was to have it on a bootable CD ROM (yes I still have an old machine with CD reader/writer): I burned the ISO image, booted from it and resized the SD card to all available space.</p>
+
+
+
+<div id="quarto-appendix" class="default"><section class="quarto-appendix-contents"><h2 class="anchored quarto-appendix-heading">Reuse</h2><div quarto-reuse="quarto-reuse" class="quarto-appendix-contents"><a rel="license" href="https://creativecommons.org/licenses/by-sa/4.0/">https://creativecommons.org/licenses/by-sa/4.0/</a></div></section></div> ]]></description>
+  <guid>https://enrico.spinielli.net/posts/2020-04-19-expandig-kobo-s-clara-hd-microsd-card/index.html</guid>
+  <pubDate>Sat, 18 Apr 2020 22:00:00 GMT</pubDate>
+</item>
+<item>
+  <title>Writing a Twitter Bot in R</title>
+  <dc:creator>Enrico Spinielli</dc:creator>
+  <link>https://enrico.spinielli.net/posts/2018-06-30-writing-a-twitter-bot-in-r/index.html</link>
+  <description><![CDATA[ 
+
+
+
+<p>Since a while I am contemplating the possibility of automatically publishing on social media some stats and data visualisations from work.</p>
+<p>When I discovered the nice bot <a href="https://twitter.com/everytract">@everytract</a> by <a href="https://twitter.com/fitnr">@fitnr</a> (and a little later the <a href="https://twitter.com/GVAcartografic">@GVAcartografic</a>’s <a href="https://twitter.com/hashtag/Secci%C3%B3censal?src=hash">#Secciócensal</a> tweets) I decided to try and do a Twitter bot myself in order to see what is possible and how difficult it is.</p>
+<p>I thought that combining maps and some Italian data would be a good recipe for having fun and so I did set out to use some GIS data from the <a href="https://www.istat.it/en/">Italian National Institute of Statistics (ISTAT)</a>(<a href="https://twitter.com/istat_en">@istat_en</a>) in order to publish a map for every Italian <a href="https://en.wikipedia.org/wiki/Comune">comune</a> (the basic administrative division in Italy).</p>
+<section id="the-data" class="level2">
+<h2 class="anchored" data-anchor-id="the-data">The Data</h2>
+<p>The relevant GIS data in the form of Shapefiles can be found on ISTAT’s web site, https://www.istat.it/it/archivio/124086. I took the most <a href="gis2016wsg84">detailed polygons as for 2016 with WSG84 datum</a>.</p>
+<p>I combined the info from ISTAT in an <code>sf</code> dataframe which looks like the following:</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb1" style="background: #f1f3f5;"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb1-1"><span class="sc" style="color: #5E5E5E;">&gt;</span> coms <span class="sc" style="color: #5E5E5E;">%&gt;%</span> <span class="fu" style="color: #4758AB;">as_tibble</span>()</span>
+<span id="cb1-2"><span class="co" style="color: #5E5E5E;"># A tibble: 7,998 x 6</span></span>
+<span id="cb1-3">   PRO_COM COMUNE          bb         REGIONE  DEN_CMPRO geometry                               </span>
+<span id="cb1-4">     <span class="sc" style="color: #5E5E5E;">&lt;</span>dbl<span class="sc" style="color: #5E5E5E;">&gt;</span> <span class="er" style="color: #AD0000;">&lt;</span>fct<span class="sc" style="color: #5E5E5E;">&gt;</span>           <span class="er" style="color: #AD0000;">&lt;</span>list<span class="sc" style="color: #5E5E5E;">&gt;</span>     <span class="er" style="color: #AD0000;">&lt;</span>fct<span class="sc" style="color: #5E5E5E;">&gt;</span>    <span class="er" style="color: #AD0000;">&lt;</span>fct<span class="sc" style="color: #5E5E5E;">&gt;</span>     <span class="er" style="color: #AD0000;">&lt;</span>S3<span class="sc" style="color: #5E5E5E;">:</span> sfc_MULTIPOLYGON<span class="sc" style="color: #5E5E5E;">&gt;</span>                 </span>
+<span id="cb1-5"> <span class="dv" style="color: #AD0000;">1</span>    <span class="dv" style="color: #AD0000;">1001</span> Agliè           <span class="sc" style="color: #5E5E5E;">&lt;</span>S3<span class="sc" style="color: #5E5E5E;">:</span> bbox<span class="sc" style="color: #5E5E5E;">&gt;</span> Piemonte Torino    <span class="st" style="color: #20794D;">"list(list(c(7.7826615064871, 7.783045…</span></span>
+<span id="cb1-6"><span class="st" style="color: #20794D;"> 2    1002 Airasca         &lt;S3: bbox&gt; Piemonte Torino    "</span><span class="fu" style="color: #4758AB;">list</span>(<span class="fu" style="color: #4758AB;">list</span>(<span class="fu" style="color: #4758AB;">c</span>(<span class="fl" style="color: #AD0000;">7.48794557658868</span>, <span class="fl" style="color: #AD0000;">7.48797</span>…</span>
+<span id="cb1-7"> <span class="dv" style="color: #AD0000;">3</span>    <span class="dv" style="color: #AD0000;">1003</span> Ala di Stura    <span class="sc" style="color: #5E5E5E;">&lt;</span>S3<span class="sc" style="color: #5E5E5E;">:</span> bbox<span class="sc" style="color: #5E5E5E;">&gt;</span> Piemonte Torino    <span class="st" style="color: #20794D;">"list(list(c(7.27324227448866, 7.27359…</span></span>
+<span id="cb1-8"><span class="st" style="color: #20794D;"> 4    1004 Albiano d'Ivrea &lt;S3: bbox&gt; Piemonte Torino    "</span><span class="fu" style="color: #4758AB;">list</span>(<span class="fu" style="color: #4758AB;">list</span>(<span class="fu" style="color: #4758AB;">c</span>(<span class="fl" style="color: #AD0000;">7.92507300912979</span>, <span class="fl" style="color: #AD0000;">7.92533</span>…</span>
+<span id="cb1-9"> <span class="dv" style="color: #AD0000;">5</span>    <span class="dv" style="color: #AD0000;">1005</span> Alice Superiore <span class="sc" style="color: #5E5E5E;">&lt;</span>S3<span class="sc" style="color: #5E5E5E;">:</span> bbox<span class="sc" style="color: #5E5E5E;">&gt;</span> Piemonte Torino    <span class="st" style="color: #20794D;">"list(list(c(7.79782897832822, 7.79843…</span></span>
+<span id="cb1-10"><span class="st" style="color: #20794D;"> 6    1006 Almese          &lt;S3: bbox&gt; Piemonte Torino    "</span><span class="fu" style="color: #4758AB;">list</span>(<span class="fu" style="color: #4758AB;">list</span>(<span class="fu" style="color: #4758AB;">c</span>(<span class="fl" style="color: #AD0000;">7.4348997124695</span>, <span class="fl" style="color: #AD0000;">7.435239</span>…</span></code></pre></div>
+</div>
+<p><code>PRO_COM</code> is the unique numerical code identifying each Italian comune, <code>COMUNE</code> is the name of the comune, <code>DEN_CMPRO</code> is the name of the relevant super-entity the comune belongs to (either Metropolitan City or a Province), <code>REGIONE</code> is the name of the region and <code>geometry</code> is the simple feature describing the boundary of the comune. <code>bb</code> is the axis aligned bounding box of the comune’s polygon and is used to to extract the right portion (at the right zoom) of the satellite map.</p>
+<p>All data preparation is documented in <a href="https://github.com/espinielli/italian-comuni-bot/blob/master/prepare-data.R"><code>prepare-data.R</code></a> file in the <a href="https://github.com/espinielli/italian-comuni-bot/">Italian Comuni Twitter bot</a> repository.</p>
+</section>
+<section id="r-packages-to-the-rescue" class="level2">
+<h2 class="anchored" data-anchor-id="r-packages-to-the-rescue">R packages to the Rescue</h2>
+<p>I found a lot of examples for developing Twitter bots in Python but I wanted to write it in R which we are starting to use more and more at work.</p>
+<p>Of course we all stand on the shoulder of Giants, and there is always somebody who has already done bits and pieces of what you need: <a href="https://rtweet.info/">rtweet</a> does all you need as a client for accessing Twitter API, while the usual suspects <a href="https://ggplot2.tidyverse.org/">ggplot2</a>, <a href="https://r-spatial.github.io/sf/">sf</a> and <a href="https://cran.r-project.org/package=ggmap">ggmap</a> cover the maps aspects.</p>
+<p>The setup for Twitter was smooth and I only executed the steps as described in <code>rtweet</code> package, so no need to repeat them here.</p>
+</section>
+<section id="maps" class="level1">
+<h1>Maps</h1>
+<section id="first-attempt" class="level2">
+<h2 class="anchored" data-anchor-id="first-attempt">First attempt</h2>
+<p>The first map I produced was a simple ggmap/ggplot map:</p>
+<div class="cell">
+<div class="cell-output-display">
+<p><img src="https://enrico.spinielli.net/posts/2018-06-30-writing-a-twitter-bot-in-r/comune_ggmap.jpg" class="img-fluid" width="1050"></p>
+</div>
+</div>
+<p>This is produced by code similar to this:</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb2" style="background: #f1f3f5;"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb2-1"><span class="fu" style="color: #4758AB;">library</span>(tidyverse)</span>
+<span id="cb2-2"><span class="fu" style="color: #4758AB;">library</span>(sf)</span>
+<span id="cb2-3"><span class="fu" style="color: #4758AB;">library</span>(ggmap)</span>
+<span id="cb2-4"><span class="fu" style="color: #4758AB;">library</span>(rgdal)</span>
+<span id="cb2-5"></span>
+<span id="cb2-6"><span class="co" style="color: #5E5E5E;"># get the data as per Italian Comuni Twitter Bot repo</span></span>
+<span id="cb2-7"><span class="co" style="color: #5E5E5E;"># https://github.com/espinielli/italian-comuni-bot/</span></span>
+<span id="cb2-8">coms <span class="ot" style="color: #003B4F;">&lt;-</span> <span class="fu" style="color: #4758AB;">readRDS</span>(<span class="st" style="color: #20794D;">"data/coms.rds"</span>)</span>
+<span id="cb2-9"></span>
+<span id="cb2-10"><span class="co" style="color: #5E5E5E;"># just get the first one</span></span>
+<span id="cb2-11">com <span class="ot" style="color: #003B4F;">&lt;-</span> coms <span class="sc" style="color: #5E5E5E;">%&gt;%</span></span>
+<span id="cb2-12">  dplyr<span class="sc" style="color: #5E5E5E;">::</span><span class="fu" style="color: #4758AB;">filter</span>(<span class="fu" style="color: #4758AB;">row_number</span>() <span class="sc" style="color: #5E5E5E;">==</span> <span class="dv" style="color: #AD0000;">1</span>) <span class="sc" style="color: #5E5E5E;">%&gt;%</span></span>
+<span id="cb2-13">  dplyr<span class="sc" style="color: #5E5E5E;">::</span><span class="fu" style="color: #4758AB;">slice</span>(<span class="dv" style="color: #AD0000;">1</span>)</span>
+<span id="cb2-14"></span>
+<span id="cb2-15">com.sp <span class="ot" style="color: #003B4F;">&lt;-</span> <span class="fu" style="color: #4758AB;">as</span>(com, <span class="st" style="color: #20794D;">"Spatial"</span>)</span>
+<span id="cb2-16"></span>
+<span id="cb2-17"><span class="co" style="color: #5E5E5E;"># extract its bounding box</span></span>
+<span id="cb2-18">bb <span class="ot" style="color: #003B4F;">&lt;-</span> com<span class="sc" style="color: #5E5E5E;">$</span>bb[[<span class="dv" style="color: #AD0000;">1</span>]]</span>
+<span id="cb2-19"></span>
+<span id="cb2-20"><span class="co" style="color: #5E5E5E;"># centroid</span></span>
+<span id="cb2-21">centroid <span class="ot" style="color: #003B4F;">&lt;-</span> com <span class="sc" style="color: #5E5E5E;">%&gt;%</span></span>
+<span id="cb2-22">  <span class="fu" style="color: #4758AB;">st_transform</span>(<span class="dv" style="color: #AD0000;">23032</span>) <span class="sc" style="color: #5E5E5E;">%&gt;%</span></span>
+<span id="cb2-23">  <span class="fu" style="color: #4758AB;">st_centroid</span>() <span class="sc" style="color: #5E5E5E;">%&gt;%</span></span>
+<span id="cb2-24">  <span class="fu" style="color: #4758AB;">st_transform</span>(<span class="dv" style="color: #AD0000;">4326</span>) <span class="sc" style="color: #5E5E5E;">%&gt;%</span></span>
+<span id="cb2-25">  <span class="fu" style="color: #4758AB;">st_coordinates</span>() <span class="sc" style="color: #5E5E5E;">%&gt;%</span></span>
+<span id="cb2-26">  <span class="fu" style="color: #4758AB;">as_data_frame</span>() <span class="sc" style="color: #5E5E5E;">%&gt;%</span></span>
+<span id="cb2-27">  <span class="st" style="color: #20794D;">`</span><span class="at" style="color: #657422;">names&lt;-</span><span class="st" style="color: #20794D;">`</span>(<span class="fu" style="color: #4758AB;">c</span>(<span class="st" style="color: #20794D;">"lon"</span>, <span class="st" style="color: #20794D;">"lat"</span>))</span>
+<span id="cb2-28"></span>
+<span id="cb2-29"><span class="co" style="color: #5E5E5E;"># get Google Map (note: hardcoded zoom level)</span></span>
+<span id="cb2-30">m <span class="ot" style="color: #003B4F;">&lt;-</span> <span class="fu" style="color: #4758AB;">get_map</span>(<span class="at" style="color: #657422;">location =</span> centroid, <span class="at" style="color: #657422;">zoom =</span> <span class="dv" style="color: #AD0000;">12</span>, <span class="at" style="color: #657422;">maptype =</span> <span class="st" style="color: #20794D;">"satellite"</span>)</span>
+<span id="cb2-31"></span>
+<span id="cb2-32">terrain <span class="ot" style="color: #003B4F;">&lt;-</span> <span class="fu" style="color: #4758AB;">ggmap</span>(m)</span>
+<span id="cb2-33">com.sp.df <span class="ot" style="color: #003B4F;">&lt;-</span> com.sp <span class="sc" style="color: #5E5E5E;">%&gt;%</span> fortify</span>
+<span id="cb2-34"></span>
+<span id="cb2-35"><span class="co" style="color: #5E5E5E;">#----------------------------------------------------------------</span></span>
+<span id="cb2-36"><span class="co" style="color: #5E5E5E;"># inspired by</span></span>
+<span id="cb2-37"><span class="co" style="color: #5E5E5E;"># https://ryanpeek.github.io/2017-11-21-mapping-with-sf-part-3/</span></span>
+<span id="cb2-38"><span class="co" style="color: #5E5E5E;">#----------------------------------------------------------------</span></span>
+<span id="cb2-39">pg <span class="ot" style="color: #003B4F;">&lt;-</span> terrain <span class="sc" style="color: #5E5E5E;">+</span></span>
+<span id="cb2-40">  <span class="fu" style="color: #4758AB;">geom_polygon</span>(</span>
+<span id="cb2-41">    <span class="at" style="color: #657422;">data =</span> com.sp.df,</span>
+<span id="cb2-42">    <span class="fu" style="color: #4758AB;">aes</span>(<span class="at" style="color: #657422;">x =</span> long, <span class="at" style="color: #657422;">y =</span> lat),</span>
+<span id="cb2-43">    <span class="at" style="color: #657422;">fill=</span><span class="cn" style="color: #8f5902;">NA</span>,</span>
+<span id="cb2-44">    <span class="at" style="color: #657422;">color=</span><span class="st" style="color: #20794D;">"yellow"</span>,</span>
+<span id="cb2-45">    <span class="at" style="color: #657422;">lwd =</span> <span class="fl" style="color: #AD0000;">0.4</span>, <span class="at" style="color: #657422;">alpha=</span><span class="fl" style="color: #AD0000;">0.5</span>) <span class="sc" style="color: #5E5E5E;">+</span></span>
+<span id="cb2-46">  <span class="fu" style="color: #4758AB;">labs</span>(<span class="at" style="color: #657422;">x =</span> <span class="st" style="color: #20794D;">"Longitude (WGS84)"</span>,</span>
+<span id="cb2-47">       <span class="at" style="color: #657422;">y =</span> <span class="st" style="color: #20794D;">"Latitude"</span>,</span>
+<span id="cb2-48">       <span class="at" style="color: #657422;">caption =</span> <span class="st" style="color: #20794D;">"Sources: ISTAT (comuni), Google Maps (satellite)"</span>) <span class="sc" style="color: #5E5E5E;">+</span></span>
+<span id="cb2-49">  <span class="fu" style="color: #4758AB;">ggtitle</span>(</span>
+<span id="cb2-50">    <span class="at" style="color: #657422;">label =</span> <span class="fu" style="color: #4758AB;">str_glue</span>(<span class="st" style="color: #20794D;">"{comune} ({id})"</span>,</span>
+<span id="cb2-51">                     <span class="at" style="color: #657422;">comune =</span> com<span class="sc" style="color: #5E5E5E;">$</span>COMUNE,</span>
+<span id="cb2-52">                     <span class="at" style="color: #657422;">id =</span> <span class="fu" style="color: #4758AB;">str_pad</span>(com<span class="sc" style="color: #5E5E5E;">$</span>PRO_COM, <span class="dv" style="color: #AD0000;">6</span>, <span class="at" style="color: #657422;">pad =</span> <span class="st" style="color: #20794D;">"0"</span>)),</span>
+<span id="cb2-53">    <span class="at" style="color: #657422;">subtitle =</span> <span class="fu" style="color: #4758AB;">str_c</span>(com<span class="sc" style="color: #5E5E5E;">$</span>DEN_CMPRO, com<span class="sc" style="color: #5E5E5E;">$</span>REGIONE, <span class="at" style="color: #657422;">sep =</span> <span class="st" style="color: #20794D;">", "</span>))</span></code></pre></div>
+</div>
+<p>There are few “smelly” things in the code above:</p>
+<ul>
+<li>the zoom level is hardcoded to 12</li>
+<li>the map is not cropped to the boundary</li>
+</ul>
+<p>The solution above is wrapped (with fix to first bullet, see below) in the function <code>generate_google_map</code> in the <a href="https://github.com/espinielli/italian-comuni-bot/blob/master/tweet-comune.R"><code>tweet-comune.R</code></a> file in the <a href="https://github.com/espinielli/italian-comuni-bot/">Italian Comuni Twitter bot</a> repository.</p>
+</section>
+<section id="automatic-zoom-calculation" class="level2">
+<h2 class="anchored" data-anchor-id="automatic-zoom-calculation">Automatic Zoom Calculation</h2>
+<p>I was surprised to always see examples with hardcoded zoom levels, but in fact the <code>ggmap</code> package has a helper function <code>calc_zoom</code> just for that. The only problem is that it is buggy, but <a href="https://github.com/dkahle/ggmap/pull/141">pull request #141</a> has a proposed fix which I just saved in a local <code>calc_zoom</code> in the repo.</p>
+<p>It is about taking the <em>minimum</em> instead of the maximun of the zoom levels in the longitude and latitude direction.</p>
+</section>
+<section id="crop-map-to-polygon" class="level2">
+<h2 class="anchored" data-anchor-id="crop-map-to-polygon">Crop Map to Polygon</h2>
+<p>I had no idea how to crop the Google Map to the comune’s boundary, but Giants exist and I have found a nice solution (by <a href="https://www.robinlovelace.net/">Robin Lovelace</a>) <a href="https://gis.stackexchange.com/a/155495/7617">posted on GIS SO</a>.</p>
+<p>It boils down to transforming the Google Map to raster and <code>mask</code>ing it with the comune’s boundary:</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb3" style="background: #f1f3f5;"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb3-1">  m.rast <span class="ot" style="color: #003B4F;">&lt;-</span> <span class="fu" style="color: #4758AB;">ggmap_rast</span>(<span class="at" style="color: #657422;">map =</span> m)</span>
+<span id="cb3-2">  com.only <span class="ot" style="color: #003B4F;">&lt;-</span> <span class="fu" style="color: #4758AB;">mask</span>(m.rast, com.sp)</span></code></pre></div>
+</div>
+<div class="cell">
+<div class="cell-output-display">
+<p><img src="https://enrico.spinielli.net/posts/2018-06-30-writing-a-twitter-bot-in-r/comune_raster.jpg" class="img-fluid" width="1050"></p>
+</div>
+</div>
+<p>This (and bells and whistles) is now wrapped in a function <code>generate_cropped_map</code> in the <a href="https://github.com/espinielli/italian-comuni-bot/blob/master/tweet-comune.R"><code>tweet-comune.R</code></a> file in the <a href="https://github.com/espinielli/italian-comuni-bot/">Italian Comuni Twitter bot</a> repository.</p>
+</section>
+</section>
+<section id="tweet-it" class="level1">
+<h1>Tweet It!</h1>
+<p>The logic to tweet the comunes’ maps one by one is as follows:</p>
+<ol type="1">
+<li>find out what was sent last</li>
+<li>get the new comune</li>
+<li>decide whether to embelish the tweet with refs &amp; Co.</li>
+<li>tweet and save some sort of proof of which comune has been dealt with</li>
+</ol>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb4" style="background: #f1f3f5;"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb4-1"><span class="co" style="color: #5E5E5E;"># set things up for Twitter</span></span>
+<span id="cb4-2"><span class="fu" style="color: #4758AB;">tweet_authorize</span>()</span>
+<span id="cb4-3"></span>
+<span id="cb4-4"><span class="co" style="color: #5E5E5E;"># this is the core of the process:</span></span>
+<span id="cb4-5"><span class="co" style="color: #5E5E5E;"># 1. find out what was sent last</span></span>
+<span id="cb4-6"><span class="co" style="color: #5E5E5E;"># 2. get the new comune</span></span>
+<span id="cb4-7"><span class="co" style="color: #5E5E5E;"># 3. decide whether to embelish the tweet with refs &amp; Co.</span></span>
+<span id="cb4-8"><span class="co" style="color: #5E5E5E;"># 4. tweet and save some sort of proof of which comune has been dealt with</span></span>
+<span id="cb4-9"></span>
+<span id="cb4-10"><span class="co" style="color: #5E5E5E;"># 1. find out what was sent last</span></span>
+<span id="cb4-11">l <span class="ot" style="color: #003B4F;">&lt;-</span> <span class="fu" style="color: #4758AB;">read_file</span>(<span class="st" style="color: #20794D;">"last-tweeted.txt"</span>) <span class="sc" style="color: #5E5E5E;">%&gt;%</span> <span class="fu" style="color: #4758AB;">as.integer</span>()</span>
+<span id="cb4-12">n <span class="ot" style="color: #003B4F;">&lt;-</span> (l <span class="sc" style="color: #5E5E5E;">+</span> <span class="dv" style="color: #AD0000;">1</span>) <span class="sc" style="color: #5E5E5E;">%%</span> lc</span>
+<span id="cb4-13"></span>
+<span id="cb4-14"><span class="co" style="color: #5E5E5E;"># 2. get the new comune</span></span>
+<span id="cb4-15">com <span class="ot" style="color: #003B4F;">&lt;-</span> coms <span class="sc" style="color: #5E5E5E;">%&gt;%</span></span>
+<span id="cb4-16">  dplyr<span class="sc" style="color: #5E5E5E;">::</span><span class="fu" style="color: #4758AB;">filter</span>(<span class="fu" style="color: #4758AB;">row_number</span>() <span class="sc" style="color: #5E5E5E;">==</span> n) <span class="sc" style="color: #5E5E5E;">%&gt;%</span></span>
+<span id="cb4-17">  dplyr<span class="sc" style="color: #5E5E5E;">::</span><span class="fu" style="color: #4758AB;">slice</span>(<span class="dv" style="color: #AD0000;">1</span>)</span>
+<span id="cb4-18"></span>
+<span id="cb4-19"><span class="co" style="color: #5E5E5E;"># 3. decide whether to embelish the tweet with refs &amp; Co.</span></span>
+<span id="cb4-20">msg <span class="ot" style="color: #003B4F;">&lt;-</span> <span class="fu" style="color: #4758AB;">ifelse</span>((n <span class="sc" style="color: #5E5E5E;">%%</span> <span class="dv" style="color: #AD0000;">19</span>) <span class="sc" style="color: #5E5E5E;">==</span> <span class="dv" style="color: #AD0000;">0</span>,</span>
+<span id="cb4-21">              <span class="st" style="color: #20794D;">"Done in #rstats using #ggplot2, #rspatial, #ggmap and #rtweet."</span>,</span>
+<span id="cb4-22">              <span class="st" style="color: #20794D;">""</span>)</span>
+<span id="cb4-23">credits <span class="ot" style="color: #003B4F;">&lt;-</span> <span class="fu" style="color: #4758AB;">ifelse</span>((n <span class="sc" style="color: #5E5E5E;">%%</span> <span class="dv" style="color: #AD0000;">67</span>) <span class="sc" style="color: #5E5E5E;">==</span> <span class="dv" style="color: #AD0000;">0</span>,</span>
+<span id="cb4-24">                  <span class="st" style="color: #20794D;">"Sources @istat_it, @istat_en, @googlemaps."</span>,</span>
+<span id="cb4-25">                  <span class="st" style="color: #20794D;">""</span>)</span>
+<span id="cb4-26"></span>
+<span id="cb4-27"><span class="co" style="color: #5E5E5E;"># 3. decide whether to embelish the tweet with refs &amp; Co.</span></span>
+<span id="cb4-28"><span class="fu" style="color: #4758AB;">tweet_comune</span>(com, n, <span class="at" style="color: #657422;">msg =</span> msg, <span class="at" style="color: #657422;">credits =</span> credits)</span>
+<span id="cb4-29"></span>
+<span id="cb4-30"><span class="co" style="color: #5E5E5E;"># 4. tweet and save some sort of proof of which comune has been dealt with</span></span>
+<span id="cb4-31"><span class="fu" style="color: #4758AB;">writeLines</span>(<span class="at" style="color: #657422;">text =</span> <span class="fu" style="color: #4758AB;">as.character</span>(n) , <span class="st" style="color: #20794D;">"last-tweeted.txt"</span>)</span></code></pre></div>
+</div>
+<p>For step 1. I decided to store the <code>index</code> of the last tweeted comune in a file named <code>last-tweeted.txt</code>. So this is the file read at the beginning in order to know where to continue from, step 2., or eventually start over again.</p>
+<p>Step 3. is about setting some message and credits, but sparingly so as not to annoy (i.e.&nbsp;spam) too much the relevant communities.</p>
+<p>Finally step 4 is about posting the tweet, followed by writing out the index of the comune.</p>
+</section>
+<section id="todos" class="level1">
+<h1>ToDo’s</h1>
+<p>I am now at the stage where I can execute the 4 steps above and tweet a new map. I can execute all the steps on the command line by issuing</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb5" style="background: #f1f3f5;"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb5-1"><span class="ex" style="color: null;">$</span> Rscript tweet-bot.R</span></code></pre></div>
+</div>
+<p>This can easily put into a cron job and, for example, tweet a map every hour (so completing the job in 333 days and 6 hours). But to be frank the code is not robust enough to run without supervision.</p>
+<p>What I would really like would be to</p>
+<ul>
+<li>use some serverless service like AWS Lambda to trigger the tweeting every hour</li>
+<li>a robust way to keep state (i.e.&nbsp;what can I use to know what was last tweeted comune’s index?)</li>
+<li>a robust way to cope with failures to post the tweet (i.e.&nbsp;what to do in case of no WIFI/Internet connection)</li>
+</ul>
+<p>If you have any suggestions or comments on the above, feel free to get in touch with me!</p>
+
+
+</section>
+
+<div id="quarto-appendix" class="default"><section class="quarto-appendix-contents"><h2 class="anchored quarto-appendix-heading">Reuse</h2><div quarto-reuse="quarto-reuse" class="quarto-appendix-contents"><a rel="license" href="https://creativecommons.org/licenses/by-sa/4.0/">https://creativecommons.org/licenses/by-sa/4.0/</a></div></section></div> ]]></description>
+  <category>R</category>
+  <category>Maps</category>
+  <guid>https://enrico.spinielli.net/posts/2018-06-30-writing-a-twitter-bot-in-r/index.html</guid>
+  <pubDate>Fri, 29 Jun 2018 22:00:00 GMT</pubDate>
+</item>
+<item>
+  <title>ErgoDox keyboard</title>
+  <dc:creator>Enrico Spinielli</dc:creator>
+  <link>https://enrico.spinielli.net/posts/2018-01-02-ergodox-keyboard/index.html</link>
+  <description><![CDATA[ 
+
+
+
+<p>Now that I have a new blog setup, I can more quickly post what has been since long time in the making: my ErgoDox keyboard.</p>
+<p>It all started with me reading <a href="https://steve-yegge.blogspot.be/2008/09/programmings-dirtiest-little-secret.html">Steve Yegge’s blog on touch typing</a> and being convinced I should give it a try with a proper keyboard.</p>
+<p>So on 2014-03-24 I joined a <a href="https://www.massdrop.com/buy/ergodox">Massdrop purchase</a> for an DIY ErgoDox split keyboard. It completed a week later and delivery was done somewhat end of May.</p>
+<p>The kit contained:</p>
+<ul>
+<li><p>2 x PCB</p></li>
+<li><p>10 x Acrylic case Plates</p></li>
+<li><p>1 x Teensy USB Board, Version 2</p></li>
+<li><p>1 x MCP23018 I/O expander</p></li>
+<li><p>2 x 3.5mm TRRS connector</p></li>
+<li><p>1 x USB mini B plug</p></li>
+<li><p>1 x 0.1uF ceramic capacitor</p></li>
+<li><p>76 x 1N4148W-7-F diode (surface-mount)</p></li>
+<li><p>1 x 2.2k ohm resistor</p></li>
+<li><p>3 x 3mm T1 LED</p></li>
+<li><p>2 x 220 ohm resistor</p></li>
+<li><p>76 x Cherry MX switch</p></li>
+<li><p>2 x USB cable Male A to male mini B</p></li>
+<li><p>1 x TRRS cable</p></li>
+<li><p>14 x Case screws/nuts</p>
+<div class="cell">
+<div class="cell-output-display">
+<p><img src="https://enrico.spinielli.net/posts/2018-01-02-ergodox-keyboard/ed-kit.png" class="img-fluid" width="476"></p>
+</div>
+</div></li>
+</ul>
+<p>On 2014-05-30 I also joined a keycaps drop and ordered the day later:</p>
+<ul>
+<li><p>Clear Ergodox DCS Keycaps (76 keys)</p>
+<div class="cell">
+<div class="cell-output-display">
+<p><img src="https://enrico.spinielli.net/posts/2018-01-02-ergodox-keyboard/clear-keycaps.jpg" class="img-fluid" width="300"></p>
+</div>
+</div></li>
+</ul>
+<p>Finally on 2014-08-20 I joined a Grifiti ErgoDox Wrist Rest drop.</p>
+<div class="cell">
+<div class="cell-output-display">
+<p><img src="https://enrico.spinielli.net/posts/2018-01-02-ergodox-keyboard/MD-15532_20160203111121_48a0debeb1e9cd0c.jpg" class="img-fluid" width="478"></p>
+</div>
+</div>
+<p>I followed the instructions at Massdrop (now in the <a href="https://archive.is/Skgwl">archive</a>, see <a href="https://www.ergodox.io/#guide">these</a> too to have an idea)</p>
+<p>Initially progress has been very slow at the beginning on my side. I had to dig out of some boxes my old soldering iron…</p>
+<p>I started with the USB connector.</p>
+<p>It has been immediately evident that soldering SMD diodes is a pain in the neck: they are so tiny (3 mm long, 1.5 mm wide) and my tools/eyes not really up to the task.</p>
+<p>So I went to the VUB University <a href="https://www.fablab-brussels.be/fablab-english/">Fablab</a>: on Wednesdays it is open to the public. I did some ten/twenty SMD diodes.</p>
+<p>Then I continued with my little iron but soon after it failed miserably of old age. So I could not solder any more. My Eurocontrol collegue “Tasso” to the rescue: he provided with a new iron and then work could continue.</p>
+<p>But kids’ summer holidays were now over so no more time for me to tinker! It’ll all have to wait 2015.</p>
+<p>Now in July 2015 all started again, the pain continued thanks to those little tiny SMD diodes and them being 76! Pain, pain, pain.</p>
+<p>I did a small test completing first a column on the left side and a few keys on the right half, loaded the firmaware: it all worked. So now <em>just</em> a matter of finishing up. But again time was up…completion had to wait for next summer holidays.</p>
+<p>Summer 2016 was great: I finished everything up and was ready to try it.</p>
+<p>Buuuum! Some keys were not working.</p>
+<p>Soon I noticed that it was a full column and then I inspected my soldering and found that on one of the keys it was really a mess. A quick fix made it all work correctly!!!!</p>
+<p><strong>SUCCESS</strong></p>
+<p>I decided to keep a QWERTY layout, but I have not yet really execised for touch typing. That seems to need so much commitment!</p>
+
+
+
+<div id="quarto-appendix" class="default"><section class="quarto-appendix-contents"><h2 class="anchored quarto-appendix-heading">Reuse</h2><div quarto-reuse="quarto-reuse" class="quarto-appendix-contents"><a rel="license" href="https://creativecommons.org/licenses/by-sa/4.0/">https://creativecommons.org/licenses/by-sa/4.0/</a></div></section></div> ]]></description>
+  <category>keyboard</category>
+  <guid>https://enrico.spinielli.net/posts/2018-01-02-ergodox-keyboard/index.html</guid>
+  <pubDate>Fri, 29 Jun 2018 22:00:00 GMT</pubDate>
+</item>
+<item>
+  <title>New Blog Engine</title>
+  <dc:creator>Enrico Spinielli</dc:creator>
+  <link>https://enrico.spinielli.net/posts/2018-01-02-new-blog-engine/index.html</link>
+  <description><![CDATA[ 
+
+
+
+<p>I finally decided to give it a try and then switched to <code>blogdown</code> (<a href="https://bookdown.org/yihui/blogdown/">here the free book</a>.)</p>
+<p>I sort of followed the migration suggestions in the book, but when I tried to switch to <a href="https://bookdown.org/yihui/blogdown/netlify.html">Netlify</a> I got everyting messed up with my OVH setup so I am still with Github Pages…one step at a time…</p>
+<p>I hope this setup will lower the barrier and allow me to blog and share more.</p>
+<p>I am already looking forward to using the amazing features provided by Hugo, e.g.&nbsp;<a href="https://gohugo.io/content-management/shortcodes/">shortcodes</a>. So if I want to cite one of my tweets I simply use <code>blogdown::shortcode(...)</code></p>
+<p></p><div id="tweet-65218"></div><script>tweet={"url":"https:\/\/twitter.com\/espinielli\/status\/917040685437652992","author_name":"espinielli","author_url":"https:\/\/twitter.com\/espinielli","html":"\u003Cblockquote class=\"twitter-tweet\" align=\"center\"\u003E\u003Cp lang=\"en\" dir=\"ltr\"\u003EPlatonic Geodesic: a grid from all 5 regular convex polyhedra.\u003Cbr\u003EInspired by \u003Ca href=\"https:\/\/twitter.com\/mbostock?ref_src=twsrc%5Etfw\"\u003E@mbostock\u003C\/a\u003E original Geodesic Rainbow\u003Ca href=\"https:\/\/t.co\/ohK6LVyDGk\"\u003Ehttps:\/\/t.co\/ohK6LVyDGk\u003C\/a\u003E \u003Ca href=\"https:\/\/t.co\/7HGQWgiXIG\"\u003Epic.twitter.com\/7HGQWgiXIG\u003C\/a\u003E\u003C\/p\u003E&mdash; espinielli (@espinielli) \u003Ca href=\"https:\/\/twitter.com\/espinielli\/status\/917040685437652992?ref_src=twsrc%5Etfw\"\u003EOctober 8, 2017\u003C\/a\u003E\u003C\/blockquote\u003E\n\u003Cscript async src=\"https:\/\/platform.twitter.com\/widgets.js\" charset=\"utf-8\"\u003E\u003C\/script\u003E\n","width":550,"height":null,"type":"rich","cache_age":"3153600000","provider_name":"Twitter","provider_url":"https:\/\/twitter.com","version":"1.0"};document.getElementById("tweet-65218").innerHTML = tweet["html"];</script><p></p>
+
+
+
+<div id="quarto-appendix" class="default"><section class="quarto-appendix-contents"><h2 class="anchored quarto-appendix-heading">Reuse</h2><div quarto-reuse="quarto-reuse" class="quarto-appendix-contents"><a rel="license" href="https://creativecommons.org/licenses/by-sa/4.0/">https://creativecommons.org/licenses/by-sa/4.0/</a></div></section></div> ]]></description>
+  <guid>https://enrico.spinielli.net/posts/2018-01-02-new-blog-engine/index.html</guid>
+  <pubDate>Mon, 01 Jan 2018 23:00:00 GMT</pubDate>
+</item>
+<item>
+  <title>Docker image for locally testing Oracle</title>
+  <dc:creator>Enrico Spinielli</dc:creator>
+  <link>https://enrico.spinielli.net/posts/2016-10-31-oracle-docker-image/index.html</link>
+  <description><![CDATA[ 
+
+
+
+<section id="docker-for-oracle" class="level1">
+<h1>Docker for Oracle</h1>
+<p>This post describes my journey to building and using a docker image for Oracle.</p>
+<p>It all started as usual searching the web for hints and many results led to the <a href="https://github.com/oracle/docker-images">Oracle docker Github repository</a>.</p>
+<p>This repository under <code>OracleDatabase</code> provides (almost) all the informations needed.</p>
+<p>My target machine: MacBook Pro (13-inch, Mid 2009), OS X Yosemite 10.10.5.</p>
+<section id="which-oracle-rdbms" class="level2">
+<h2 class="anchored" data-anchor-id="which-oracle-rdbms">Which Oracle RDBMS?</h2>
+<p>I decided to use <code>Oracle XE 11.2.0.2</code> because my use case just needed an Oracle DB, so no need to go for bigger and fancier versions.</p>
+</section>
+<section id="steps" class="level2">
+<h2 class="anchored" data-anchor-id="steps">Steps</h2>
+<p>So without further ado here is what I tried and what did not work and which solutions I found:</p>
+<ul>
+<li><p><code>:thumbsup:</code> clone the relevant github repo:</p>
+<pre class="shell"><code>$ git clone https://github.com/oracle/docker-images oracle-docker-images
+$ cd oracle-docker-images/OracleDatabase/dockerfiles</code></pre></li>
+<li><p><code>:disappointed:</code> download the relevant file from Oracle, in my case, <code>oracle-xe-11.2.0-1.0.x86_64.rpm.zip</code>. Put it in the <code>11.2.0.2</code> directory (<em>DO NOT UNZIP</em>). (Of course Oracle makes this step a pain in the neck, i.e.&nbsp;no simple <code>curl</code> or any other possibility to just download it…yes with the implicit acknowledgement that you agree with their terms…)</p></li>
+<li><p><code>:thumbsup:</code> run you docker daemon. I am on an old MBP, so no native docker… Remember to note down the docker machine IP, <code>docker</code> startup spits something like: <code>docker is configured to use the default machine with IP 192.168.99.100</code></p></li>
+<li><p>I discovered this later on once I had built a docker image…for non native docker you need to increase the swap memory of your VM:</p>
+<pre class="shell"><code>$ docker-machine stop default
+$ VBoxManage modifyvm default --memory 8192
+$ docker-machine start default</code></pre></li>
+<li><p><code>:thumbsdown:</code> as per README, execute the build script (make sure your docker daemon is running):</p>
+<pre class="shell"><code>$ ./buildDockerImage.sh -v 11.2.0.2 -x
+Checking if required packages are present and valid...
+usage: md5sum [file...]
+MD5 for required packages to build this image did not match!
+Make sure to download missing files in folder 11.2.0.2.</code></pre></li>
+<li><p><code>:thumbsup:</code> So…maybe that is why the <code>-i</code> flag has been added…</p>
+<pre class="shell"><code>$ ./buildDockerImage.sh -v 11.2.0.2 -x -i
+  Ignored MD5 checksum.
+  =====================
+  Building image 'oracle/database:11.2.0.2-xe' ...
+  Sending build context to Docker daemon 315.9 MB
+  Step 1 : FROM oraclelinux:latest
+  ...
+  Step 2 : MAINTAINER Gerald Venzl &lt;gerald.venzl@oracle.com&gt;
+  ...
+  Step 3 : ...
+  ...
+  Step 4 : ENV PATH $ORACLE_HOME/bin:$PATH
+  ...
+  Step 5 : COPY $INSTALL_FILE_1 $CONFIG_RSP $RUN_FILE $PWD_FILE $INSTALL_DIR/
+  ...
+  Step 6 : RUN yum -y install ...
+  ...
+  Step 7 : VOLUME $ORACLE_BASE/oradata
+  ...
+  Step 8 : EXPOSE 1521 8080
+  ...
+  Step 9 : CMD $ORACLE_BASE/$RUN_FILE
+  ...
+  Oracle Database Docker Image for 'xe' version 11.2.0.2 is ready to be extended:
+  --&gt; oracle/database:11.2.0.2-xe
+
+  Build completed in 301 seconds.</code></pre></li>
+<li><p>Create a place where the DB will be persisted between runs:</p>
+<pre class="shell"><code>$ mkdir -p ~/var/lib/docker/oracle/$USER</code></pre></li>
+<li><p>Run it (and note down the automatically generated password):</p>
+<pre class="shell"><code>$ docker run --shm-size=1g \
+    -p 1521:1521 -p 8080:8080 \
+    -v $HOME/var/lib/docker/db/$USER:/u01/app/oracle/oradata \
+    oracle/database:11.2.0.2-xe</code></pre></li>
+<li><p>Change the default password:</p>
+<pre class="shell"><code>$ docker ps
+CONTAINER ID        IMAGE                         ...
+22088d2ed7a3        oracle/database:11.2.0.2-xe   ...
+
+$ docker exec 22088d2ed7a3 /u01/app/oracle/setPassword.sh cucu</code></pre></li>
+<li><p>and connect to it (the IP <code>192.168.99.100</code> is the one from above; <code>sql</code> is new Oracle’s command line interface, see <a href="https://www.oracle.com/technetwork/developer-tools/sqlcl/overview/index.html">sqlcl</a>):</p>
+<pre class="shell"><code>$ ~/tools/sqlcl/bin/sql system/cucu@//192.168.99.100:1521/XE</code></pre></li>
+</ul>
+
+
+</section>
+</section>
+
+<div id="quarto-appendix" class="default"><section class="quarto-appendix-contents"><h2 class="anchored quarto-appendix-heading">Reuse</h2><div quarto-reuse="quarto-reuse" class="quarto-appendix-contents"><a rel="license" href="https://creativecommons.org/licenses/by-sa/4.0/">https://creativecommons.org/licenses/by-sa/4.0/</a></div></section></div> ]]></description>
+  <category>docker</category>
+  <guid>https://enrico.spinielli.net/posts/2016-10-31-oracle-docker-image/index.html</guid>
+  <pubDate>Sun, 30 Oct 2016 23:00:00 GMT</pubDate>
+</item>
+<item>
+  <title>Setting C.H.I.P. up</title>
+  <dc:creator>Enrico Spinielli</dc:creator>
+  <link>https://enrico.spinielli.net/posts/2016-08-07-setting-c-h-i-p-up/index.html</link>
+  <description><![CDATA[ 
+
+
+
+<p>Few weeks ago I finally received my <a href="https://getchip.com/pages/chip" title="C.H.I.P. the $9 computer">C.H.I.P.</a> and <a href="https://getchip.com/pages/pocketchip" title="PocketC.H.I.P. the super handy fun computer">PocketC.H.I.P.</a></p>
+<p>C.H.I.P. is the famous $9 computer crowdfunded in <a href="https://www.kickstarter.com/projects/1598272670/chip-the-worlds-first-9-computer" title="C.H.I.P. Kickstarter">May 2015 via Kickstarter</a> and PowerC.H.I.P. combines a 4.3-inch screen and a button-style QWERTY keypad with it.</p>
+<p>Here they are in all their beauty:</p>
+<table class="table">
+<thead>
+<tr class="header">
+<th>C.H.I.P.</th>
+<th>Pocket C.H.I.P.</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td><img src="https://enrico.spinielli.net/posts/2016-08-07-setting-c-h-i-p-up/chip.jpg" class="img-fluid" alt="chip"></td>
+<td><img src="https://enrico.spinielli.net/posts/2016-08-07-setting-c-h-i-p-up/pocketchip.jpg" class="img-fluid" alt="pocketchip"></td>
+</tr>
+</tbody>
+</table>
+<section id="setting-c.h.i.p.-up" class="level2">
+<h2 class="anchored" data-anchor-id="setting-c.h.i.p.-up">Setting C.H.I.P. up</h2>
+<p>I am interested to play with both toys remotely, so I did follow <a href="https://bbs.nextthing.co/t/setting-up-chip-as-a-headless-server-with-minimal-tools/1505" title="Setting up CHIP as a headless server with minimal tools">Setting up CHIP as a headless server with minimal tools</a> in order to install and configure ssh.</p>
+<p>Here is what I did for C.H.I.P.:</p>
+<ol type="1">
+<li><p>connect via USB to my laptop (a Mac) via <code>screen</code> and logon usr: <code>chip</code>, pwd: <code>chip</code> as per default settings (to be changed later ;-).</p>
+<pre class="shell"><code>$ screen /dev/tty.usbmodem1411</code></pre></li>
+<li><p>follow the <a href="https://docs.getchip.com/chip.html#wifi-connection" title="C.H.I.P. WiFi Connection">WiFi Connection</a> instructions in the docs, i.e.&nbsp;execute the command</p>
+<pre class="shell"><code>$ sudo nmcli device wifi connect 'homeSSID' password 'mypass' ifname wlan0</code></pre></li>
+<li><p>update packages and install <code>ssh</code></p>
+<pre class="shell"><code>$ sudo apt-get update
+$ sudo apt-get install ssh</code></pre></li>
+<li><p>optional, upgrade packages and cleanup:</p>
+<pre class="shell"><code>$ sudo apt-get upgrade
+$ sudo apt-get autoremove</code></pre></li>
+<li><p>fix locale (I use American setup, so in the GUI I did select the item <code>en_US.UTF-8 UTF-8</code>):</p>
+<pre class="shell"><code>$ sudo locale-gen en_US en_US.UTF-8
+$ sudo dpkg-reconfigure locales</code></pre></li>
+</ol>
+<p>I also renamed the hosts <code>biochip</code> (the bare one) and <code>chippie</code> (the Pocket one). Although I found various posts on how to do it I tried w/ <code>nmtui</code> and selected the <em>Set system hostname</em> item then rebooted: all worked smoothly.</p>
+</section>
+<section id="todos" class="level2">
+<h2 class="anchored" data-anchor-id="todos">ToDo’s</h2>
+<ul>
+<li>disable <code>root</code> account (<code>ssh</code> and non) login.</li>
+<li>change <code>chip</code> account password</li>
+<li>change <code>root</code> account password</li>
+</ul>
+
+
+</section>
+
+<div id="quarto-appendix" class="default"><section class="quarto-appendix-contents"><h2 class="anchored quarto-appendix-heading">Reuse</h2><div quarto-reuse="quarto-reuse" class="quarto-appendix-contents"><a rel="license" href="https://creativecommons.org/licenses/by-sa/4.0/">https://creativecommons.org/licenses/by-sa/4.0/</a></div></section></div> ]]></description>
+  <guid>https://enrico.spinielli.net/posts/2016-08-07-setting-c-h-i-p-up/index.html</guid>
+  <pubDate>Sat, 06 Aug 2016 22:00:00 GMT</pubDate>
+  <media:content url="https://enrico.spinielli.net/posts/2016-08-07-setting-c-h-i-p-up/chip.jpg" medium="image" type="image/jpeg"/>
+</item>
+<item>
+  <title>DVD to Android Tablet</title>
+  <dc:creator>Enrico Spinielli</dc:creator>
+  <link>https://enrico.spinielli.net/posts/2016-04-02-dvd2tablet/index.html</link>
+  <description><![CDATA[ 
+
+
+
+<section id="how-to-transfer-your-dvds-to-your-android-tablet" class="level1">
+<h1>How to transfer your DVDs to your Android Tablet</h1>
+<p>Suppose your kids want to watch their DVDs in the car on their Android tablet…</p>
+<p>Here is what you can do (on a Mac OSX 10.9.5):</p>
+<ul>
+<li><p>install <a href="https://handbrake.fr">Handbrake</a> and its CLI</p>
+<pre class="shell"><code>$ brew cask install handbrake
+$ brew cask install handbrakecli</code></pre></li>
+<li><p>install <code>libdvdcss</code> (thanks to <a href="https://lifehacker.com/how-to-rip-a-dvd-to-your-computer-5809765">lifehacker’s article</a>) in order to bypass copy protection</p>
+<pre class="shell"><code>$ brew install libdvdcss</code></pre></li>
+<li><p>go to the place where you will place the ripped DVD:</p>
+<pre class="shell"><code>$ cd ~/Movies</code></pre></li>
+<li><p>convert your DVDs:</p>
+<pre class="shell"><code>$ HandBrakeCLI -i /Volumes/'my DVD' -o /Volumes/Untitled/Movies/my_dvd.mp4 \
+               --native-language="ita" --native-dub \
+               --preset="Android Tablet"</code></pre>
+<p>The first two options define the input and output (I save the converted movie on the microSD card <code>/Volumes/Untitled</code> in the <code>Movies</code> directory)</p>
+<p>The <code>--native-language="ita" --native-dub</code> options set Italian as the selected language (if you omit the <code>--native-dub</code> you will get the first audio track language and subtitles in Italian.)</p>
+<p>The last option <code>--preset="Android Tablet"</code> selected the predefined settings that work best for viewing the converted movie on an Android tablet.</p>
+<p>(be prepared to wait for some time…it took 1h 8min 5s for an 87min movie on my old MacBook Pro mid-2009)</p></li>
+</ul>
+<p>There are other preset configurations…Should you need to copy to a different device, use <code>HandBrakeCLI --preset-list</code> to select the one that best fits your needs. Otherwise you can delve into the many settings…!</p>
+<p><strong>Note</strong>: after the conversion I get my DVD driver completely blocked/unable to read disks and ejecting them all. Sometimes “Repair Disk Permissions” via Disk Utility as described <a href="https://www.cnet.com/forums/discussions/macbook-cd-dvd-drive-won-t-read-discs-can-it-be-fixed-330354/#post-970a02c1-3e34-495a-bfd9-44267a4af51c">here</a> make it work again… some other times not!</p>
+<p>I do the repair via command line as follows (eventually prefix it with <code>sudo</code>):</p>
+<pre class="shell"><code>$ diskutil repairPermissions /</code></pre>
+<p>Eventually I succeeded using “System Information”, selecting ‘Disk Burning’ and then hitting File -&gt; Refresh Information. Don’t ask me why or how, I just did it and the driver worked again! (You can do it via the command line by running <code>system_profiler -detailLevel full SPDiscBurningDataType</code>)</p>
+
+
+</section>
+
+<div id="quarto-appendix" class="default"><section class="quarto-appendix-contents"><h2 class="anchored quarto-appendix-heading">Reuse</h2><div quarto-reuse="quarto-reuse" class="quarto-appendix-contents"><a rel="license" href="https://creativecommons.org/licenses/by-sa/4.0/">https://creativecommons.org/licenses/by-sa/4.0/</a></div></section></div> ]]></description>
+  <category>Android</category>
+  <guid>https://enrico.spinielli.net/posts/2016-04-02-dvd2tablet/index.html</guid>
+  <pubDate>Fri, 01 Apr 2016 22:00:00 GMT</pubDate>
+</item>
+<item>
+  <title>Learning Vega 2.0 a.k.a. Reactive Vega</title>
+  <dc:creator>Enrico Spinielli</dc:creator>
+  <link>https://enrico.spinielli.net/posts/2015-08-08-learning-reactive-vega/index.html</link>
+  <description><![CDATA[ 
+
+
+
+<style>
+h1 ~ aside {
+  font-size: small;
+  right: 0;
+  position: absolute;
+  width: 180px;
+}
+</style>
+<section id="a-grammar-of-graphics" class="level2">
+<h2 class="anchored" data-anchor-id="a-grammar-of-graphics">A Grammar of Graphics</h2>
+<p>Vega 2.0 adds a <em>grammar of interaction</em> to the <em>grammar of graphics</em> implemented in Vega 1.0.</p>
+<p>When you say <em>grammar of graphics</em> all roads bring you to</p>
+<blockquote class="blockquote">
+<p>Leland Wilkinson <a href="https://books.google.com/books/about/The_Grammar_of_Graphics.html?id=_kRX4LoFfGQC">The Grammar of Graphics</a> Springer Science &amp; Business Media, Jul 15, 2005</p>
+</blockquote>
+<p>But given <a href="https://www.amazon.com/Grammar-Graphics-Statistics-Computing/dp/0387245448/">the price of 100+ USD</a>, I am not even thinking of getting my hands on it.</p>
+<p>So the next thing you can look at is who has build upon this conceptual framework. And then we bump into</p>
+<blockquote class="blockquote">
+<p>Hadley Wickham. A layered grammar of graphics. Journal of Computational and Graphical Statistics, vol.&nbsp;19, no. 1, pp.&nbsp;3–28, 2010. https://vita.had.co.nz/papers/layered-grammar.html</p>
+</blockquote>
+<p>which implements a (layered) grammar of graphics as a package for the excellent <a href="https://www.r-project.org/">R language</a>. The article in the “Conclusions” section raises the question of how to add interaction to the <code>ggplot2</code> framework.</p>
+</section>
+<section id="and-a-grammar-of-interaction" class="level2">
+<h2 class="anchored" data-anchor-id="and-a-grammar-of-interaction">… and a Grammar of Interaction</h2>
+<p>Moving to Vega, from its own site</p>
+<blockquote class="blockquote">
+<p>Vega is a visualization grammar, a declarative format for creating, saving, and sharing interactive visualization designs</p>
+</blockquote>
+<p>The <em>interactive</em> was not present in the first implementation as of Apr 2014, it has been added and publicly described in</p>
+<blockquote class="blockquote">
+<p>Arvind Satyanarayan, Kanit Wongsuphasawat, Jeffrey Heer Declarative Interaction Design for Data Visualization ACM User Interface Software &amp; Technology (UIST), 2014, https://idl.cs.washington.edu/papers/reactive-vega</p>
+</blockquote>
+<p>The companion video explains things further:</p>
+<div class="quarto-video"><iframe src="https://player.vimeo.com/video/100936827" width="630" height="354" frameborder="0" allow="autoplay; title=" declarative="" interaction="" design="" for="" data="" visualization"="" fullscreen;="" picture-in-picture"="" allowfullscreen=""></iframe></div>
+</section>
+<section id="and-now-lets-use-it" class="level2">
+<h2 class="anchored" data-anchor-id="and-now-lets-use-it">And now let’s use it</h2>
+<p>All that reading is ok but without doing I do not fully get it (and even then … ;-) I need <a href="https://bost.ocks.org/mike/example/">examples</a></p>
+<p>So the <a href="https://github.com/vega/vega/wiki/Tutorial">Vega tutorial</a> is a very good starting point (and like all tutorials <a href="https://github.com/vega/vega/issues/308">it can be perfected</a> by <a href="https://github.com/vega/vega/issues/308#issuecomment-125266356">inspirational minds</a>), as well as the interactive and non examples in the <a href="https://vega.github.io/vega-editor/?spec=bar">Vega Editor</a>.</p>
+<p>Here of course you have less textual description about the what’s and why’s.</p>
+<p>The tutorial shows you how to build a (vertical) bar chart. Here it is:</p>
+<iframe src="https://cdn.rawgit.com/espinielli/358d490182efc1beace5/raw/87428be8d9493ae67c1909162a4a5bf2fd05d063/index.html" width="250px" height="450px" marginwidth="0px" marginheight="0px" scrolling="no">
+</iframe>
+<p>So as my homework I implemented what requested as en exercise at the end of the tutorial. That is</p>
+<p>“convert the (vertical) bar plot to an horizontal one”</p>
+<p>Here it is:</p>
+<iframe src="https://cdn.rawgit.com/espinielli/64b0be9bc33d1405bc92/raw/ab9d7be1b4fa9ab72d40555803579896bf7815fc/index.html" width="450px" height="250px" border="1px solid #DEDEDE" marginwidth="0px" marginheight="0px" scrolling="no">
+</iframe>
+<p>The interactive bit in both blocks is evident when you hover your mouse on the bars and the relevant amount is textually shown. Simple and it renders the concept.</p>
+<p>And finally a little example with yearly number of flight in Europe:</p>
+<iframe src="https://cdn.rawgit.com/espinielli/87047968c67c02dbcb8d/raw/a570dc7500c87f3fc6cba48a62d12725bfc2e4c5/index.html" width="480px" height="180px" border="1px solid #DEDEDE" marginwidth="0" marginheight="0" scrolling="no">
+</iframe>
+<p>The following questions remain for me:</p>
+<ol type="1">
+<li><p>How to I pad the graph so that my boundary point are not so close to the axes? This <a href="https://github.com/vega/vega/issues/104">issue</a> calls for an offset to be added to the spec.</p></li>
+<li><p>How do I link events from widgets external to the graph to interactions in the graph? (Here I think the <a href="https://idl.cs.washington.edu/papers/reactive-vega">Reactive Vega</a> supplemental material, i.e.&nbsp;<code>ex_jobs.json</code>, watch at min 3:19 of reactive vega video above, will help, as well as <a href="https://github.com/vega/vega/wiki/Signals#user-content-event-stream-selectors">CSS selector for Signals</a> in the Vega documentation)</p></li>
+</ol>
+<p>If you want to daydream and see the potentials of Vega, watch the recent conference presentation from Prof.&nbsp;Jeffrey Heer:</p>
+<p><a href="https://homes.cs.washington.edu/~jheer/talks/RaisingTheBar-OpenVisConf.pdf">Raising the Bar (Chart): The Next Generation of Visualization Tools</a>, OpenVis Conference 2015 keynote talk by Jeffrey Heer.</p>
+<div class="quarto-video"><iframe src="https://www.youtube.com/embed/GdoDLuPe-Wg" width="560" height="315" title="“”" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen=""></iframe></div>
+
+
+</section>
+
+<div id="quarto-appendix" class="default"><section class="quarto-appendix-contents"><h2 class="anchored quarto-appendix-heading">Reuse</h2><div quarto-reuse="quarto-reuse" class="quarto-appendix-contents"><a rel="license" href="https://creativecommons.org/licenses/by-sa/4.0/">https://creativecommons.org/licenses/by-sa/4.0/</a></div></section></div> ]]></description>
+  <category>Vega</category>
+  <category>D3</category>
+  <guid>https://enrico.spinielli.net/posts/2015-08-08-learning-reactive-vega/index.html</guid>
+  <pubDate>Fri, 07 Aug 2015 22:00:00 GMT</pubDate>
+</item>
+<item>
+  <title>How to add a new chart type to dc.js</title>
+  <dc:creator>Enrico Spinielli</dc:creator>
+  <link>https://enrico.spinielli.net/posts/2015-04-21-how-to-add-a-new-chart-type-to-dcjs/index.html</link>
+  <description><![CDATA[ 
+
+
+
+<p>This is a step by step description of how I extended dc.js with a new chart type. It is inspired by a <a href="https://github.com/loganalysis/analytics/wiki/Adding-a-new-chart">wiki page</a> by <a href="https://www.thomas-robert.fr/en/">Thomas Robert</a>.</p>
+<section id="a-bullet-chart" class="level2">
+<h2 class="anchored" data-anchor-id="a-bullet-chart">A Bullet chart</h2>
+<p><a href="https://bost.ocks.org/mike/">Mike Bostock</a> already implemented a <a href="https://bl.ocks.org/mbostock/4061961">bullet chart</a> in <a href="https://d3js.org">D3.js</a>. The <a href="https://bl.ocks.org/jasondavies/5452290">vertical version</a> from <a href="https://www.jasondavies.com/">Jason Davies</a> uses the official code which is available as a <a href="https://github.com/d3/d3-plugins/tree/master/bullet">d3-plugin</a>. (I have submitted a <a href="https://github.com/d3/d3-plugins/issues/130">proposal for a bug fix</a> and will use it instead.)</p>
+<p>So how can I make it available in <a href="https://dc-js.github.io/dc.js/">dc.js</a>?</p>
+<p><br> <br> Below you can see what I did and <a href="https://bl.ocks.org/espinielli/e7625ce617e4d9c87cae">here</a> what is still in the todo list.</p>
+<iframe src="https://cdn.rawgit.com/espinielli/e7625ce617e4d9c87cae/raw/af63bae2ab20491d80006e6616d1dbde4747b1d5/index.html" marginwidth="0" marginheight="0" scrolling="no" width="100%">
+</iframe>
+<p>The result is not too bad.</p>
+</section>
+<section id="scaffolding" class="level2">
+<h2 class="anchored" data-anchor-id="scaffolding">Scaffolding</h2>
+<p>Starting from <code>dc.js</code> directory</p>
+<ul>
+<li>add a file named <code>src\bullet-chart.js</code></li>
+<li>copy <code>bullet.js</code> (with the fix proposed <a href="https://github.com/d3/d3-plugins/issues/130">here</a>) from the <a href="https://github.com/d3/d3-plugins/tree/master/bullet">d3-plugin</a> to in <code>src\d3.bullet.js</code></li>
+<li>add the two files above in the <code>module.exports.jsFiles</code> array in `Gruntfile.js</li>
+</ul>
+<div class="sourceCode" id="cb1" style="background: #f1f3f5;"><pre class="sourceCode javascript code-with-copy"><code class="sourceCode javascript"><span id="cb1-1">    module<span class="op" style="color: #5E5E5E;">.</span><span class="at" style="color: #657422;">exports</span><span class="op" style="color: #5E5E5E;">.</span><span class="at" style="color: #657422;">jsFiles</span> <span class="op" style="color: #5E5E5E;">=</span> [</span>
+<span id="cb1-2">      <span class="op" style="color: #5E5E5E;">...</span></span>
+<span id="cb1-3">      <span class="st" style="color: #20794D;">'src/d3.bullet.js'</span><span class="op" style="color: #5E5E5E;">,</span></span>
+<span id="cb1-4">      <span class="st" style="color: #20794D;">'src/bullet-chart.js'</span><span class="op" style="color: #5E5E5E;">,</span></span>
+<span id="cb1-5">      <span class="st" style="color: #20794D;">'src/footer.js'</span>  <span class="co" style="color: #5E5E5E;">// </span><span class="al" style="color: #AD0000;">NOTE</span><span class="co" style="color: #5E5E5E;">: keep this last</span></span>
+<span id="cb1-6">    ]<span class="op" style="color: #5E5E5E;">;</span></span></code></pre></div>
+<ul>
+<li>add the example file <code>examples\web\bullet.html</code>, a copy of <code>ord.html</code> for example, and update <code>examples\web\index.html</code> accordingly</li>
+</ul>
+</section>
+<section id="stub-your-chart" class="level2">
+<h2 class="anchored" data-anchor-id="stub-your-chart">Stub your chart</h2>
+<p><code>bullet-chart.js</code> can initially be something like</p>
+<div class="sourceCode" id="cb2" style="background: #f1f3f5;"><pre class="sourceCode javascript code-with-copy"><code class="sourceCode javascript"><span id="cb2-1">    <span class="co" style="color: #5E5E5E;">/**</span></span>
+<span id="cb2-2"><span class="co" style="color: #5E5E5E;">    ## Bullet Chart</span></span>
+<span id="cb2-3"><span class="co" style="color: #5E5E5E;">    Includes: [Margin Mixin](#margin-mixin), [Color Mixin](#color-mixin),</span></span>
+<span id="cb2-4"><span class="co" style="color: #5E5E5E;">              [Base Mixin](#base-mixin)</span></span>
+<span id="cb2-5"><span class="co" style="color: #5E5E5E;">    </span></span>
+<span id="cb2-6"><span class="co" style="color: #5E5E5E;">    Bullet chart implementation.</span></span>
+<span id="cb2-7"><span class="co" style="color: #5E5E5E;">    #### dc.bulletChart(parent[, chartGroup])</span></span>
+<span id="cb2-8"><span class="co" style="color: #5E5E5E;">    Create a bullet chart instance and attach it to the given parent element.</span></span>
+<span id="cb2-9"><span class="co" style="color: #5E5E5E;">    </span></span>
+<span id="cb2-10"><span class="co" style="color: #5E5E5E;">    #### Example of usage</span></span>
+<span id="cb2-11"><span class="co" style="color: #5E5E5E;">    </span></span>
+<span id="cb2-12"><span class="co" style="color: #5E5E5E;">    ```javascript</span></span>
+<span id="cb2-13"><span class="co" style="color: #5E5E5E;">    var chart = dc.bulletCloudChart()</span></span>
+<span id="cb2-14"><span class="co" style="color: #5E5E5E;">     .dimension(department)</span></span>
+<span id="cb2-15"><span class="co" style="color: #5E5E5E;">     .group(salesPerDepartment)</span></span>
+<span id="cb2-16"><span class="co" style="color: #5E5E5E;">     .colors(d3.scale.quantize().range(["#E2F2FF", "#C4E4FF", "#9ED2FF", </span></span>
+<span id="cb2-17"><span class="co" style="color: #5E5E5E;">     "#81C5FF", "#6BBAFF", "#51AEFF",  "#36A2FF", "#1E96FF", "#0089FF", "#0061B5"]))</span></span>
+<span id="cb2-18"><span class="co" style="color: #5E5E5E;">     .colorDomain([0, 200])</span></span>
+<span id="cb2-19"><span class="co" style="color: #5E5E5E;">     .label(function (d) { return labels[d.key]; })</span></span>
+<span id="cb2-20"><span class="co" style="color: #5E5E5E;">     .title(function (d) { return d.value+" $"; })</span></span>
+<span id="cb2-21"><span class="co" style="color: #5E5E5E;">    ```</span></span>
+<span id="cb2-22"><span class="co" style="color: #5E5E5E;">    </span></span>
+<span id="cb2-23"><span class="co" style="color: #5E5E5E;">    </span></span>
+<span id="cb2-24"><span class="co" style="color: #5E5E5E;">    Parameters:</span></span>
+<span id="cb2-25"><span class="co" style="color: #5E5E5E;">    </span></span>
+<span id="cb2-26"><span class="co" style="color: #5E5E5E;">    * parent : string | node | selection - any valid</span></span>
+<span id="cb2-27"><span class="co" style="color: #5E5E5E;">    [d3 single selector](https://github.com/mbostock/d3/wiki/Selections#selecting-elements)</span></span>
+<span id="cb2-28"><span class="co" style="color: #5E5E5E;">    specifying a dom block element such as a div; or a dom element or d3 selection.</span></span>
+<span id="cb2-29"><span class="co" style="color: #5E5E5E;">    </span></span>
+<span id="cb2-30"><span class="co" style="color: #5E5E5E;">    * chartGroup : string (optional) - name of the chart group this chart instance should</span></span>
+<span id="cb2-31"><span class="co" style="color: #5E5E5E;">    be placed in.</span></span>
+<span id="cb2-32"><span class="co" style="color: #5E5E5E;">    Interaction with a chart will only trigger events and redraws within the chart's group.</span></span>
+<span id="cb2-33"><span class="co" style="color: #5E5E5E;">    </span></span>
+<span id="cb2-34"><span class="co" style="color: #5E5E5E;">    Returns:</span></span>
+<span id="cb2-35"><span class="co" style="color: #5E5E5E;">    A newly created bullet chart instance</span></span>
+<span id="cb2-36"><span class="co" style="color: #5E5E5E;">    </span></span>
+<span id="cb2-37"><span class="co" style="color: #5E5E5E;">    ```javascript</span></span>
+<span id="cb2-38"><span class="co" style="color: #5E5E5E;">    // create a bullet chart under #chart-container1 element using the default global chart group</span></span>
+<span id="cb2-39"><span class="co" style="color: #5E5E5E;">    var chart1 = dc.bulletChart('#chart-container1');</span></span>
+<span id="cb2-40"><span class="co" style="color: #5E5E5E;">    // create a bullet chart under #chart-container2 element using chart group A</span></span>
+<span id="cb2-41"><span class="co" style="color: #5E5E5E;">    var chart2 = dc.bulletChart('#chart-container2', 'chartGroupA');</span></span>
+<span id="cb2-42"><span class="co" style="color: #5E5E5E;">    ```</span></span>
+<span id="cb2-43"><span class="co" style="color: #5E5E5E;">    </span></span>
+<span id="cb2-44"><span class="co" style="color: #5E5E5E;">    **/</span></span>
+<span id="cb2-45">    dc<span class="op" style="color: #5E5E5E;">.</span><span class="at" style="color: #657422;">bulletChart</span> <span class="op" style="color: #5E5E5E;">=</span> <span class="kw" style="color: #003B4F;">function</span> (parent<span class="op" style="color: #5E5E5E;">,</span> chartGroup) {</span>
+<span id="cb2-46">    </span>
+<span id="cb2-47">        <span class="kw" style="color: #003B4F;">var</span> _chart <span class="op" style="color: #5E5E5E;">=</span> dc<span class="op" style="color: #5E5E5E;">.</span><span class="fu" style="color: #4758AB;">marginMixin</span>(dc<span class="op" style="color: #5E5E5E;">.</span><span class="fu" style="color: #4758AB;">colorMixin</span>(dc<span class="op" style="color: #5E5E5E;">.</span><span class="fu" style="color: #4758AB;">baseMixin</span>({}))))<span class="op" style="color: #5E5E5E;">;</span></span>
+<span id="cb2-48">    </span>
+<span id="cb2-49">        <span class="co" style="color: #5E5E5E;">//--- specifics ---</span></span>
+<span id="cb2-50">    </span>
+<span id="cb2-51">        <span class="co" style="color: #5E5E5E;">//-----------------</span></span>
+<span id="cb2-52">    </span>
+<span id="cb2-53">     <span class="cf" style="color: #003B4F;">return</span> _chart<span class="op" style="color: #5E5E5E;">.</span><span class="fu" style="color: #4758AB;">anchor</span>(parent<span class="op" style="color: #5E5E5E;">,</span> chartGroup)<span class="op" style="color: #5E5E5E;">;</span></span>
+<span id="cb2-54">    }<span class="op" style="color: #5E5E5E;">;</span></span></code></pre></div>
+<p>The rationale for the mixin used is:</p>
+<ul>
+<li>Base: you cannot really get away from it</li>
+<li>Margin: useful to get proper spacing around</li>
+<li>Color: allows for selecting the bullet colors</li>
+</ul>
+<p>The rendering for the new chart is to be coded in the <code>//--- specifics ---</code> part.</p>
+<p>The source code (yes! It should be better documented, hence this post) of Base Mixin specifies that <code>_doRender</code> and <code>_doRedraw</code> are the functions to be implemented in the concrete charts.</p>
+</section>
+<section id="rendering-the-chart" class="level2">
+<h2 class="anchored" data-anchor-id="rendering-the-chart">Rendering the chart</h2>
+<p>Luckily for bullet charts there are examples to get inspired from both for the <a href="https://bl.ocks.org/mbostock/4061961">horizontal</a> and the <a href="https://bl.ocks.org/jasondavies/5452290">vertical</a> layout.</p>
+<p>The <code>_doRender</code> function is mimicking what done by <a href="https://bost.ocks.org/mike/">Mike Bostock</a> in his horizontal layout with the parametrization of the title <code>transform</code>.</p>
+<div class="sourceCode" id="cb3" style="background: #f1f3f5;"><pre class="sourceCode javascript code-with-copy"><code class="sourceCode javascript"><span id="cb3-1">  <span class="kw" style="color: #003B4F;">var</span> _bulletMargin <span class="op" style="color: #5E5E5E;">=</span> {<span class="dt" style="color: #AD0000;">top</span><span class="op" style="color: #5E5E5E;">:</span> <span class="dv" style="color: #AD0000;">5</span><span class="op" style="color: #5E5E5E;">,</span> <span class="dt" style="color: #AD0000;">right</span><span class="op" style="color: #5E5E5E;">:</span> <span class="dv" style="color: #AD0000;">40</span><span class="op" style="color: #5E5E5E;">,</span> <span class="dt" style="color: #AD0000;">bottom</span><span class="op" style="color: #5E5E5E;">:</span> <span class="dv" style="color: #AD0000;">20</span><span class="op" style="color: #5E5E5E;">,</span> <span class="dt" style="color: #AD0000;">left</span><span class="op" style="color: #5E5E5E;">:</span><span class="dv" style="color: #AD0000;">120</span>}<span class="op" style="color: #5E5E5E;">,</span></span>
+<span id="cb3-2">      _bulletWidth <span class="op" style="color: #5E5E5E;">=</span> <span class="dv" style="color: #AD0000;">960</span> <span class="op" style="color: #5E5E5E;">-</span> _bulletMargin<span class="op" style="color: #5E5E5E;">.</span><span class="at" style="color: #657422;">left</span> <span class="op" style="color: #5E5E5E;">-</span> _bulletMargin<span class="op" style="color: #5E5E5E;">.</span><span class="at" style="color: #657422;">right</span><span class="op" style="color: #5E5E5E;">,</span></span>
+<span id="cb3-3">      _bulletHeight <span class="op" style="color: #5E5E5E;">=</span> <span class="dv" style="color: #AD0000;">50</span> <span class="op" style="color: #5E5E5E;">-</span> _bulletMargin<span class="op" style="color: #5E5E5E;">.</span><span class="at" style="color: #657422;">top</span>  <span class="op" style="color: #5E5E5E;">-</span> _bulletMargin<span class="op" style="color: #5E5E5E;">.</span><span class="at" style="color: #657422;">bottom</span><span class="op" style="color: #5E5E5E;">,</span></span>
+<span id="cb3-4">      _bulletOrient <span class="op" style="color: #5E5E5E;">=</span> <span class="st" style="color: #20794D;">"left"</span><span class="op" style="color: #5E5E5E;">,</span></span>
+<span id="cb3-5">      _titleTranslate <span class="op" style="color: #5E5E5E;">=</span> <span class="fu" style="color: #4758AB;">titleTranslate</span>(_bulletOrient)<span class="op" style="color: #5E5E5E;">;</span></span>
+<span id="cb3-6"></span>
+<span id="cb3-7"></span>
+<span id="cb3-8">  _chart<span class="op" style="color: #5E5E5E;">.</span><span class="at" style="color: #657422;">_doRender</span> <span class="op" style="color: #5E5E5E;">=</span> <span class="kw" style="color: #003B4F;">function</span> () {</span>
+<span id="cb3-9">    <span class="kw" style="color: #003B4F;">var</span> _bullet <span class="op" style="color: #5E5E5E;">=</span> d3<span class="op" style="color: #5E5E5E;">.</span><span class="fu" style="color: #4758AB;">bullet</span>()</span>
+<span id="cb3-10">      <span class="op" style="color: #5E5E5E;">.</span><span class="fu" style="color: #4758AB;">width</span>(_bulletWidth)</span>
+<span id="cb3-11">      <span class="op" style="color: #5E5E5E;">.</span><span class="fu" style="color: #4758AB;">height</span>(_bulletHeight)</span>
+<span id="cb3-12">      <span class="op" style="color: #5E5E5E;">.</span><span class="fu" style="color: #4758AB;">orient</span>(_bulletOrient)<span class="op" style="color: #5E5E5E;">;</span></span>
+<span id="cb3-13"></span>
+<span id="cb3-14">    <span class="kw" style="color: #003B4F;">var</span> svg <span class="op" style="color: #5E5E5E;">=</span> _chart<span class="op" style="color: #5E5E5E;">.</span><span class="fu" style="color: #4758AB;">root</span>()<span class="op" style="color: #5E5E5E;">.</span><span class="fu" style="color: #4758AB;">selectAll</span>(<span class="st" style="color: #20794D;">"svg"</span>)</span>
+<span id="cb3-15">        <span class="op" style="color: #5E5E5E;">.</span><span class="fu" style="color: #4758AB;">data</span>(_chart<span class="op" style="color: #5E5E5E;">.</span><span class="fu" style="color: #4758AB;">data</span>())</span>
+<span id="cb3-16">      <span class="op" style="color: #5E5E5E;">.</span><span class="fu" style="color: #4758AB;">enter</span>()<span class="op" style="color: #5E5E5E;">.</span><span class="fu" style="color: #4758AB;">append</span>(<span class="st" style="color: #20794D;">"svg"</span>)</span>
+<span id="cb3-17">        <span class="op" style="color: #5E5E5E;">.</span><span class="fu" style="color: #4758AB;">attr</span>(<span class="st" style="color: #20794D;">"class"</span><span class="op" style="color: #5E5E5E;">,</span> <span class="st" style="color: #20794D;">"bullet"</span>)</span>
+<span id="cb3-18">        <span class="op" style="color: #5E5E5E;">.</span><span class="fu" style="color: #4758AB;">attr</span>(<span class="st" style="color: #20794D;">"width"</span><span class="op" style="color: #5E5E5E;">,</span> _bulletWidth <span class="op" style="color: #5E5E5E;">+</span> _bulletMargin<span class="op" style="color: #5E5E5E;">.</span><span class="at" style="color: #657422;">left</span> <span class="op" style="color: #5E5E5E;">+</span> _bulletMargin<span class="op" style="color: #5E5E5E;">.</span><span class="at" style="color: #657422;">right</span>)</span>
+<span id="cb3-19">        <span class="op" style="color: #5E5E5E;">.</span><span class="fu" style="color: #4758AB;">attr</span>(<span class="st" style="color: #20794D;">"height"</span><span class="op" style="color: #5E5E5E;">,</span> _bulletHeight <span class="op" style="color: #5E5E5E;">+</span> _bulletMargin<span class="op" style="color: #5E5E5E;">.</span><span class="at" style="color: #657422;">top</span>  <span class="op" style="color: #5E5E5E;">+</span> _bulletMargin<span class="op" style="color: #5E5E5E;">.</span><span class="at" style="color: #657422;">bottom</span>)</span>
+<span id="cb3-20">      <span class="op" style="color: #5E5E5E;">.</span><span class="fu" style="color: #4758AB;">append</span>(<span class="st" style="color: #20794D;">"g"</span>)</span>
+<span id="cb3-21">        <span class="op" style="color: #5E5E5E;">.</span><span class="fu" style="color: #4758AB;">attr</span>(<span class="st" style="color: #20794D;">"transform"</span><span class="op" style="color: #5E5E5E;">,</span> <span class="st" style="color: #20794D;">"translate("</span> <span class="op" style="color: #5E5E5E;">+</span> _bulletMargin<span class="op" style="color: #5E5E5E;">.</span><span class="at" style="color: #657422;">left</span> <span class="op" style="color: #5E5E5E;">+</span> <span class="st" style="color: #20794D;">","</span> <span class="op" style="color: #5E5E5E;">+</span> _bulletMargin<span class="op" style="color: #5E5E5E;">.</span><span class="at" style="color: #657422;">top</span> <span class="op" style="color: #5E5E5E;">+</span> <span class="st" style="color: #20794D;">")"</span>)</span>
+<span id="cb3-22">        <span class="op" style="color: #5E5E5E;">.</span><span class="fu" style="color: #4758AB;">call</span>(_bullet)<span class="op" style="color: #5E5E5E;">;</span></span>
+<span id="cb3-23"></span>
+<span id="cb3-24"></span>
+<span id="cb3-25">    <span class="kw" style="color: #003B4F;">var</span> title <span class="op" style="color: #5E5E5E;">=</span> svg<span class="op" style="color: #5E5E5E;">.</span><span class="fu" style="color: #4758AB;">append</span>(<span class="st" style="color: #20794D;">"g"</span>)</span>
+<span id="cb3-26">        <span class="op" style="color: #5E5E5E;">.</span><span class="fu" style="color: #4758AB;">style</span>(<span class="st" style="color: #20794D;">"text-anchor"</span><span class="op" style="color: #5E5E5E;">,</span> <span class="st" style="color: #20794D;">"end"</span>)</span>
+<span id="cb3-27">        <span class="op" style="color: #5E5E5E;">.</span><span class="fu" style="color: #4758AB;">attr</span>(<span class="st" style="color: #20794D;">"transform"</span><span class="op" style="color: #5E5E5E;">,</span> <span class="st" style="color: #20794D;">"translate("</span> <span class="op" style="color: #5E5E5E;">+</span> _titleTranslate[<span class="dv" style="color: #AD0000;">0</span>] <span class="op" style="color: #5E5E5E;">+</span> <span class="st" style="color: #20794D;">","</span> <span class="op" style="color: #5E5E5E;">+</span> _titleTranslate[<span class="dv" style="color: #AD0000;">1</span>] <span class="op" style="color: #5E5E5E;">+</span> <span class="st" style="color: #20794D;">")"</span>)<span class="op" style="color: #5E5E5E;">;</span></span>
+<span id="cb3-28"></span>
+<span id="cb3-29">    title<span class="op" style="color: #5E5E5E;">.</span><span class="fu" style="color: #4758AB;">append</span>(<span class="st" style="color: #20794D;">"text"</span>)</span>
+<span id="cb3-30">        <span class="op" style="color: #5E5E5E;">.</span><span class="fu" style="color: #4758AB;">attr</span>(<span class="st" style="color: #20794D;">"class"</span><span class="op" style="color: #5E5E5E;">,</span> <span class="st" style="color: #20794D;">"title"</span>)</span>
+<span id="cb3-31">        <span class="op" style="color: #5E5E5E;">.</span><span class="fu" style="color: #4758AB;">text</span>(<span class="kw" style="color: #003B4F;">function</span>(d) {</span>
+<span id="cb3-32">          <span class="cf" style="color: #003B4F;">return</span> d<span class="op" style="color: #5E5E5E;">.</span><span class="at" style="color: #657422;">title</span><span class="op" style="color: #5E5E5E;">;</span></span>
+<span id="cb3-33">        })</span>
+<span id="cb3-34"></span>
+<span id="cb3-35">    title<span class="op" style="color: #5E5E5E;">.</span><span class="fu" style="color: #4758AB;">append</span>(<span class="st" style="color: #20794D;">"text"</span>)</span>
+<span id="cb3-36">        <span class="op" style="color: #5E5E5E;">.</span><span class="fu" style="color: #4758AB;">attr</span>(<span class="st" style="color: #20794D;">"class"</span><span class="op" style="color: #5E5E5E;">,</span> <span class="st" style="color: #20794D;">"subtitle"</span>)</span>
+<span id="cb3-37">        <span class="op" style="color: #5E5E5E;">.</span><span class="fu" style="color: #4758AB;">attr</span>(<span class="st" style="color: #20794D;">"dy"</span><span class="op" style="color: #5E5E5E;">,</span> <span class="st" style="color: #20794D;">"1em"</span>)</span>
+<span id="cb3-38">        <span class="op" style="color: #5E5E5E;">.</span><span class="fu" style="color: #4758AB;">text</span>(<span class="kw" style="color: #003B4F;">function</span>(d) {</span>
+<span id="cb3-39">          <span class="cf" style="color: #003B4F;">return</span> d<span class="op" style="color: #5E5E5E;">.</span><span class="at" style="color: #657422;">subtitle</span><span class="op" style="color: #5E5E5E;">;</span></span>
+<span id="cb3-40">        })</span>
+<span id="cb3-41"></span>
+<span id="cb3-42">    <span class="cf" style="color: #003B4F;">return</span> _chart<span class="op" style="color: #5E5E5E;">;</span></span>
+<span id="cb3-43">  }<span class="op" style="color: #5E5E5E;">;</span></span></code></pre></div>
+<p>The proper positioning of the title is taken care by the <code>titleTranslate</code> function. Titles will either be on the left of the bullet bar in the horizontal layout or at the bottom in the vertical one.</p>
+</section>
+<section id="chart-options" class="level2">
+<h2 class="anchored" data-anchor-id="chart-options">Chart options</h2>
+<p>The bullet chart can be customized in order to produce the desired graph via the getter/setter methods described in the following sections.</p>
+<p>These are quite low level customizations, see the To Do section for a better approach.</p>
+<section id="bulletwidth" class="level3">
+<h3 class="anchored" data-anchor-id="bulletwidth">.bulletWidth</h3>
+<div class="sourceCode" id="cb4" style="background: #f1f3f5;"><pre class="sourceCode javascript code-with-copy"><code class="sourceCode javascript"><span id="cb4-1"><span class="co" style="color: #5E5E5E;">/**</span></span>
+<span id="cb4-2"><span class="co" style="color: #5E5E5E;">  #### .bulletWidth([value])</span></span>
+<span id="cb4-3"><span class="co" style="color: #5E5E5E;">  Set or get the bullet width.</span></span>
+<span id="cb4-4"></span>
+<span id="cb4-5"><span class="co" style="color: #5E5E5E;">  **/</span></span>
+<span id="cb4-6">  _chart<span class="op" style="color: #5E5E5E;">.</span><span class="at" style="color: #657422;">bulletWidth</span> <span class="op" style="color: #5E5E5E;">=</span> <span class="kw" style="color: #003B4F;">function</span> (_) {</span>
+<span id="cb4-7">      <span class="cf" style="color: #003B4F;">if</span> (<span class="op" style="color: #5E5E5E;">!</span><span class="kw" style="color: #003B4F;">arguments</span><span class="op" style="color: #5E5E5E;">.</span><span class="at" style="color: #657422;">length</span>) {</span>
+<span id="cb4-8">          <span class="cf" style="color: #003B4F;">return</span> _bulletWidth<span class="op" style="color: #5E5E5E;">;</span></span>
+<span id="cb4-9">      }</span>
+<span id="cb4-10">      _bulletWidth <span class="op" style="color: #5E5E5E;">=</span> <span class="op" style="color: #5E5E5E;">+</span>_<span class="op" style="color: #5E5E5E;">;</span></span>
+<span id="cb4-11">      <span class="cf" style="color: #003B4F;">return</span> _chart<span class="op" style="color: #5E5E5E;">;</span></span>
+<span id="cb4-12">  }<span class="op" style="color: #5E5E5E;">;</span></span></code></pre></div>
+</section>
+<section id="bulletheight" class="level3">
+<h3 class="anchored" data-anchor-id="bulletheight">.bulletHeight</h3>
+<div class="sourceCode" id="cb5" style="background: #f1f3f5;"><pre class="sourceCode javascript code-with-copy"><code class="sourceCode javascript"><span id="cb5-1">  <span class="co" style="color: #5E5E5E;">/**</span></span>
+<span id="cb5-2"><span class="co" style="color: #5E5E5E;">  #### .bulletHeight([value])</span></span>
+<span id="cb5-3"><span class="co" style="color: #5E5E5E;">  Set or get the bullet height.</span></span>
+<span id="cb5-4"></span>
+<span id="cb5-5"><span class="co" style="color: #5E5E5E;">  **/</span></span>
+<span id="cb5-6">  _chart<span class="op" style="color: #5E5E5E;">.</span><span class="at" style="color: #657422;">bulletHeight</span> <span class="op" style="color: #5E5E5E;">=</span> <span class="kw" style="color: #003B4F;">function</span> (_) {</span>
+<span id="cb5-7">      <span class="cf" style="color: #003B4F;">if</span> (<span class="op" style="color: #5E5E5E;">!</span><span class="kw" style="color: #003B4F;">arguments</span><span class="op" style="color: #5E5E5E;">.</span><span class="at" style="color: #657422;">length</span>) {</span>
+<span id="cb5-8">          <span class="cf" style="color: #003B4F;">return</span> _bulletHeight<span class="op" style="color: #5E5E5E;">;</span></span>
+<span id="cb5-9">      }</span>
+<span id="cb5-10">      _bulletHeight <span class="op" style="color: #5E5E5E;">=</span> <span class="op" style="color: #5E5E5E;">+</span>_<span class="op" style="color: #5E5E5E;">;</span></span>
+<span id="cb5-11">      <span class="cf" style="color: #003B4F;">return</span> _chart<span class="op" style="color: #5E5E5E;">;</span></span>
+<span id="cb5-12">  }<span class="op" style="color: #5E5E5E;">;</span></span></code></pre></div>
+</section>
+<section id="bulletmargin" class="level3">
+<h3 class="anchored" data-anchor-id="bulletmargin">.bulletMargin</h3>
+<div class="sourceCode" id="cb6" style="background: #f1f3f5;"><pre class="sourceCode javascript code-with-copy"><code class="sourceCode javascript"><span id="cb6-1">  <span class="co" style="color: #5E5E5E;">/**</span></span>
+<span id="cb6-2"><span class="co" style="color: #5E5E5E;">  #### .bulletMargin([value])</span></span>
+<span id="cb6-3"><span class="co" style="color: #5E5E5E;">  Set or get the bullet margin, i.e. `{top: 5, right: 40, bottom: 50, left:120}`.</span></span>
+<span id="cb6-4"></span>
+<span id="cb6-5"><span class="co" style="color: #5E5E5E;">  **/</span></span>
+<span id="cb6-6">  _chart<span class="op" style="color: #5E5E5E;">.</span><span class="at" style="color: #657422;">bulletMargin</span> <span class="op" style="color: #5E5E5E;">=</span> <span class="kw" style="color: #003B4F;">function</span> (_) {</span>
+<span id="cb6-7">      <span class="cf" style="color: #003B4F;">if</span> (<span class="op" style="color: #5E5E5E;">!</span><span class="kw" style="color: #003B4F;">arguments</span><span class="op" style="color: #5E5E5E;">.</span><span class="at" style="color: #657422;">length</span>) {</span>
+<span id="cb6-8">          <span class="cf" style="color: #003B4F;">return</span> _bulletMargin<span class="op" style="color: #5E5E5E;">;</span></span>
+<span id="cb6-9">      }</span>
+<span id="cb6-10">      _bulletMargin <span class="op" style="color: #5E5E5E;">=</span> _<span class="op" style="color: #5E5E5E;">;</span></span>
+<span id="cb6-11">      <span class="cf" style="color: #003B4F;">return</span> _chart<span class="op" style="color: #5E5E5E;">;</span></span>
+<span id="cb6-12">  }<span class="op" style="color: #5E5E5E;">;</span></span></code></pre></div>
+</section>
+<section id="orient" class="level3">
+<h3 class="anchored" data-anchor-id="orient">.orient</h3>
+<p>This method defines the starting point for the bullet.</p>
+<p>Note that it influences where the title/subtitle will be positioned: the current implementation of <code>bullet.js</code> allows for title to either be on the left or at the bottom in the horizontal and vertical layout respectively.</p>
+<p>The internal function <code>titleTranslate</code> sets sensible values for the title position.</p>
+<div class="sourceCode" id="cb7" style="background: #f1f3f5;"><pre class="sourceCode javascript code-with-copy"><code class="sourceCode javascript"><span id="cb7-1">  <span class="co" style="color: #5E5E5E;">/**</span></span>
+<span id="cb7-2"><span class="co" style="color: #5E5E5E;">  #### .orient([value])</span></span>
+<span id="cb7-3"><span class="co" style="color: #5E5E5E;">  Set or get the bullet orientation (one of `"left"`, `"right"`, `"top"` or `"bottom"`).</span></span>
+<span id="cb7-4"></span>
+<span id="cb7-5"><span class="co" style="color: #5E5E5E;">  **/</span></span>
+<span id="cb7-6">  _chart<span class="op" style="color: #5E5E5E;">.</span><span class="at" style="color: #657422;">orient</span> <span class="op" style="color: #5E5E5E;">=</span> <span class="kw" style="color: #003B4F;">function</span> (_) {</span>
+<span id="cb7-7">      <span class="cf" style="color: #003B4F;">if</span> (<span class="op" style="color: #5E5E5E;">!</span><span class="kw" style="color: #003B4F;">arguments</span><span class="op" style="color: #5E5E5E;">.</span><span class="at" style="color: #657422;">length</span>) {</span>
+<span id="cb7-8">          <span class="cf" style="color: #003B4F;">return</span> _bulletOrient<span class="op" style="color: #5E5E5E;">;</span></span>
+<span id="cb7-9">      }</span>
+<span id="cb7-10">      _bulletOrient <span class="op" style="color: #5E5E5E;">=</span> _<span class="op" style="color: #5E5E5E;">;</span></span>
+<span id="cb7-11">      _titleTranslate <span class="op" style="color: #5E5E5E;">=</span> <span class="fu" style="color: #4758AB;">titleTranslate</span>(_bulletOrient)<span class="op" style="color: #5E5E5E;">;</span></span>
+<span id="cb7-12">      <span class="cf" style="color: #003B4F;">return</span> _chart<span class="op" style="color: #5E5E5E;">;</span></span>
+<span id="cb7-13">  }<span class="op" style="color: #5E5E5E;">;</span></span></code></pre></div>
+</section>
+<section id="titletranslate-internal" class="level3">
+<h3 class="anchored" data-anchor-id="titletranslate-internal">titleTranslate (internal)</h3>
+<p>This internal function sets the right parameters for the positioning of the title/subtitle for the vertical and horizontal layout.</p>
+<div class="sourceCode" id="cb8" style="background: #f1f3f5;"><pre class="sourceCode javascript code-with-copy"><code class="sourceCode javascript"><span id="cb8-1">  <span class="kw" style="color: #003B4F;">function</span> <span class="fu" style="color: #4758AB;">titleTranslate</span>(orient) {</span>
+<span id="cb8-2">    <span class="cf" style="color: #003B4F;">if</span> (<span class="op" style="color: #5E5E5E;">!</span><span class="kw" style="color: #003B4F;">arguments</span><span class="op" style="color: #5E5E5E;">.</span><span class="at" style="color: #657422;">length</span>) {</span>
+<span id="cb8-3">      <span class="cf" style="color: #003B4F;">return</span> _titleTranslate<span class="op" style="color: #5E5E5E;">;</span></span>
+<span id="cb8-4">    }</span>
+<span id="cb8-5">    </span>
+<span id="cb8-6">    <span class="cf" style="color: #003B4F;">if</span> (_bulletOrient <span class="op" style="color: #5E5E5E;">==</span> <span class="st" style="color: #20794D;">"left"</span> <span class="op" style="color: #5E5E5E;">||</span> _bulletOrient <span class="op" style="color: #5E5E5E;">==</span> <span class="st" style="color: #20794D;">"right"</span>) {</span>
+<span id="cb8-7">      <span class="cf" style="color: #003B4F;">return</span> [<span class="op" style="color: #5E5E5E;">-</span><span class="dv" style="color: #AD0000;">6</span><span class="op" style="color: #5E5E5E;">,</span> _bulletHeight <span class="op" style="color: #5E5E5E;">/</span> <span class="dv" style="color: #AD0000;">2</span>]<span class="op" style="color: #5E5E5E;">;</span></span>
+<span id="cb8-8">    }</span>
+<span id="cb8-9">    <span class="cf" style="color: #003B4F;">else</span> <span class="cf" style="color: #003B4F;">if</span> (_bulletOrient <span class="op" style="color: #5E5E5E;">==</span> <span class="st" style="color: #20794D;">"bottom"</span> <span class="op" style="color: #5E5E5E;">||</span> _bulletOrient <span class="op" style="color: #5E5E5E;">==</span> <span class="st" style="color: #20794D;">"top"</span>) {</span>
+<span id="cb8-10">      <span class="cf" style="color: #003B4F;">return</span> [_bulletWidth<span class="op" style="color: #5E5E5E;">,</span> _bulletHeight <span class="op" style="color: #5E5E5E;">+</span> <span class="dv" style="color: #AD0000;">20</span>]</span>
+<span id="cb8-11">    }</span>
+<span id="cb8-12"></span>
+<span id="cb8-13">    <span class="cf" style="color: #003B4F;">return</span> [<span class="op" style="color: #5E5E5E;">-</span><span class="dv" style="color: #AD0000;">6</span><span class="op" style="color: #5E5E5E;">,</span> _bulletHeight <span class="op" style="color: #5E5E5E;">/</span> <span class="dv" style="color: #AD0000;">2</span>]<span class="op" style="color: #5E5E5E;">;</span></span>
+<span id="cb8-14">  }</span></code></pre></div>
+</section>
+</section>
+<section id="example" class="level2">
+<h2 class="anchored" data-anchor-id="example">Example</h2>
+<p>The <code>bullet.html</code> file is structured pretty much the same as the other examples:</p>
+<ul>
+<li>the head part,</li>
+<li>the libraries,</li>
+<li>the style part</li>
+<li>the <code>&lt;div&gt;</code>’s for the charts</li>
+<li>the code for the chart instantiation and rendering</li>
+</ul>
+<div class="sourceCode" id="cb9" style="background: #f1f3f5;"><pre class="sourceCode html code-with-copy"><code class="sourceCode html"><span id="cb9-1"><span class="dt" style="color: #AD0000;">&lt;!DOCTYPE </span>html<span class="dt" style="color: #AD0000;">&gt;</span></span>
+<span id="cb9-2"><span class="kw" style="color: #003B4F;">&lt;html</span> <span class="er" style="color: #AD0000;">lang</span><span class="ot" style="color: #003B4F;">=</span><span class="st" style="color: #20794D;">"en"</span><span class="kw" style="color: #003B4F;">&gt;</span></span>
+<span id="cb9-3"><span class="kw" style="color: #003B4F;">&lt;head&gt;</span></span>
+<span id="cb9-4"><span class="kw" style="color: #003B4F;">&lt;title&gt;</span>dc.js - Bullet Chart Example<span class="kw" style="color: #003B4F;">&lt;/title&gt;</span></span>
+<span id="cb9-5">    <span class="kw" style="color: #003B4F;">&lt;meta</span> <span class="er" style="color: #AD0000;">charset</span><span class="ot" style="color: #003B4F;">=</span><span class="st" style="color: #20794D;">"UTF-8"</span><span class="kw" style="color: #003B4F;">&gt;</span></span>
+<span id="cb9-6">    <span class="kw" style="color: #003B4F;">&lt;link</span> <span class="er" style="color: #AD0000;">rel</span><span class="ot" style="color: #003B4F;">=</span><span class="st" style="color: #20794D;">"stylesheet"</span> <span class="er" style="color: #AD0000;">type</span><span class="ot" style="color: #003B4F;">=</span><span class="st" style="color: #20794D;">"text/css"</span> <span class="er" style="color: #AD0000;">href</span><span class="ot" style="color: #003B4F;">=</span><span class="st" style="color: #20794D;">"../css/dc.css"</span><span class="kw" style="color: #003B4F;">/&gt;</span></span>
+<span id="cb9-7"><span class="kw" style="color: #003B4F;">&lt;/head&gt;</span></span>
+<span id="cb9-8"><span class="kw" style="color: #003B4F;">&lt;script</span><span class="ot" style="color: #003B4F;"> type=</span><span class="st" style="color: #20794D;">"text/javascript"</span> <span class="er" style="color: #AD0000;">src</span><span class="ot" style="color: #003B4F;">=</span><span class="st" style="color: #20794D;">"../js/d3.js"</span><span class="kw" style="color: #003B4F;">&gt;&lt;/script&gt;</span></span>
+<span id="cb9-9"><span class="kw" style="color: #003B4F;">&lt;script</span><span class="ot" style="color: #003B4F;"> type=</span><span class="st" style="color: #20794D;">"text/javascript"</span> <span class="er" style="color: #AD0000;">src</span><span class="ot" style="color: #003B4F;">=</span><span class="st" style="color: #20794D;">"../js/crossfilter.js"</span><span class="kw" style="color: #003B4F;">&gt;&lt;/script&gt;</span></span>
+<span id="cb9-10"><span class="kw" style="color: #003B4F;">&lt;script</span><span class="ot" style="color: #003B4F;"> type=</span><span class="st" style="color: #20794D;">"text/javascript"</span> <span class="er" style="color: #AD0000;">src</span><span class="ot" style="color: #003B4F;">=</span><span class="st" style="color: #20794D;">"../js/dc.js"</span><span class="kw" style="color: #003B4F;">&gt;&lt;/script&gt;</span></span>
+<span id="cb9-11"></span>
+<span id="cb9-12"><span class="kw" style="color: #003B4F;">&lt;style&gt;</span></span>
+<span id="cb9-13">  <span class="co" style="color: #5E5E5E;">/* see "A Matter of Style" section */</span></span>
+<span id="cb9-14"><span class="kw" style="color: #003B4F;">&lt;/style&gt;</span></span>
+<span id="cb9-15"></span>
+<span id="cb9-16"></span>
+<span id="cb9-17"><span class="kw" style="color: #003B4F;">&lt;div</span> <span class="er" style="color: #AD0000;">id</span><span class="ot" style="color: #003B4F;">=</span><span class="st" style="color: #20794D;">"test-horizontal"</span><span class="kw" style="color: #003B4F;">&gt;&lt;/div&gt;</span></span>
+<span id="cb9-18"><span class="kw" style="color: #003B4F;">&lt;div</span> <span class="er" style="color: #AD0000;">id</span><span class="ot" style="color: #003B4F;">=</span><span class="st" style="color: #20794D;">"test-vertical"</span><span class="kw" style="color: #003B4F;">&gt;&lt;/div&gt;</span></span>
+<span id="cb9-19"></span>
+<span id="cb9-20"><span class="kw" style="color: #003B4F;">&lt;script</span><span class="ot" style="color: #003B4F;"> type=</span><span class="st" style="color: #20794D;">"text/javascript"</span><span class="kw" style="color: #003B4F;">&gt;</span></span>
+<span id="cb9-21">  <span class="co" style="color: #5E5E5E;">// see "The Two Layouts" section</span></span>
+<span id="cb9-22"><span class="kw" style="color: #003B4F;">&lt;/script&gt;</span></span>
+<span id="cb9-23"><span class="kw" style="color: #003B4F;">&lt;/html&gt;</span></span></code></pre></div>
+<section id="the-two-layouts" class="level3">
+<h3 class="anchored" data-anchor-id="the-two-layouts">The Two Layouts</h3>
+<p>The example mimics charts in the gists from Mike Bostock and Jason Davies.</p>
+<p>There is the usual binding to the <code>&lt;div&gt;</code>’s, the crossfilter bits and the chart definition and rendering.</p>
+<p>Note the trick about how <code>statusGroup</code> has been defined in order to comply with <code>dc.js</code> way to pass the data to the underlying <code>d3.js</code>: this is based on the knowledge that the default implementation of <code>.data()</code> is returning <code>group.all()</code>.</p>
+<div class="sourceCode" id="cb10" style="background: #f1f3f5;"><pre class="sourceCode javascript code-with-copy"><code class="sourceCode javascript"><span id="cb10-1"><span class="kw" style="color: #003B4F;">var</span> chart1 <span class="op" style="color: #5E5E5E;">=</span> dc<span class="op" style="color: #5E5E5E;">.</span><span class="fu" style="color: #4758AB;">bulletChart</span>(<span class="st" style="color: #20794D;">"#test-horizontal"</span>)<span class="op" style="color: #5E5E5E;">;</span></span>
+<span id="cb10-2"><span class="kw" style="color: #003B4F;">var</span> chart2 <span class="op" style="color: #5E5E5E;">=</span> dc<span class="op" style="color: #5E5E5E;">.</span><span class="fu" style="color: #4758AB;">bulletChart</span>(<span class="st" style="color: #20794D;">"#test-vertical"</span>)<span class="op" style="color: #5E5E5E;">;</span></span>
+<span id="cb10-3"></span>
+<span id="cb10-4"><span class="kw" style="color: #003B4F;">var</span> data <span class="op" style="color: #5E5E5E;">=</span> [</span>
+<span id="cb10-5">  {<span class="st" style="color: #20794D;">"title"</span><span class="op" style="color: #5E5E5E;">:</span><span class="st" style="color: #20794D;">"Revenue"</span><span class="op" style="color: #5E5E5E;">,</span><span class="st" style="color: #20794D;">"subtitle"</span><span class="op" style="color: #5E5E5E;">:</span><span class="st" style="color: #20794D;">"US$, in thousands"</span><span class="op" style="color: #5E5E5E;">,</span><span class="st" style="color: #20794D;">"ranges"</span><span class="op" style="color: #5E5E5E;">:</span>[<span class="dv" style="color: #AD0000;">150</span><span class="op" style="color: #5E5E5E;">,</span><span class="dv" style="color: #AD0000;">225</span><span class="op" style="color: #5E5E5E;">,</span><span class="dv" style="color: #AD0000;">300</span>]<span class="op" style="color: #5E5E5E;">,</span><span class="st" style="color: #20794D;">"measures"</span><span class="op" style="color: #5E5E5E;">:</span>[<span class="dv" style="color: #AD0000;">220</span><span class="op" style="color: #5E5E5E;">,</span><span class="dv" style="color: #AD0000;">270</span>]<span class="op" style="color: #5E5E5E;">,</span><span class="st" style="color: #20794D;">"markers"</span><span class="op" style="color: #5E5E5E;">:</span>[<span class="dv" style="color: #AD0000;">250</span>]}<span class="op" style="color: #5E5E5E;">,</span></span>
+<span id="cb10-6">  {<span class="st" style="color: #20794D;">"title"</span><span class="op" style="color: #5E5E5E;">:</span><span class="st" style="color: #20794D;">"Profit"</span><span class="op" style="color: #5E5E5E;">,</span><span class="st" style="color: #20794D;">"subtitle"</span><span class="op" style="color: #5E5E5E;">:</span><span class="st" style="color: #20794D;">"%"</span><span class="op" style="color: #5E5E5E;">,</span><span class="st" style="color: #20794D;">"ranges"</span><span class="op" style="color: #5E5E5E;">:</span>[<span class="dv" style="color: #AD0000;">20</span><span class="op" style="color: #5E5E5E;">,</span><span class="dv" style="color: #AD0000;">25</span><span class="op" style="color: #5E5E5E;">,</span><span class="dv" style="color: #AD0000;">30</span>]<span class="op" style="color: #5E5E5E;">,</span><span class="st" style="color: #20794D;">"measures"</span><span class="op" style="color: #5E5E5E;">:</span>[<span class="dv" style="color: #AD0000;">21</span><span class="op" style="color: #5E5E5E;">,</span><span class="dv" style="color: #AD0000;">23</span>]<span class="op" style="color: #5E5E5E;">,</span><span class="st" style="color: #20794D;">"markers"</span><span class="op" style="color: #5E5E5E;">:</span>[<span class="dv" style="color: #AD0000;">26</span>]}<span class="op" style="color: #5E5E5E;">,</span></span>
+<span id="cb10-7">  {<span class="st" style="color: #20794D;">"title"</span><span class="op" style="color: #5E5E5E;">:</span><span class="st" style="color: #20794D;">"Order Size"</span><span class="op" style="color: #5E5E5E;">,</span><span class="st" style="color: #20794D;">"subtitle"</span><span class="op" style="color: #5E5E5E;">:</span><span class="st" style="color: #20794D;">"US$, average"</span><span class="op" style="color: #5E5E5E;">,</span><span class="st" style="color: #20794D;">"ranges"</span><span class="op" style="color: #5E5E5E;">:</span>[<span class="dv" style="color: #AD0000;">350</span><span class="op" style="color: #5E5E5E;">,</span><span class="dv" style="color: #AD0000;">500</span><span class="op" style="color: #5E5E5E;">,</span><span class="dv" style="color: #AD0000;">600</span>]<span class="op" style="color: #5E5E5E;">,</span><span class="st" style="color: #20794D;">"measures"</span><span class="op" style="color: #5E5E5E;">:</span>[<span class="dv" style="color: #AD0000;">100</span><span class="op" style="color: #5E5E5E;">,</span><span class="dv" style="color: #AD0000;">320</span>]<span class="op" style="color: #5E5E5E;">,</span><span class="st" style="color: #20794D;">"markers"</span><span class="op" style="color: #5E5E5E;">:</span>[<span class="dv" style="color: #AD0000;">550</span>]}<span class="op" style="color: #5E5E5E;">,</span></span>
+<span id="cb10-8">  {<span class="st" style="color: #20794D;">"title"</span><span class="op" style="color: #5E5E5E;">:</span><span class="st" style="color: #20794D;">"New Customers"</span><span class="op" style="color: #5E5E5E;">,</span><span class="st" style="color: #20794D;">"subtitle"</span><span class="op" style="color: #5E5E5E;">:</span><span class="st" style="color: #20794D;">"count"</span><span class="op" style="color: #5E5E5E;">,</span><span class="st" style="color: #20794D;">"ranges"</span><span class="op" style="color: #5E5E5E;">:</span>[<span class="dv" style="color: #AD0000;">1400</span><span class="op" style="color: #5E5E5E;">,</span><span class="dv" style="color: #AD0000;">2000</span><span class="op" style="color: #5E5E5E;">,</span><span class="dv" style="color: #AD0000;">2500</span>]<span class="op" style="color: #5E5E5E;">,</span><span class="st" style="color: #20794D;">"measures"</span><span class="op" style="color: #5E5E5E;">:</span>[<span class="dv" style="color: #AD0000;">1000</span><span class="op" style="color: #5E5E5E;">,</span><span class="dv" style="color: #AD0000;">1650</span>]<span class="op" style="color: #5E5E5E;">,</span><span class="st" style="color: #20794D;">"markers"</span><span class="op" style="color: #5E5E5E;">:</span>[<span class="dv" style="color: #AD0000;">2100</span>]}<span class="op" style="color: #5E5E5E;">,</span></span>
+<span id="cb10-9">  {<span class="st" style="color: #20794D;">"title"</span><span class="op" style="color: #5E5E5E;">:</span><span class="st" style="color: #20794D;">"Satisfaction"</span><span class="op" style="color: #5E5E5E;">,</span><span class="st" style="color: #20794D;">"subtitle"</span><span class="op" style="color: #5E5E5E;">:</span><span class="st" style="color: #20794D;">"out of 5"</span><span class="op" style="color: #5E5E5E;">,</span><span class="st" style="color: #20794D;">"ranges"</span><span class="op" style="color: #5E5E5E;">:</span>[<span class="fl" style="color: #AD0000;">3.5</span><span class="op" style="color: #5E5E5E;">,</span><span class="fl" style="color: #AD0000;">4.25</span><span class="op" style="color: #5E5E5E;">,</span><span class="dv" style="color: #AD0000;">5</span>]<span class="op" style="color: #5E5E5E;">,</span><span class="st" style="color: #20794D;">"measures"</span><span class="op" style="color: #5E5E5E;">:</span>[<span class="fl" style="color: #AD0000;">3.2</span><span class="op" style="color: #5E5E5E;">,</span><span class="fl" style="color: #AD0000;">4.7</span>]<span class="op" style="color: #5E5E5E;">,</span><span class="st" style="color: #20794D;">"markers"</span><span class="op" style="color: #5E5E5E;">:</span>[<span class="fl" style="color: #AD0000;">4.4</span>]}</span>
+<span id="cb10-10">]<span class="op" style="color: #5E5E5E;">;</span></span>
+<span id="cb10-11"></span>
+<span id="cb10-12"><span class="kw" style="color: #003B4F;">var</span> ndx        <span class="op" style="color: #5E5E5E;">=</span> <span class="fu" style="color: #4758AB;">crossfilter</span>(data)<span class="op" style="color: #5E5E5E;">,</span></span>
+<span id="cb10-13">    titleDimension <span class="op" style="color: #5E5E5E;">=</span> ndx<span class="op" style="color: #5E5E5E;">.</span><span class="fu" style="color: #4758AB;">dimension</span>(<span class="kw" style="color: #003B4F;">function</span>(d) {<span class="cf" style="color: #003B4F;">return</span> d<span class="op" style="color: #5E5E5E;">.</span><span class="at" style="color: #657422;">title</span><span class="op" style="color: #5E5E5E;">;</span>})<span class="op" style="color: #5E5E5E;">,</span></span>
+<span id="cb10-14">    statusGroup    <span class="op" style="color: #5E5E5E;">=</span> {</span>
+<span id="cb10-15">      <span class="dt" style="color: #AD0000;">all</span><span class="op" style="color: #5E5E5E;">:</span> <span class="kw" style="color: #003B4F;">function</span>(){</span>
+<span id="cb10-16">        <span class="cf" style="color: #003B4F;">return</span> data<span class="op" style="color: #5E5E5E;">;</span></span>
+<span id="cb10-17">    }}<span class="op" style="color: #5E5E5E;">;</span></span>
+<span id="cb10-18"></span>
+<span id="cb10-19"><span class="co" style="color: #5E5E5E;">// dims from Mike Bostock's bl.ock, https://bl.ocks.org/mbostock/4061961</span></span>
+<span id="cb10-20">chart1</span>
+<span id="cb10-21">  <span class="op" style="color: #5E5E5E;">.</span><span class="fu" style="color: #4758AB;">width</span>(<span class="dv" style="color: #AD0000;">960</span>)</span>
+<span id="cb10-22">  <span class="op" style="color: #5E5E5E;">.</span><span class="fu" style="color: #4758AB;">height</span>(<span class="dv" style="color: #AD0000;">450</span>)</span>
+<span id="cb10-23">  <span class="op" style="color: #5E5E5E;">.</span><span class="fu" style="color: #4758AB;">bulletMargin</span>({<span class="dt" style="color: #AD0000;">top</span><span class="op" style="color: #5E5E5E;">:</span> <span class="dv" style="color: #AD0000;">5</span><span class="op" style="color: #5E5E5E;">,</span> <span class="dt" style="color: #AD0000;">right</span><span class="op" style="color: #5E5E5E;">:</span> <span class="dv" style="color: #AD0000;">40</span><span class="op" style="color: #5E5E5E;">,</span> <span class="dt" style="color: #AD0000;">bottom</span><span class="op" style="color: #5E5E5E;">:</span> <span class="dv" style="color: #AD0000;">20</span><span class="op" style="color: #5E5E5E;">,</span> <span class="dt" style="color: #AD0000;">left</span><span class="op" style="color: #5E5E5E;">:</span> <span class="dv" style="color: #AD0000;">120</span>})</span>
+<span id="cb10-24">  <span class="op" style="color: #5E5E5E;">.</span><span class="fu" style="color: #4758AB;">bulletWidth</span>(<span class="dv" style="color: #AD0000;">960</span> <span class="op" style="color: #5E5E5E;">-</span> <span class="dv" style="color: #AD0000;">120</span> <span class="op" style="color: #5E5E5E;">-</span> <span class="dv" style="color: #AD0000;">40</span>)</span>
+<span id="cb10-25">  <span class="op" style="color: #5E5E5E;">.</span><span class="fu" style="color: #4758AB;">bulletHeight</span>(<span class="dv" style="color: #AD0000;">50</span> <span class="op" style="color: #5E5E5E;">-</span> <span class="dv" style="color: #AD0000;">5</span> <span class="op" style="color: #5E5E5E;">-</span> <span class="dv" style="color: #AD0000;">20</span>)</span>
+<span id="cb10-26">  <span class="op" style="color: #5E5E5E;">.</span><span class="fu" style="color: #4758AB;">orient</span>(<span class="st" style="color: #20794D;">"left"</span>)</span>
+<span id="cb10-27">  <span class="op" style="color: #5E5E5E;">.</span><span class="fu" style="color: #4758AB;">dimension</span>(titleDimension)</span>
+<span id="cb10-28">  <span class="op" style="color: #5E5E5E;">.</span><span class="fu" style="color: #4758AB;">group</span>(statusGroup)<span class="op" style="color: #5E5E5E;">;</span></span>
+<span id="cb10-29"></span>
+<span id="cb10-30">chart1<span class="op" style="color: #5E5E5E;">.</span><span class="fu" style="color: #4758AB;">render</span>()<span class="op" style="color: #5E5E5E;">;</span></span>
+<span id="cb10-31"></span>
+<span id="cb10-32"><span class="co" style="color: #5E5E5E;">// dims from Jason Davies's bl.ock, https://bl.ocks.org/jasondavies/5452290</span></span>
+<span id="cb10-33">chart2</span>
+<span id="cb10-34">  <span class="op" style="color: #5E5E5E;">.</span><span class="fu" style="color: #4758AB;">width</span>(<span class="dv" style="color: #AD0000;">185</span>)</span>
+<span id="cb10-35">  <span class="op" style="color: #5E5E5E;">.</span><span class="fu" style="color: #4758AB;">height</span>(<span class="dv" style="color: #AD0000;">450</span>)</span>
+<span id="cb10-36">  <span class="op" style="color: #5E5E5E;">.</span><span class="fu" style="color: #4758AB;">bulletMargin</span>({<span class="dt" style="color: #AD0000;">top</span><span class="op" style="color: #5E5E5E;">:</span> <span class="dv" style="color: #AD0000;">5</span><span class="op" style="color: #5E5E5E;">,</span> <span class="dt" style="color: #AD0000;">right</span><span class="op" style="color: #5E5E5E;">:</span> <span class="dv" style="color: #AD0000;">40</span><span class="op" style="color: #5E5E5E;">,</span> <span class="dt" style="color: #AD0000;">bottom</span><span class="op" style="color: #5E5E5E;">:</span> <span class="dv" style="color: #AD0000;">50</span><span class="op" style="color: #5E5E5E;">,</span> <span class="dt" style="color: #AD0000;">left</span><span class="op" style="color: #5E5E5E;">:</span> <span class="dv" style="color: #AD0000;">120</span>})</span>
+<span id="cb10-37">  <span class="op" style="color: #5E5E5E;">.</span><span class="fu" style="color: #4758AB;">bulletWidth</span>(<span class="dv" style="color: #AD0000;">185</span> <span class="op" style="color: #5E5E5E;">-</span> <span class="dv" style="color: #AD0000;">120</span> <span class="op" style="color: #5E5E5E;">-</span> <span class="dv" style="color: #AD0000;">40</span>)</span>
+<span id="cb10-38">  <span class="op" style="color: #5E5E5E;">.</span><span class="fu" style="color: #4758AB;">bulletHeight</span>(<span class="dv" style="color: #AD0000;">450</span> <span class="op" style="color: #5E5E5E;">-</span> <span class="dv" style="color: #AD0000;">5</span> <span class="op" style="color: #5E5E5E;">-</span> <span class="dv" style="color: #AD0000;">50</span>)</span>
+<span id="cb10-39">  <span class="op" style="color: #5E5E5E;">.</span><span class="fu" style="color: #4758AB;">orient</span>(<span class="st" style="color: #20794D;">"top"</span>)</span>
+<span id="cb10-40">  <span class="op" style="color: #5E5E5E;">.</span><span class="fu" style="color: #4758AB;">dimension</span>(titleDimension)</span>
+<span id="cb10-41">  <span class="op" style="color: #5E5E5E;">.</span><span class="fu" style="color: #4758AB;">group</span>(statusGroup)<span class="op" style="color: #5E5E5E;">;</span></span>
+<span id="cb10-42"></span>
+<span id="cb10-43">chart2<span class="op" style="color: #5E5E5E;">.</span><span class="fu" style="color: #4758AB;">render</span>()<span class="op" style="color: #5E5E5E;">;</span></span></code></pre></div>
+</section>
+<section id="a-matter-of-style" class="level3">
+<h3 class="anchored" data-anchor-id="a-matter-of-style">A Matter of Style</h3>
+<p>In the best tradition of the web, everything in the chart can be customized via CSS</p>
+<div class="sourceCode" id="cb11" style="background: #f1f3f5;"><pre class="sourceCode css code-with-copy"><code class="sourceCode css"><span id="cb11-1">body {</span>
+<span id="cb11-2">  <span class="kw" style="color: #003B4F;">font-family</span>: <span class="st" style="color: #20794D;">"Helvetica Neue"</span><span class="op" style="color: #5E5E5E;">,</span> Helvetica<span class="op" style="color: #5E5E5E;">,</span> Arial<span class="op" style="color: #5E5E5E;">,</span> <span class="dv" style="color: #AD0000;">sans-serif</span><span class="op" style="color: #5E5E5E;">;</span></span>
+<span id="cb11-3">  <span class="kw" style="color: #003B4F;">margin</span>: <span class="bu" style="color: null;">auto</span><span class="op" style="color: #5E5E5E;">;</span></span>
+<span id="cb11-4">  <span class="kw" style="color: #003B4F;">padding-top</span>: <span class="dv" style="color: #AD0000;">40</span><span class="dt" style="color: #AD0000;">px</span><span class="op" style="color: #5E5E5E;">;</span></span>
+<span id="cb11-5">  <span class="kw" style="color: #003B4F;">position</span>: <span class="dv" style="color: #AD0000;">relative</span><span class="op" style="color: #5E5E5E;">;</span></span>
+<span id="cb11-6">  <span class="kw" style="color: #003B4F;">width</span>: <span class="dv" style="color: #AD0000;">960</span><span class="dt" style="color: #AD0000;">px</span><span class="op" style="color: #5E5E5E;">;</span></span>
+<span id="cb11-7">}</span>
+<span id="cb11-8"></span>
+<span id="cb11-9">button {</span>
+<span id="cb11-10">  <span class="kw" style="color: #003B4F;">position</span>: <span class="dv" style="color: #AD0000;">absolute</span><span class="op" style="color: #5E5E5E;">;</span></span>
+<span id="cb11-11">  <span class="kw" style="color: #003B4F;">right</span>: <span class="dv" style="color: #AD0000;">10</span><span class="dt" style="color: #AD0000;">px</span><span class="op" style="color: #5E5E5E;">;</span></span>
+<span id="cb11-12">  <span class="kw" style="color: #003B4F;">top</span>: <span class="dv" style="color: #AD0000;">10</span><span class="dt" style="color: #AD0000;">px</span><span class="op" style="color: #5E5E5E;">;</span></span>
+<span id="cb11-13">}</span>
+<span id="cb11-14"></span>
+<span id="cb11-15"><span class="fu" style="color: #4758AB;">.bullet</span> { <span class="kw" style="color: #003B4F;">font</span>: <span class="dv" style="color: #AD0000;">10</span><span class="dt" style="color: #AD0000;">px</span> <span class="dv" style="color: #AD0000;">sans-serif</span><span class="op" style="color: #5E5E5E;">;</span> }</span>
+<span id="cb11-16"><span class="fu" style="color: #4758AB;">.bullet</span> <span class="fu" style="color: #4758AB;">.marker</span> { stroke: <span class="cn" style="color: #8f5902;">#000</span><span class="op" style="color: #5E5E5E;">;</span> stroke-width: <span class="dv" style="color: #AD0000;">2</span><span class="dt" style="color: #AD0000;">px</span><span class="op" style="color: #5E5E5E;">;</span> }</span>
+<span id="cb11-17"><span class="fu" style="color: #4758AB;">.bullet</span> <span class="fu" style="color: #4758AB;">.tick</span> line { stroke: <span class="cn" style="color: #8f5902;">#666</span><span class="op" style="color: #5E5E5E;">;</span> stroke-width: <span class="dv" style="color: #AD0000;">.5</span><span class="dt" style="color: #AD0000;">px</span><span class="op" style="color: #5E5E5E;">;</span>}</span>
+<span id="cb11-18"><span class="fu" style="color: #4758AB;">.bullet</span> <span class="fu" style="color: #4758AB;">.range.s0</span> { <span class="kw" style="color: #003B4F;">fill</span>: <span class="cn" style="color: #8f5902;">#eee</span><span class="op" style="color: #5E5E5E;">;</span> }</span>
+<span id="cb11-19"><span class="fu" style="color: #4758AB;">.bullet</span> <span class="fu" style="color: #4758AB;">.range.s1</span> { <span class="kw" style="color: #003B4F;">fill</span>: <span class="cn" style="color: #8f5902;">#ddd</span><span class="op" style="color: #5E5E5E;">;</span> }</span>
+<span id="cb11-20"><span class="fu" style="color: #4758AB;">.bullet</span> <span class="fu" style="color: #4758AB;">.range.s2</span> { <span class="kw" style="color: #003B4F;">fill</span>: <span class="cn" style="color: #8f5902;">#ccc</span><span class="op" style="color: #5E5E5E;">;</span> }</span>
+<span id="cb11-21"><span class="fu" style="color: #4758AB;">.bullet</span> <span class="fu" style="color: #4758AB;">.measure.s0</span> { <span class="kw" style="color: #003B4F;">fill</span>: <span class="cn" style="color: #8f5902;">lightsteelblue</span><span class="op" style="color: #5E5E5E;">;</span> }</span>
+<span id="cb11-22"><span class="fu" style="color: #4758AB;">.bullet</span> <span class="fu" style="color: #4758AB;">.measure.s1</span> { <span class="kw" style="color: #003B4F;">fill</span>: <span class="cn" style="color: #8f5902;">steelblue</span><span class="op" style="color: #5E5E5E;">;</span> }</span>
+<span id="cb11-23"><span class="fu" style="color: #4758AB;">.bullet</span> <span class="fu" style="color: #4758AB;">.title</span> { <span class="kw" style="color: #003B4F;">font-size</span>: <span class="dv" style="color: #AD0000;">14</span><span class="dt" style="color: #AD0000;">px</span><span class="op" style="color: #5E5E5E;">;</span> <span class="kw" style="color: #003B4F;">font-weight</span>: <span class="dv" style="color: #AD0000;">bold</span><span class="op" style="color: #5E5E5E;">;</span> }</span>
+<span id="cb11-24"><span class="fu" style="color: #4758AB;">.bullet</span> <span class="fu" style="color: #4758AB;">.subtitle</span> { <span class="kw" style="color: #003B4F;">fill</span>: <span class="cn" style="color: #8f5902;">#999</span><span class="op" style="color: #5E5E5E;">;</span> }</span>
+<span id="cb11-25"></span>
+<span id="cb11-26"><span class="fu" style="color: #4758AB;">.bullet</span> <span class="fu" style="color: #4758AB;">.axis</span> line<span class="op" style="color: #5E5E5E;">,</span> <span class="fu" style="color: #4758AB;">.bullet</span> <span class="fu" style="color: #4758AB;">.axis</span> path { <span class="kw" style="color: #003B4F;">opacity</span>: <span class="dv" style="color: #AD0000;">0.5</span><span class="op" style="color: #5E5E5E;">;</span> }</span>
+<span id="cb11-27">&lt;/style<span class="op" style="color: #5E5E5E;">&gt;</span></span></code></pre></div>
+</section>
+</section>
+<section id="to-do" class="level2">
+<h2 class="anchored" data-anchor-id="to-do"><a name="todo"></a> To Do</h2>
+<p>The current implementation lacks few feature and refinements.</p>
+<section id="tests" class="level3">
+<h3 class="anchored" data-anchor-id="tests">Tests</h3>
+<p>I am studying the existing ones and will add them!</p>
+</section>
+<section id="automatic-layout" class="level3">
+<h3 class="anchored" data-anchor-id="automatic-layout">Automatic Layout</h3>
+<p>From a user perspective I would like to just say:</p>
+<div class="sourceCode" id="cb12" style="background: #f1f3f5;"><pre class="sourceCode javascript code-with-copy"><code class="sourceCode javascript"><span id="cb12-1">  chart</span>
+<span id="cb12-2">    <span class="op" style="color: #5E5E5E;">.</span><span class="fu" style="color: #4758AB;">width</span>(<span class="dv" style="color: #AD0000;">960</span>)</span>
+<span id="cb12-3">    <span class="op" style="color: #5E5E5E;">.</span><span class="fu" style="color: #4758AB;">height</span>(<span class="dv" style="color: #AD0000;">450</span>)</span>
+<span id="cb12-4">    <span class="op" style="color: #5E5E5E;">.</span><span class="fu" style="color: #4758AB;">orient</span>(<span class="st" style="color: #20794D;">"left"</span>)</span>
+<span id="cb12-5">    <span class="op" style="color: #5E5E5E;">.</span><span class="fu" style="color: #4758AB;">dimension</span>(titleDimension)</span>
+<span id="cb12-6">    <span class="op" style="color: #5E5E5E;">.</span><span class="fu" style="color: #4758AB;">group</span>(statusGroup)<span class="op" style="color: #5E5E5E;">;</span></span></code></pre></div>
+<p>and have sensible width/height/margins being calculated by the internals of the implementation, with the above methods available for fine-tuning.</p>
+</section>
+<section id="colors-selection" class="level3">
+<h3 class="anchored" data-anchor-id="colors-selection">Colors selection</h3>
+<p>Even if I made <code>bulletChart</code> include the <a href="https://github.com/dc-js/dc.js/blob/master/web/docs/api-latest.md#color-mixin">Color Mixin</a>, I haven’t really tackled colors customization.</p>
+<p>With code like the following</p>
+<div class="sourceCode" id="cb13" style="background: #f1f3f5;"><pre class="sourceCode javascript code-with-copy"><code class="sourceCode javascript"><span id="cb13-1">  chart</span>
+<span id="cb13-2">    <span class="op" style="color: #5E5E5E;">.</span><span class="fu" style="color: #4758AB;">width</span>(<span class="dv" style="color: #AD0000;">960</span>)</span>
+<span id="cb13-3">    <span class="op" style="color: #5E5E5E;">.</span><span class="fu" style="color: #4758AB;">height</span>(<span class="dv" style="color: #AD0000;">450</span>)</span>
+<span id="cb13-4">    <span class="op" style="color: #5E5E5E;">.</span><span class="fu" style="color: #4758AB;">orient</span>(<span class="st" style="color: #20794D;">"left"</span>)</span>
+<span id="cb13-5">    <span class="op" style="color: #5E5E5E;">.</span><span class="fu" style="color: #4758AB;">dimension</span>(titleDimension)</span>
+<span id="cb13-6">    <span class="op" style="color: #5E5E5E;">.</span><span class="fu" style="color: #4758AB;">group</span>(statusGroup)</span>
+<span id="cb13-7">    <span class="op" style="color: #5E5E5E;">.</span><span class="fu" style="color: #4758AB;">colors</span>(d3<span class="op" style="color: #5E5E5E;">.</span><span class="at" style="color: #657422;">scale</span><span class="op" style="color: #5E5E5E;">.</span><span class="fu" style="color: #4758AB;">ordinal</span>()<span class="op" style="color: #5E5E5E;">.</span><span class="fu" style="color: #4758AB;">range</span>([<span class="st" style="color: #20794D;">'red'</span><span class="op" style="color: #5E5E5E;">,</span><span class="st" style="color: #20794D;">'green'</span><span class="op" style="color: #5E5E5E;">,</span><span class="st" style="color: #20794D;">'blue'</span>]))<span class="op" style="color: #5E5E5E;">;</span></span></code></pre></div>
+<p>you would be able to define the three colors for the <code>bad</code>, <code>satisfactory</code> and <code>good</code> ranges.</p>
+</section>
+<section id="chart-margins" class="level3">
+<h3 class="anchored" data-anchor-id="chart-margins">Chart Margins</h3>
+<p>Even if included, the <a href="https://github.com/dc-js/dc.js/blob/master/web/docs/api-latest.md#margin-mixin">Margin Mixin</a> hasn’t been handled.</p>
+<p>These will be the margins for the whole chart, not the ones for the bullets as described above.</p>
+<style>
+iframe {
+  width: 660px;
+  height: 500px;
+  border: 1px solid #DEDEDE;
+}
+
+aside {
+  font-size: small;
+  left: 780px;
+  position: absolute;
+  text-align: right;
+  width: 180px;
+  color: #636363;
+}
+ aside a {
+    text-decoration: underline;
+ }
+</style>
+
+
+</section>
+</section>
+
+<div id="quarto-appendix" class="default"><section class="quarto-appendix-contents"><h2 class="anchored quarto-appendix-heading">Reuse</h2><div quarto-reuse="quarto-reuse" class="quarto-appendix-contents"><a rel="license" href="https://creativecommons.org/licenses/by-sa/4.0/">https://creativecommons.org/licenses/by-sa/4.0/</a></div></section></div> ]]></description>
+  <category>D3</category>
+  <guid>https://enrico.spinielli.net/posts/2015-04-21-how-to-add-a-new-chart-type-to-dcjs/index.html</guid>
+  <pubDate>Mon, 20 Apr 2015 22:00:00 GMT</pubDate>
+</item>
+<item>
+  <title>HTML Scraping or Surviving Orrible Corporate Tools</title>
+  <dc:creator>Enrico Spinielli</dc:creator>
+  <link>https://enrico.spinielli.net/posts/2015-02-07-html-scraping/index.html</link>
+  <description><![CDATA[ 
+
+
+
+<p>At work I have to fill my weekly timesheet. We use <a href="https://en.wikipedia.org/wiki/Planisware" title="Planisware">Planisware</a>’s Timecard to record time spent on the various projects we are assigned to work on.</p>
+<p>So you need to known what the total working time is for the day. For that our badging in and out is recorded and passed to <a href="https://www.gfi.fr/gestion-des-temps/gestion-des-temps.php" title="Chronogestor">Chronogestor</a> which does sums them up and provides both a sexagesimal and decimal format.</p>
+<p>When there is an anomaly the sums are blocked till the request you submitted to fix it is implemented… So I thought I could do some <a href="https://en.wikipedia.org/wiki/Web_scraping" title="Web Scraping">web scraping</a> and extract my clockings from the relevant CG’s page, make the total for the day (in decimal form: in Timecard we record time in decimal form, i.e.&nbsp;3.5 is 3 hours and 30 minutes.) and fill Timecard.</p>
+<section id="html-scrapingws-to-the-rescue" class="level2">
+<h2 class="anchored" data-anchor-id="html-scrapingws-to-the-rescue"><a href="https://en.wikipedia.org/wiki/Web_scraping" title="Web Scraping">HTML Scraping</a> to the rescue</h2>
+<p>Let’s take the page for the weekly clockings (in case of anomalies the rows like “Temps pointe” / “Temps valide” are empty):</p>
+<div class="quarto-figure quarto-figure-center">
+<figure class="figure">
+<p><img src="https://enrico.spinielli.net/posts/2015-02-07-html-scraping/clockings.png" class="img-fluid figure-img"></p>
+<p></p><figcaption class="figure-caption">“clockings”</figcaption><p></p>
+</figure>
+</div>
+<p>I initially tried with <a href="https://docs.python-guide.org/en/latest/scenarios/scrape/">some</a> <a href="https://impythonist.wordpress.com/2015/01/06/ultimate-guide-for-scraping-javascript-rendered-web-pages/">Python examples</a> using <a href="https://lxml.de/" title="lxml">lxml</a> but got stuck. CG complaines if you are using Google Chrome (and the tools above use Webkit, the web browser engine, behind the scene).</p>
+<p>Also I soon realized CG does a lot of rendering via Javascript while I initially assumed it would have been a simple HTML page with a static table for the clockings. (This would have been to simple to implement! What a mess!)</p>
+<p>I decided to go for <a href="https://slimerjs.org/">SlimerJS</a> the scriptable browser that runs on top of <a href="https://en.wikipedia.org/wiki/Gecko_(software)">Gecko</a>, the web engine of <a href="mozilla.org/firefox">Mozilla Firefox</a>. (<a href="https://phantomjs.org/">PhantomJS</a> is the equivalent for <a href="https://en.wikipedia.org/wiki/Blink_(layout_engine)">Blink/WebKit</a> used in <a href="https://www.google.com/chrome">Google Chrome</a>.)</p>
+<p>Nothing strange about using Javascript of course but <em>CG sucks at it</em>: it is a last millenium tool which has been hastily brought to this century without any knowledge of the web technologies (and any taste for usability and beauty.) Just check the generated DOM elements and you will see that the <a href="https://www.w3.org/TR/html5/dom.html#the-id-attribute">uniqueness (within a page) of <code>id</code></a> is not at all respected.</p>
+<p>From the page for the weekly clockings shown above, using <a href="https://developer.mozilla.org/en/docs/Tools">Firefox Developer Tools</a> you can see that the table for the clockings (“Entrées/Sorties” row) can be selected via the following CSS path (line 58):</p>
+<p></p>
+<section id="run-it" class="level3">
+<h3 class="anchored" data-anchor-id="run-it">Run it!</h3>
+<p>The scraping is run as follows:</p>
+<pre class="console"><code>C:\goodies\cg&gt;cg usr:pwd 03/02/2015</code></pre>
+<p>Where <code>usr</code> is the userid and <code>pwd</code> is the password for both the internet proxy and ChronoGestor.</p>
+<p><code>cg</code> is a simple (stupid?) <code>.bat</code> script</p>
+<p></p>
+</section>
+<section id="loggin-in" class="level3">
+<h3 class="anchored" data-anchor-id="loggin-in">Loggin in</h3>
+<p>The <em>relevant</em> lines from the <code>cg.js</code> script 6-16,47,54,61-63 (see the code above.)</p>
+<p>Here we reuse the proxy user and account values which, as per company policy, are the same as our login name and password. And to do that I had to hack an implementation detail whereby <code>slimer.js</code> sets an environment variable <code>__SLIMER_ARGS</code> with the options passed on the command line. (Lines 6-16)</p>
+</section>
+<section id="extract-the-clockings" class="level3">
+<h3 class="anchored" data-anchor-id="extract-the-clockings">Extract the clockings</h3>
+<p>In order to extract the right cells for the clocking, I inject JQuery and use <code>webpage.evaluate()</code> function from the API in order to execute <code>extractClockings</code> (<code>sel</code> will be passed as argument to <code>extractClockings</code>, it is the CSS path shown above). Lines 74-76.</p>
+<p><br> <code>extractClockings</code> reads a list of <code>&lt;a&gt;</code> elements for each day. Lines 18-42.</p>
+</section>
+<section id="count-the-minutes" class="level3">
+<h3 class="anchored" data-anchor-id="count-the-minutes">Count the minutes</h3>
+<p>The rest is a matter of summing up the minutes and printing the values. Lines 78-114.</p>
+
+
+</section>
+</section>
+
+<div id="quarto-appendix" class="default"><section class="quarto-appendix-contents"><h2 class="anchored quarto-appendix-heading">Reuse</h2><div quarto-reuse="quarto-reuse" class="quarto-appendix-contents"><a rel="license" href="https://creativecommons.org/licenses/by-sa/4.0/">https://creativecommons.org/licenses/by-sa/4.0/</a></div></section></div> ]]></description>
+  <category>webscrape</category>
+  <guid>https://enrico.spinielli.net/posts/2015-02-07-html-scraping/index.html</guid>
+  <pubDate>Fri, 06 Feb 2015 23:00:00 GMT</pubDate>
+  <media:content url="https://enrico.spinielli.net/posts/2015-02-07-html-scraping/clockings.png" medium="image" type="image/png" height="58" width="144"/>
+</item>
+<item>
+  <title>How Internet Long Tail Helped Me Fixing My Smartphone</title>
+  <dc:creator>Enrico Spinielli</dc:creator>
+  <link>https://enrico.spinielli.net/posts/2015-01-30-how-internet-long-tail-helped-me-fixing-my-smartphone/index.html</link>
+  <description><![CDATA[ 
+
+
+
+<p>I am just more and more amazed by the opportunities offered by the current Internet connectivity: they call it the <a href="https://en.wikipedia.org/wiki/Long_tail">long tail</a>.</p>
+<p>It strikes me that just few years ago what I have done would have been extreemely difficult or very expensive … or both.</p>
+<p><br> So here is the story of how I was able to fix my Samsung Galaxy S2, the steps I followed and the resources that helped me.</p>
+<section id="erratic-malfunctioning" class="level2">
+<h2 class="anchored" data-anchor-id="erratic-malfunctioning">Erratic Malfunctioning</h2>
+<p>During summer 2014 my S2 started behaving erratically: it was suddenly switching off and back on, charging was giving sings of malfunctioning.</p>
+<p>I initially thought this was due to the battery.</p>
+<p>Andy, a friend and collegue of mine, gave me one of his spare batteries but the symptoms didn’t disappear. The situation was annoying but, to be frank, not frequent enough to push me to immediate action.</p>
+<p>Then in November I decided to investigate whether anybody else had experienced similar problems.</p>
+</section>
+<section id="you-are-not-alone" class="level2">
+<h2 class="anchored" data-anchor-id="you-are-not-alone">You are not alone</h2>
+<p>A few searches showed that USB charging port could be the culprit and many youtube videos showed <a href="https://www.youtube.com/watch?v=sBtEz6sWzZY">how to repair</a> it</p>
+<div class="cell">
+<div class="cell-output-display">
+{{% youtube "sBtEz6sWzZY" %}}
+</div>
+</div>
+</section>
+<section id="go-for-the-fun-fix-it" class="level2">
+<h2 class="anchored" data-anchor-id="go-for-the-fun-fix-it">Go for the fun: fix it</h2>
+<p>Then the next decision point was: do I try to fix it with the risk of destroying the phone or do I just hand it over to a repair shop?</p>
+<p>No way to find a repair shop who is close enough and competent enough.</p>
+<p>So I decided to give it a go and try to fix it: it is all about taking some screws away and unplug some connectors; no surface mounting soldering or the likes!</p>
+</section>
+<section id="where-to-buy-the-parts" class="level2">
+<h2 class="anchored" data-anchor-id="where-to-buy-the-parts">Where to buy the parts</h2>
+<p>So once I decided to repair, where to find the parts? Brussels is not the paradise for electronics hobbists.</p>
+<p>EBay to <a href="https://www.ebay.com/bhp/samsung-galaxy-s2-charging-port">the rescue</a>: one piece can cost as little as 0.30 EUR if bought in lots of thousands (but I need just one!), then I found a single piece at 3.29 CAD (shipping included), still a cheap enough option. The order date is Nov 27, 2014, shipped the day after.</p>
+</section>
+<section id="a-long-wait" class="level2">
+<h2 class="anchored" data-anchor-id="a-long-wait">A long wait</h2>
+<p>Here we are! On 29th Dec 2015 I come home from holidays and it arrived! And the evening after while the kids play with Legos, Daddy repairs (and has fun with) the phone</p>
+<div class="quarto-figure quarto-figure-center">
+<figure class="figure">
+<p><img src="https://enrico.spinielli.net/posts/2015-01-30-how-internet-long-tail-helped-me-fixing-my-smartphone/repair-samsung-s2-play-with-lego.png" class="img-fluid figure-img"></p>
+<p></p><figcaption class="figure-caption">repairing</figcaption><p></p>
+</figure>
+</div>
+<p><br> All is good: USB is charging again, no shortcuts, no erratic shutdowns…Victory!</p>
+<div class="quarto-figure quarto-figure-center">
+<figure class="figure">
+<p><img src="https://enrico.spinielli.net/posts/2015-01-30-how-internet-long-tail-helped-me-fixing-my-smartphone/usb-fixed.jpeg" class="img-fluid figure-img"></p>
+<p></p><figcaption class="figure-caption">fixed</figcaption><p></p>
+</figure>
+</div>
+</section>
+<section id="mayday-mayday" class="level2">
+<h2 class="anchored" data-anchor-id="mayday-mayday">Mayday, Mayday!</h2>
+<p>All seemed good, but the radio signal is very, very weak!</p>
+<p>So weak that at times I have no gsm/data connection!</p>
+<p>Hhuumm, maybe that is due to the fact that the replacement piece I bought was revision 2.3 …</p>
+<div class="quarto-figure quarto-figure-center">
+<figure class="figure">
+<p><img src="https://enrico.spinielli.net/posts/2015-01-30-how-internet-long-tail-helped-me-fixing-my-smartphone/new-usb-charger-connector-samsung-galaxy-s2-i9100.png" class="img-fluid figure-img"></p>
+<p></p><figcaption class="figure-caption">the new piece</figcaption><p></p>
+</figure>
+</div>
+<p>… while the original one was 2.2 …</p>
+<div class="quarto-figure quarto-figure-center">
+<figure class="figure">
+<p><img src="https://enrico.spinielli.net/posts/2015-01-30-how-internet-long-tail-helped-me-fixing-my-smartphone/old-usb-charger-connector-samsung-galaxy-s2-i9100.png" class="img-fluid figure-img"></p>
+<p></p><figcaption class="figure-caption">the new piece</figcaption><p></p>
+</figure>
+</div>
+<p><br> Back to basics, google search to the rescue: I found an <a href="https://www.oneilusm.com/?p=518">article by Rich O’Neil</a> citing a <a href="https://forum.xda-developers.com/showpost.php?p=37914192&amp;postcount=32">post on xda-developers</a> from a certain Serathian who simply cut the PCB in two.</p>
+<p>Here is what he did:</p>
+<div class="quarto-figure quarto-figure-center">
+<figure class="figure">
+<p><img src="https://enrico.spinielli.net/posts/2015-01-30-how-internet-long-tail-helped-me-fixing-my-smartphone/cut-the-pcb.png" class="img-fluid figure-img"></p>
+<p></p><figcaption class="figure-caption">cut the pcb in two</figcaption><p></p>
+</figure>
+</div>
+<p>The left part is responsible for the radio while the right part is the USB.</p>
+<p><br> Ok, few days later I take a scissor and use the radio part from the old piece (rev 2.2) and the USB part from the new (rev 2.3): <em>VICTORY</em> !</p>
+<p>Phone is now fixed! (It is 6th Jan 2015.) <br> Thanks all for sharing (and some <a href="https://google.com">huge company</a> to let me find it)!</p>
+
+
+</section>
+
+<div id="quarto-appendix" class="default"><section class="quarto-appendix-contents"><h2 class="anchored quarto-appendix-heading">Reuse</h2><div quarto-reuse="quarto-reuse" class="quarto-appendix-contents"><a rel="license" href="https://creativecommons.org/licenses/by-sa/4.0/">https://creativecommons.org/licenses/by-sa/4.0/</a></div></section></div> ]]></description>
+  <category>repair</category>
+  <guid>https://enrico.spinielli.net/posts/2015-01-30-how-internet-long-tail-helped-me-fixing-my-smartphone/index.html</guid>
+  <pubDate>Thu, 29 Jan 2015 23:00:00 GMT</pubDate>
+  <media:content url="https://enrico.spinielli.net/posts/2015-01-30-how-internet-long-tail-helped-me-fixing-my-smartphone/repair-samsung-s2-play-with-lego.png" medium="image" type="image/png" height="128" width="144"/>
+</item>
+<item>
+  <title>Understanding Great Circle Arcs Intersection Algorithm</title>
+  <dc:creator>Enrico Spinielli</dc:creator>
+  <link>https://enrico.spinielli.net/posts/2014-10-19-understanding-great-circle-arcs/index.html</link>
+  <description><![CDATA[ 
+
+
+
+<p>The following material is the result of my attempt to understand the <a href="https://www.jasondavies.com/maps/intersect/" title="great circle arcs intersection">nice example</a> from Jason Davies. I was puzzled about the origin of the algorithm used to find the intersection of two great circle arcs. Google helped and I discovered <a href="https://www.mathworks.com/matlabcentral/newsreader/view_thread/276271" title="Roger Stafford's on Matlab newsgroup">Roger Stafford’s post</a> in Matlab newsgroup and the relevant Python’s implementation in the <a href="https://ssb.stsci.edu/doc/stsci_python_x/stsci.sphere.doc/html/_modules/stsci/sphere/great_circle_arc.html" title="intersection">Spherical Geometry Toolkit</a>.</p>
+<section id="the-algorithm" class="level2">
+<h2 class="anchored" data-anchor-id="the-algorithm">The algorithm</h2>
+<p>You have two great circle arcs on a sphere, <img src="https://latex.codecogs.com/png.latex?a"> from point <img src="https://latex.codecogs.com/png.latex?a_0"> to <img src="https://latex.codecogs.com/png.latex?a_1">, and <img src="https://latex.codecogs.com/png.latex?b"> from <img src="https://latex.codecogs.com/png.latex?b_0"> to <img src="https://latex.codecogs.com/png.latex?b_1">, whose coordinates are expressed as longitude <img src="https://latex.codecogs.com/png.latex?%5Ctheta"> (positive going East of Greenwich) and latitude <img src="https://latex.codecogs.com/png.latex?%5Cphi"> (positive going North). Transform theses coordinates over to Cartesian coordinates using the equations:</p>
+<div>
+<p><img src="https://latex.codecogs.com/png.latex?%0A%5Cbegin%7Baligned%7D%0Ax%20%20&amp;%20=%20cos(%5Ctheta)%20cos(%5Cphi)%20%5C%5C%0Ay%20%20&amp;%20=%20sin(%5Ctheta)%20cos(%5Cphi)%20%5C%5C%0Az%20%20&amp;%20=%20sin(%5Cphi)%0A%5Cend%7Baligned%7D%0A"></p>
+</div>
+<p>where</p>
+<div>
+<p><img src="https://latex.codecogs.com/png.latex?%0A%5Cbegin%7Bequation%7D%0A-%5Cpi%20%20%5Cle%20%20%5Ctheta%20%20%5Cle%20%5Cpi%20%5C%5C%0A-%5Cfrac%7B%5Cpi%7D%7B2%7D%20%5Cle%20%5Cphi%20%5Cle%20%5Cfrac%7B%5Cpi%7D%7B2%7D.%0A%5Cend%7Bequation%7D%0A"></p>
+</div>
+<p>These Cartesian coordinates correspond to a hypothetical spherical “earth” of unit radius, but that does not interfere in the following computations.</p>
+<p>Let <img src="https://latex.codecogs.com/png.latex?%5Cmathbf%7Ba_0%7D">, <img src="https://latex.codecogs.com/png.latex?a_1">, <img src="https://latex.codecogs.com/png.latex?%5Cmathbf%7Bb_0%7D">, and <img src="https://latex.codecogs.com/png.latex?%5Cmathbf%7Bb_1%7D"> be vectors of the Cartesian coordinate endpoints for the two arcs <img src="https://latex.codecogs.com/png.latex?a">(<img src="https://latex.codecogs.com/png.latex?%5Cmathbf%7Ba_0%7D%20%5Cleftrightarrow%20%5Cmathbf%7Ba_1%7D">) and <img src="https://latex.codecogs.com/png.latex?b">(<img src="https://latex.codecogs.com/png.latex?%5Cmathbf%7Bb_0%7D%20%5Cleftrightarrow%20%5Cmathbf%7Bb_1%7D">) obtained in this way. Carry out the following omputations:</p>
+<p><img src="https://latex.codecogs.com/png.latex?%5Cmathbf%7Bp%7D%20=%20%5Cmathbf%7Ba_0%7D%20%5Ctimes%20%5Cmathbf%7Ba_1%7D"> is the vector normal to the plane going through the arc <img src="https://latex.codecogs.com/png.latex?a"> and the center of the Earth.</p>
+<p>$ = $ is the vector normal to the plane going through the arc <img src="https://latex.codecogs.com/png.latex?b"> and the center of the Earth.</p>
+<p><img src="https://latex.codecogs.com/png.latex?%5Cmathbf%7Bt%7D%20=%20%5Cmathrm%7Bnormalized%7D(%5Cmathbf%7Bp%7D%20%5Ctimes%20%5Cmathbf%7Bq%7D)"> is along the line of intersection of the planes above.</p>
+<p>(The normalization was not mentioned in <a href="https://www.mathworks.com/matlabcentral/newsreader/view_thread/276271" title="Roger Stafford's on Matlab newsgroup">Roger’s post</a> but it is implemented in the <a href="https://ssb.stsci.edu/doc/stsci_python_x/stsci.sphere.doc/html/_modules/stsci/sphere/great_circle_arc.html" title="intersection">Spherical Geometry Toolkit</a> and by <a href="https://www.jasondavies.com/maps/intersect/" title="great circle arcs intersection">Jason’s example</a>.)</p>
+<p>Then, let’s define the following quantities:</p>
+<div>
+<p><img src="https://latex.codecogs.com/png.latex?%0A%5Cbegin%7Baligned%7D%0As_1%20&amp;%20=%20%20(%5Cmathbf%7Ba_0%7D%20%5Ctimes%20%5Cmathbf%7Bp%7D)%20%20%5Ccdot%20%5Cmathbf%7Bt%7D%20%5C%5C%0As_2%20&amp;%20=%20(%5Cmathbf%7Ba_1%7D%20%5Ctimes%20%5Cmathbf%7Bp%7D)%20%5Ccdot%20%5Cmathbf%7Bt%7D%20%5C%5C%0As_3%20&amp;%20=%20(%5Cmathbf%7Bb_0%7D%20%5Ctimes%20%5Cmathbf%7Bq%7D)%20%5Ccdot%20%5Cmathbf%7Bt%7D%20%5C%5C%0As_4%20&amp;%20=%20(%5Cmathbf%7Bb_1%7D%20%5Ctimes%20%5Cmathbf%7Bq%7D)%20%5Ccdot%20%5Cmathbf%7Bt%7D%0A%5Cend%7Baligned%7D%0A"></p>
+</div>
+<p>(These quantities are crucial: they represent the projection of <img src="https://latex.codecogs.com/png.latex?%5Cmathbf%7Bt%7D"> along the arcs <img src="https://latex.codecogs.com/png.latex?a"> and <img src="https://latex.codecogs.com/png.latex?b">.)</p>
+<p>The arcs <img src="https://latex.codecogs.com/png.latex?a"> and <img src="https://latex.codecogs.com/png.latex?b"> will intersect <img src="https://latex.codecogs.com/png.latex?%5Ciff"> <img src="https://latex.codecogs.com/png.latex?-s_1">, <img src="https://latex.codecogs.com/png.latex?s_2">, <img src="https://latex.codecogs.com/png.latex?-s_3">, and <img src="https://latex.codecogs.com/png.latex?s_4"> are all of the same sign. In that case they intersect along <img src="https://latex.codecogs.com/png.latex?+%5Cmathbf%7Bt%7D"> if they are all positive or along <img src="https://latex.codecogs.com/png.latex?-%5Cmathbf%7Bt%7D"> if all are negative. (Jason tests against <img src="https://latex.codecogs.com/png.latex?%5Cepsilon%20=%2010%5E%7B-6%7D">, I implemented the test against the sign.)</p>
+<p>If they do intersect, you can transform the corresponding vector, <img src="https://latex.codecogs.com/png.latex?%5Cmathbf%7Bt%7D"> or <img src="https://latex.codecogs.com/png.latex?-%5Cmathbf%7Bt%7D"> back into longitude and latitude (without worrying about its length.) Letting <img src="https://latex.codecogs.com/png.latex?x">, <img src="https://latex.codecogs.com/png.latex?y">, <img src="https://latex.codecogs.com/png.latex?z"> be <img src="https://latex.codecogs.com/png.latex?%5Cmathbf%7Bt%7D">’s Cartesian coordinates this reverse transformation can be accomplished this way:</p>
+<div>
+<p><img src="https://latex.codecogs.com/png.latex?%0A%5Cbegin%7Baligned%7D%0A%5Ctheta%20&amp;%20=%20%7B%5Cmathrm%20arctan2%7D%20(y,x)%20%5C%5C%0A%5Cphi%20%20%20%20&amp;%20=%20%7B%5Cmathrm%20arctan2%7D(z,%20%5Csqrt%7Bx%5E2+y%5E2%7D)%0A%5Cend%7Baligned%7D%0A"></p>
+</div>
+<iframe src="https://cdn.rawgit.com/espinielli/00f6062b0324eac6f882/raw/587499ae3f57276b24d2599d3545733c4f419a3f/index.html" marginwidth="0" marginheight="0" scrolling="no" width="800px" height="500px">
+</iframe>
+<section id="references" class="level3">
+<h3 class="anchored" data-anchor-id="references">References</h3>
+<ul>
+<li><a href="https://www.mathworks.com/matlabcentral/newsreader/view_thread/276271" title="Roger Stafford's on Matlab newsgroup">Roger Stafford’s post</a> on Matlab newsgroup (but it lacks the normalization step which is instead used in Jason Davies code, and in Spherical Geometry Toolkit)</li>
+<li><a href="https://ssb.stsci.edu/doc/stsci_python_x/stsci.sphere.doc/html/_modules/stsci/sphere/great_circle_arc.html" title="intersection">implementation in Python</a> as part of the <a href="https://ssb.stsci.edu/doc/stsci_python_x/stsci.sphere.doc/html/" title="spherical geometry toolkit">Spherical Geometry Toolkit</a></li>
+<li>Jason Davies <a href="https://www.jasondavies.com/maps/intersect/" title="great circle arcs intersection">implementation</a> in D3.js</li>
+</ul>
+<blockquote class="blockquote">
+<p>Originally written and published with <a href="https://stackedit.io/">StackEdit</a>, later moved to <a href="https://jekyllrb.com/">Jekyll</a> and <a href="https://pages.github.com/">GitHub Pages</a></p>
+</blockquote>
+
+
+</section>
+</section>
+
+<div id="quarto-appendix" class="default"><section class="quarto-appendix-contents"><h2 class="anchored quarto-appendix-heading">Reuse</h2><div quarto-reuse="quarto-reuse" class="quarto-appendix-contents"><a rel="license" href="https://creativecommons.org/licenses/by-sa/4.0/">https://creativecommons.org/licenses/by-sa/4.0/</a></div></section></div> ]]></description>
+  <category>Maps</category>
+  <category>D3</category>
+  <guid>https://enrico.spinielli.net/posts/2014-10-19-understanding-great-circle-arcs/index.html</guid>
+  <pubDate>Sat, 18 Oct 2014 22:00:00 GMT</pubDate>
+</item>
+<item>
+  <title>Failing to be recruited…</title>
+  <dc:creator>Enrico Spinielli</dc:creator>
+  <link>https://enrico.spinielli.net/posts/2014-08-29-impressions-about-selection-process-of/index.html</link>
+  <description><![CDATA[ 
+
+
+
+<p>This post title to be frank should have been “<em>Impressions about the selection process of a big Internet company (and my failure to go to the next steps after initial engagement)</em>,” but that is obviously too long.</p>
+<p>So I only kept the <em>failure</em> part with the aim to bring home some lessons from it ! :smirk:</p>
+<section id="chronology-more-or-less" class="level3">
+<h3 class="anchored" data-anchor-id="chronology-more-or-less">Chronology, more or less</h3>
+<p>It all started with an email at the end of July 2014 from the company’s recruiter, let’s call her Alice.</p>
+<p>My first reaction was: SPAM!!!! :scream:</p>
+<p>Well, no. It was a genuine ping with too many realistic references about me (not that difficult given my CV is public on LinkedIn) and about her…but I could only reply when back home from my first slot of holidays: the family still at the beach, I am home alone, with tons of projects accumulated throughout the year (yes, year) since last summer…and this email!</p>
+<p>Now, I am not at all looking for changing job: I know for sure my current employment conditions and benefits are extremely difficult to match. Even by big Internet companies.</p>
+<p>But I am definitely piqued by the technical side of it! (Good job Alice!)</p>
+<p>So we exchange few email with various links to job/site descriptions/videos from Alice and few replies from me with links (web presence/open source/tinkering around) and attachments to describe myself.</p>
+<p>I am delighted when Alice tells me the position she is selecting for is about managing a team but it involves coding (“Good” I think, “I love that”…and say I do it too, even if just in my limited free time – 4hr per weekend; hey I have 4 kids! –). Once she mentioned people in the position spend 30 plus % of time coding, then later she mentioned few times 20%…anyway much much better than 0% I am currently stuck with at work.</p>
+<p>Then we come to fix a video conf with the following <em>declaration of intents</em>:</p>
+<blockquote class="blockquote">
+<p>Our chat will be more of an open discussion than a formal interview - we will discuss your current situation, the roles at XYZZY and if at that point there is a mutual interest, we can proceed to a technical chat.</p>
+</blockquote>
+<p>To prepare for it I am handed a self evaluation form with scales from <strong>0</strong> (unfamiliar with the subject area) to <strong>10</strong> (Wrote the book in the subject area or similar expertise.) and subject areas from TCP/IP to People and Project Management going through C/Java/Go/SQL.</p>
+<p>Good, I can fill a form and, as suggested, keep modest: for sure <a href="https://en.wikipedia.org/wiki/I_know_that_I_know_nothing%22">I know I know nothing</a> but there are good <a href="https://giyf.com/">search engines</a> around and lots of <a href="https://stackoverflow.com/">people to ask and collaborate with</a> ;-)</p>
+<p>A week later we set for the video conf and start the business chat, things like whether I had to recruit or fire people, team size, sort of <em>chit-chatting</em> ;-)</p>
+<p>And then the technical questions starts: and frankly it has been a <em>disaster</em>!</p>
+<p>Even on questions (Unix file system and inode [4.14 of <a href="https://www.kohala.com/start/apue.html">Advance Programming in the UNIX Environment</a> {yes, I still have the 1992 edition!}]) I used to ask to people I was recruiting some 12 years ago!</p>
+</section>
+<section id="lessons-learnt-for-when-i-am-recruiting" class="level3">
+<h3 class="anchored" data-anchor-id="lessons-learnt-for-when-i-am-recruiting">Lessons learnt for when I am recruiting</h3>
+<ul>
+<li>Make sure the context of the interview is clear: subject, what is expected, timing, steps, process. I usually do this but we all tend to forget. This is a reminder for myself.</li>
+</ul>
+</section>
+<section id="lessons-learnt-for-when-i-want-to-be-recruited--" class="level3">
+<h3 class="anchored" data-anchor-id="lessons-learnt-for-when-i-want-to-be-recruited--">Lessons learnt (for when I want to be recruited ;-)</h3>
+<ul>
+<li>I should have clearly asked to separate the chat on current/future position from the technical chat as in the <em>declaration of intents</em> above. Maybe I assumed it would have been in 2 separate sessions but I was taken off balance by it happening in the same video conf. <img src="https://enrico.spinielli.net/posts/2014-08-29-impressions-about-selection-process-of/https:/imgs.xkcd.com/comics/when_you_assume.png" class="img-fluid" alt="Never ASS U ME"></li>
+<li>I should have asked more about the technical interview, i.e.&nbsp;examples of questions</li>
+<li>I should have asked more time to prepare if I felt I was too rusty on the subjects</li>
+</ul>
+</section>
+<section id="observations-about-the-specific-recruiting-techniques" class="level3">
+<h3 class="anchored" data-anchor-id="observations-about-the-specific-recruiting-techniques">Observations about the specific recruiting techniques</h3>
+<ul>
+<li>I was positively impressed by the fact I follow similar steps as in big Internet companies: we have a phone interview to assess the minimum level of technical competencies before we proceed with deeper <em>hands-on</em> assessments.</li>
+<li>The post and place descriptions and the videos were good. We should prepare more material (web based and videos) to describe the consultants positions we look for. But here we are limited by our IT infrastructure, the framework contract we have for recruiting…</li>
+<li>I liked the video conf (<a href="https://www.skype.com/en/">Skype</a> and <a href="https://www.google.com/+/learnmore/hangouts/">the likes</a>): I have used it only when interviewing a Canadian (and even then he had the support from his university to use their video conference) but we should do it more…if only our IT infrastructure/policies would permit it (we have <a href="https://www.webex.com/">WebEx</a> but I have never seen it used for recruiting…can we?)</li>
+<li>I really disliked the narrowness of some of the questions I have been asked, things like the signature of certain Unix sys calls. This, I hope, was probably suited for the very specific needs of the job at hand, but in general IMHO they do not show anything about the capabilities of the person you are selecting. <em>When I select people I prefer to watch/discuss about their journey to the destination/solution: the destination itself doesn’t tell me anything about how they do reason/think</em>. (That is why I am usually happy with – and I also ask about – a book they would pick up to find some inspiration or the kind of web search they would use to start tackling a problem…)</li>
+</ul>
+</section>
+<section id="feedback-from-friends" class="level3">
+<h3 class="anchored" data-anchor-id="feedback-from-friends">Feedback from friends</h3>
+<p>Few friends working at the same big Internet company (both in USA and Europe) told me that they were not surprised of the outcome because, even if they think I could have made it, the whole selection process is skewed towards the negative: it only takes one <em>no</em> from the interview panel to get a negative feedback.</p>
+<p>Well, I am sure I got more than one <em>no</em>!</p>
+
+
+</section>
+
+<div id="quarto-appendix" class="default"><section class="quarto-appendix-contents"><h2 class="anchored quarto-appendix-heading">Reuse</h2><div quarto-reuse="quarto-reuse" class="quarto-appendix-contents"><a rel="license" href="https://creativecommons.org/licenses/by-sa/4.0/">https://creativecommons.org/licenses/by-sa/4.0/</a></div></section></div> ]]></description>
+  <category>recruitment</category>
+  <guid>https://enrico.spinielli.net/posts/2014-08-29-impressions-about-selection-process-of/index.html</guid>
+  <pubDate>Thu, 28 Aug 2014 22:00:00 GMT</pubDate>
+  <media:content url="https://imgs.xkcd.com/comics/when_you_assume.png" medium="image" type="image/png"/>
+</item>
+<item>
+  <title>on revising</title>
+  <dc:creator>Enrico Spinielli</dc:creator>
+  <link>https://enrico.spinielli.net/posts/2013-05-13-on-revising/index.html</link>
+  <description><![CDATA[ 
+
+
+
+<p>Lately I found myself involved into writing.</p>
+<p>And I have been often cought into the vicious cycle of revising my (or other’s) text without really understanding how to do it properly and when to stop.</p>
+<p>I want to summarize some of the advise I found on the web.</p>
+<p>I put it here for me to find it again and share.</p>
+<p>Let’s first paraphrase the famous <a href="https://en.wikipedia.org/wiki/Grook">grook</a> from <a href="https://en.wikipedia.org/wiki/Piet_Hein_(scientist)">Piet Hein</a>:</p>
+<blockquote class="blockquote">
+THE ROAD TO WRITING?<br>Well, it’s plain<br>and simple to express.<br>revise and revise and revise again,<br>but less and less and less.
+</blockquote>
+I found an interesting <a href="https://www.exampler.com/old-blog/2004/#two-sentences">post</a> by <a href="https://en.wikipedia.org/wiki/Brian_Marick">Brian Marick</a>. <br>(And for now I reformat it here for my own use. But I will revise it later ;-)<br><br><br>
+<ul>
+<li>
+<b>If a sentence is unclear</b>, do not fix it by adding more words. <b>Fix it by splitting it into two sentences</b>. Then maybe add a third.
+</li>
+<li>
+<b>If a paragraph is unclear</b>, do not fix it by adding more sentences. First look earlier in the piece. Can you find a place to add a few sentences that will make the later idea clearer? Perhaps you can rule out an interpretation that will later cause confusion. <b>Write text to head off the problem</b>, then return to adjust the guilty paragraph.
+</li>
+<li>
+<b>If an idea or procedure is complicated</b>, don’t add more words explaining it. <b>Add an example</b>. If the example is too complicated, don’t add more words explaining it. Precede it with a simpler example, then change the explanation of the complicated example to focus on what it adds to the simpler one.
+</li>
+<li>
+<b>If you use change tracking, turn display of changes off</b>. You won’t be able to make the new text read well if it’s all mixed up with the old text.
+</li>
+<li>
+<b>After you change a sentence, leave it aside for a while</b>, then come back and reread at least the whole paragraph that contains it. Then tweak the sentence to make it fit better into its environment.
+</li>
+</ul>
+<br>&nbsp;How do you find what needs revision?<br><br>
+<ul>
+<li>
+<b>Can you turn that bullet list into one or more paragraphs?</b> Bullet lists are, on average, easier for writers but harder for readers. They’re easier for writers because you don’t have to worry about transitions between one idea and the next. They’re harder for readers because there are no transitions guiding them from one idea to the next. Will their eyes glaze over because you’re not providing them with a sense of flow?
+</li>
+<li>
+<b>Read your text aloud</b>. You don’t have to write like you speak, but reading aloud changes your perspective. Awkwardness will jump out at you. Reading aloud is one way to get some distance, to separate the piece from your memory of writing it.<br><b>Putting it aside for a day or, better, a week</b> does the same thing.<br>I find that <b>reading a printed copy helps</b> me see things I don’t see on a screen.<br><br>Can you find other tricks?<br>Richard P. Gabriel tells the story of one writer who would tape his work to a wall, go to the other side of the room, and read it through binoculars.<br><br>Print the piece with a wide margin on one side. Next to each paragraph, <b>scribble a few words about the paragraph’s topic. Now read the scribbles</b>. Do they form a progression of thought, a developing story of explanation? Or are they more like a bunch of thoughts hitched together in any old order? If so, shuffle them into a better order. (Some people cut the paragraphs out and move them around; I usually draw arrows from where the paragraph is to where it should go. I suspect the other people do better.) <br><br>Sometimes you read a piece where a particular secondary idea or clever chunk of text seems to have undue importance. It’s almost as if the piece were distorted to find a way to make that gem fit. That’s usually because it was. The gem came first, the piece grew away from it, but the author forced it to stay. <b>Ask what your favorite bit of the piece is, then throw it out</b> - or at least consider how the piece would read if you dropped it. I find this useful to do when I get bogged down during writing.
+</li>
+</ul>
+
+
+
+<div id="quarto-appendix" class="default"><section class="quarto-appendix-contents"><h2 class="anchored quarto-appendix-heading">Reuse</h2><div quarto-reuse="quarto-reuse" class="quarto-appendix-contents"><a rel="license" href="https://creativecommons.org/licenses/by-sa/4.0/">https://creativecommons.org/licenses/by-sa/4.0/</a></div></section></div> ]]></description>
+  <guid>https://enrico.spinielli.net/posts/2013-05-13-on-revising/index.html</guid>
+  <pubDate>Sun, 12 May 2013 22:00:00 GMT</pubDate>
+</item>
+<item>
+  <title>Automatically extracting bomb drops from the Blitz Bomb Census maps</title>
+  <dc:creator>Enrico Spinielli</dc:creator>
+  <link>https://enrico.spinielli.net/posts/2012-05-19-automatically-extracting-bomb-drops/index.html</link>
+  <description><![CDATA[ 
+
+
+
+I just finished <a href="https://en.wikipedia.org/wiki/Blackout/All_Clear">Blackout by Connie Willis</a>&nbsp;and I was wondering where she did get all the exact times when the air raids of The Blitz were happening.<br>I am curious because I was thinking that a timeline map would give a visual effect of the huge destruction and hard times the Londoners had to go through…so I googled for it and found the following:<br>
+<ul>
+<li>
+a nice <a href="https://blitzbombcensusmaps.wordpress.com/">research blog</a>&nbsp;which uses the <a href="https://www.nationalarchives.gov.uk/records/research-guides/maps-bomb-census-survey.htm">Blitz Bomb Census</a> from <a href="https://www.nationalarchives.gov.uk/">The National Archives</a>
+</li>
+<li>
+a <a href="https://www.guardian.co.uk/news/datablog/2010/sep/06/london-blitz-bomb-map-september-7-1940">blog entry</a> from the Guardian about the first day - and data - of the Blitz over London.<br>&nbsp;Here the source of info is the <a href="https://www.cityoflondon.gov.uk/Corporation/LGNL_Services/Leisure_and_culture/Records_and_archives/">London Metropolitan Archives</a>
+</li>
+</ul>
+Both examples show nice data visualization opportunities, but they both show how difficult it is to obtain data. Digital access to historical data could triggers a blossoming of applications!<br><br>Anyway I experimented with the little <a href="https://blitzbombcensusmaps.files.wordpress.com/2012/04/example-of-the-aggregate-maps.jpg">map</a>&nbsp;from the first blog and wrote a little program using <a href="https://simplecv.org/">SimpleCV</a>.<br><br>This is were I started from:<br>
+<div class="separator" style="clear: both; text-align: center;">
+<a href="https://1.bp.blogspot.com/-TCP_DXTqInE/T7d2mtikd7I/AAAAAAAAAuA/lEMv3-q6Ez0/s1600/the_blitz.png" imageanchor="1" style="margin-left: 1em; margin-right: 1em;"><img border="0" height="175" src="https://enrico.spinielli.net/posts/2012-05-19-automatically-extracting-bomb-drops/https:/1.bp.blogspot.com/-TCP_DXTqInE/T7d2mtikd7I/AAAAAAAAAuA/lEMv3-q6Ez0/s320/the_blitz.png" width="320"></a>
+</div>
+and this is what I got (without too much work, I must admit):<br><br>
+<div class="separator" style="clear: both; text-align: center;">
+<a href="https://4.bp.blogspot.com/-Ah6GjORTdBU/T7d261ibIcI/AAAAAAAAAuI/giWlVstQcp0/s1600/the_blitz_highlighted_bombs.png" imageanchor="1" style="margin-left: 1em; margin-right: 1em;"><img border="0" height="175" src="https://enrico.spinielli.net/posts/2012-05-19-automatically-extracting-bomb-drops/https:/4.bp.blogspot.com/-Ah6GjORTdBU/T7d261ibIcI/AAAAAAAAAuI/giWlVstQcp0/s320/the_blitz_highlighted_bombs.png" width="320"></a>
+</div>
+<br>The code is quite simple and the parameters could be changed to get higher accuracy.<br><br>
+<pre class="brush:python">blz = Image("./sampleimages/the_blitz.png")<br>img = blz.copy()<br>dist = img.colorDistance(SimpleCV.Color.WHITE)<br>dist.dilate(2)<br><br>segmented = dist.stretch(240, 255)<br>blobs = segmented.findBlobs()<br>if blobs:<br> circles = blobs.filter([b.isCircle(0.6) for b in blobs])<br> for c in circles:<br>  img.drawCircle((c.x, c.y),<br>                 c.radius(),<br>                 SimpleCV.Color.YELLOW,<br>                 2)<br> img.show()<br><br></pre>
+<link href="https://alexgorbatchev.com/pub/sh/current/styles/shCore.css" rel="stylesheet" type="text/css"><link href="https://alexgorbatchev.com/pub/sh/current/styles/shCoreDefault.css" rel="stylesheet" type="text/css"><link href="https://alexgorbatchev.com/pub/sh/current/styles/shThemeMidnight.css" rel="stylesheet" type="text/css">
+<script src="https://alexgorbatchev.com/pub/sh/current/scripts/shCore.js" type="text/javascript"></script>
+<script src="https://alexgorbatchev.com/pub/sh/current/scripts/shAutoloader.js" type="text/javascript"></script>
+<script src="https://alexgorbatchev.com/pub/sh/current/scripts/shBrushJava.js" type="text/javascript"></script>
+<script src="https://alexgorbatchev.com/pub/sh/current/scripts/shBrushJScript.js" type="text/javascript"></script>
+<script src="https://alexgorbatchev.com/pub/sh/current/scripts/shBrushCSharp.js" type="text/javascript"></script>
+<script src="https://alexgorbatchev.com/pub/sh/current/scripts/shBrushXml.js" type="text/javascript"></script>
+<script src="https://alexgorbatchev.com/pub/sh/current/scripts/shBrushSql.js" type="text/javascript"></script>
+<script src="https://alexgorbatchev.com/pub/sh/current/scripts/shBrushCss.js" type="text/javascript"></script>
+<script src="https://alexgorbatchev.com/pub/sh/current/scripts/shBrushPython.js" type="text/javascript"></script>
+<script language="javascript" type="text/javascript">    SyntaxHighlighter.config.bloggerMode = true;     SyntaxHighlighter.all(); </script>
+
+
+
+<div id="quarto-appendix" class="default"><section class="quarto-appendix-contents"><h2 class="anchored quarto-appendix-heading">Reuse</h2><div quarto-reuse="quarto-reuse" class="quarto-appendix-contents"><a rel="license" href="https://creativecommons.org/licenses/by-sa/4.0/">https://creativecommons.org/licenses/by-sa/4.0/</a></div></section></div> ]]></description>
+  <category>GIS</category>
+  <category>Python</category>
+  <guid>https://enrico.spinielli.net/posts/2012-05-19-automatically-extracting-bomb-drops/index.html</guid>
+  <pubDate>Fri, 18 May 2012 22:00:00 GMT</pubDate>
+</item>
+<item>
+  <title>wiki of the future?</title>
+  <dc:creator>Enrico Spinielli</dc:creator>
+  <link>https://enrico.spinielli.net/posts/2012-04-19-wiki-of-future/index.html</link>
+  <description><![CDATA[ 
+
+
+
+<p>Last weekend I have been watching, reading and playing around with Ward Cunningham’s <a href="https://wardcunningham.github.com/">Smallest Federated Wiki</a>. As usual he is a great designer and aims to simple, effective, understandable and useful tools! I particularly like the plugins idea (not new of course) and how easy it seems to be to add new ones, like support for <a href="https://www.mathjax.org/">MathJax</a>: <iframe allowfullscreen="allowfullscreen" frameborder="0" height="300" mozallowfullscreen="mozallowfullscreen" src="https://player.vimeo.com/video/33133120?title=0&amp;byline=0&amp;portrait=0" webkitallowfullscreen="webkitallowfullscreen" width="400"></iframe> <br>Get inspired you too!</p>
+
+
+
+<div id="quarto-appendix" class="default"><section class="quarto-appendix-contents"><h2 class="anchored quarto-appendix-heading">Reuse</h2><div quarto-reuse="quarto-reuse" class="quarto-appendix-contents"><a rel="license" href="https://creativecommons.org/licenses/by-sa/4.0/">https://creativecommons.org/licenses/by-sa/4.0/</a></div></section></div> ]]></description>
+  <category>javascript</category>
+  <category>LaTeX</category>
+  <category>wiki</category>
+  <guid>https://enrico.spinielli.net/posts/2012-04-19-wiki-of-future/index.html</guid>
+  <pubDate>Wed, 18 Apr 2012 22:00:00 GMT</pubDate>
+</item>
+<item>
+  <title>syntax highlight</title>
+  <dc:creator>Enrico Spinielli</dc:creator>
+  <link>https://enrico.spinielli.net/posts/2012-04-18-this-code-shows-how-to-syntax-highligh/index.html</link>
+  <description><![CDATA[ 
+
+
+
+The following example shows how to syntax highlight some snippet of code in a very minimalistic way.<br>I used it by symlinking to a file in the version control repo and name it in as the argument of<br><code>$(‘#code-area’).load()</code> and here it is: <br>
+<pre class="brush:html"><br><br>  <title>code higlighted with minimal javascript</title><br>  <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.7.2/jquery.min.js"></script><br>  <script src="https://alexgorbatchev.com/pub/sh/3.0.83/scripts/shCore.js" type="text/javascript"></script><br>  <script src="https://alexgorbatchev.com/pub/sh/3.0.83/scripts/shAutoloader.js" type="text/javascript"></script><br>  <link href="https://alexgorbatchev.com/pub/sh/3.0.83/styles/shThemeDefault.css" rel="stylesheet" type="text/css"><br><br><br><h1><br>Metacircular code highlighting</h1><br>The following code is an highlighted version of this very page using<br><a href="https://alexgorbatchev.com/SyntaxHighlighter">SyntaxHighlighter</a>.<br><br><br>You need a decent modern browser to enjoy it.<br><br><br><div class="syntaxhighlighter  xml"><br>  <pre class="brush: xml" id="code-area"><br>  </pre></div><script>  $('#code-area').load("https://pastebin.com/raw.php?i=LP5RTiPx", function() {      SyntaxHighlighter.autoloader(      'html  https://alexgorbatchev.com/pub/sh/current/3.0.83/scripts/shBrushXml.js');      SyntaxHighlighter.all();   }); </script> </pre>
+<!-- Add Current CSS styles -->
+<link href="https://alexgorbatchev.com/pub/sh/current/styles/shCore.css" rel="stylesheet" type="text/css"><link href="https://alexgorbatchev.com/pub/sh/current/styles/shCoreDefault.css" rel="stylesheet" type="text/css"><link href="https://alexgorbatchev.com/pub/sh/current/styles/shThemeMidnight.css" rel="stylesheet" type="text/css"> <!-- Add Current JS scripts -->
+<script src="https://alexgorbatchev.com/pub/sh/current/scripts/shCore.js" type="text/javascript"></script>
+<script src="https://alexgorbatchev.com/pub/sh/current/scripts/shAutoloader.js" type="text/javascript"></script>
+<!-- Add Current Brushes -->
+<script src="https://alexgorbatchev.com/pub/sh/current/scripts/shBrushJava.js" type="text/javascript"></script>
+<script src="https://alexgorbatchev.com/pub/sh/current/scripts/shBrushJScript.js" type="text/javascript"></script>
+<script src="https://alexgorbatchev.com/pub/sh/current/scripts/shBrushCSharp.js" type="text/javascript"></script>
+<script src="https://alexgorbatchev.com/pub/sh/current/scripts/shBrushXml.js" type="text/javascript"></script>
+<script src="https://alexgorbatchev.com/pub/sh/current/scripts/shBrushSql.js" type="text/javascript"></script>
+<script src="https://alexgorbatchev.com/pub/sh/current/scripts/shBrushCss.js" type="text/javascript"></script>
+<script src="https://alexgorbatchev.com/pub/sh/current/scripts/shBrushPython.js" type="text/javascript"></script>
+<!-- Call SyntaxHighlighter -->
+<script language="javascript" type="text/javascript">    SyntaxHighlighter.config.bloggerMode = true;     SyntaxHighlighter.all(); </script>
+
+
+
+<div id="quarto-appendix" class="default"><section class="quarto-appendix-contents"><h2 class="anchored quarto-appendix-heading">Reuse</h2><div quarto-reuse="quarto-reuse" class="quarto-appendix-contents"><a rel="license" href="https://creativecommons.org/licenses/by-sa/4.0/">https://creativecommons.org/licenses/by-sa/4.0/</a></div></section></div> ]]></description>
+  <category>javascript</category>
+  <guid>https://enrico.spinielli.net/posts/2012-04-18-this-code-shows-how-to-syntax-highligh/index.html</guid>
+  <pubDate>Tue, 17 Apr 2012 22:00:00 GMT</pubDate>
+</item>
+<item>
+  <title>metacircularity</title>
+  <dc:creator>Enrico Spinielli</dc:creator>
+  <link>https://enrico.spinielli.net/posts/2012-04-18-metacircularity/index.html</link>
+  <description><![CDATA[ 
+
+
+
+<p>I found and liked a very good summary of the ‘Maxwell Equations of software’ motto from Alan Kay in <a href="https://www.michaelnielsen.org/ddi/lisp-as-the-maxwells-equations-of-software/">this post</a> from Michael Nielsen.</p>
+<p>It is nice also because it has running code inspired by all the gurus and books I like: <a href="https://en.wikipedia.org/wiki/Alan_Kay">Alan Kay</a>, <a href="https://norvig.com">Peter Norvig</a>, <a href="https://www-formal.stanford.edu/jmc/">John McCarthy</a>, <a href="https://mitpress.mit.edu/sicp/full-text/book/book-Z-H-4.html">SICP</a>, <a href="https://paulgraham.com/">Paul Graham</a>.</p>
+
+
+
+<div id="quarto-appendix" class="default"><section class="quarto-appendix-contents"><h2 class="anchored quarto-appendix-heading">Reuse</h2><div quarto-reuse="quarto-reuse" class="quarto-appendix-contents"><a rel="license" href="https://creativecommons.org/licenses/by-sa/4.0/">https://creativecommons.org/licenses/by-sa/4.0/</a></div></section></div> ]]></description>
+  <category>lisp</category>
+  <guid>https://enrico.spinielli.net/posts/2012-04-18-metacircularity/index.html</guid>
+  <pubDate>Tue, 17 Apr 2012 22:00:00 GMT</pubDate>
+</item>
+<item>
+  <title>Git and RSA identities</title>
+  <dc:creator>Enrico Spinielli</dc:creator>
+  <link>https://enrico.spinielli.net/posts/2012-02-06-git-and-rsa-identities/index.html</link>
+  <description><![CDATA[ 
+
+
+
+<p>Here is the solution I found to be able to use <code>git</code> with a different RSA identity than the <code>rsa_id</code> default one.</p>
+<p>My repo on github is <code>logback-android</code> and my user account is <code>espinielli</code>.</p>
+<p>I did generate an SSH key as per github help and named it <code>github_rsa</code>:</p>
+<pre><code>$ ssh-keygen -t rsa -C "your_email@youremail.com" -f github_rsa</code></pre>
+<p>I then added the following section in <code>~/.ssh/config</code></p>
+<pre><code># github for espinielli
+Host github
+HostName github.com
+User espinielli
+IdentityFile /Users/espin/.ssh/github_rsa</code></pre>
+<p>From within the repo directory (I cloned it before via http):</p>
+<pre><code>$ git remote add gh ssh://git@github.com/espinielli/logback-android.git</code></pre>
+<p>And finally I am able to use it like this:</p>
+<pre><code>$ git push gh master</code></pre>
+
+
+
+<div id="quarto-appendix" class="default"><section class="quarto-appendix-contents"><h2 class="anchored quarto-appendix-heading">Reuse</h2><div quarto-reuse="quarto-reuse" class="quarto-appendix-contents"><a rel="license" href="https://creativecommons.org/licenses/by-sa/4.0/">https://creativecommons.org/licenses/by-sa/4.0/</a></div></section></div> ]]></description>
+  <category>git</category>
+  <guid>https://enrico.spinielli.net/posts/2012-02-06-git-and-rsa-identities/index.html</guid>
+  <pubDate>Sun, 05 Feb 2012 23:00:00 GMT</pubDate>
+</item>
+<item>
+  <title>LaTeX on Blogger again</title>
+  <dc:creator>Enrico Spinielli</dc:creator>
+  <link>https://enrico.spinielli.net/posts/2012-01-20-latex-on-blogger-again/index.html</link>
+  <description><![CDATA[ 
+
+
+
+<p>Revisited in 2022 to make it work wit Quarto…where things are so easy!</p>
+<p><a href="https://ongiantsshoulders.blogspot.com/2009/11/text-on-latex-snippet-in-blogger-from.html">My previous post</a>&nbsp;about&nbsp;LaTeX&nbsp;&nbsp;on Blogger&nbsp;reported that the solution described there did not work anymore…<br>Now I found <a href="https://irrep.blogspot.com/2011/07/mathjax-in-blogger-ii.html">a new solution</a> based on <a href="https://www.mathjax.org/">mathjax</a>.<br><br>So let’s try it straight away with inline math, like the great equation <img src="https://latex.codecogs.com/png.latex?e%5E%7B-2%5Cpi%7D">, and with displayed math like the following:</p>
+<p><img src="https://latex.codecogs.com/png.latex?%0A%5Cleft%20%5B%20-%20%5Cfrac%7B%5Chbar%5E2%7D%7B2%20m%7D%20%5Cfrac%7B%5Cpartial%5E2%7D%7B%5Cpartial%20x%5E2%7D%20+%20V%20%5Cright%20%5D%20%5CPsi%3Cbr%20/%3E=%20i%20%5Chbar%20%5Cfrac%7B%5Cpartial%7D%7B%5Cpartial%20t%7D%20%5CPsi%0A"></p>
+
+
+
+<div id="quarto-appendix" class="default"><section class="quarto-appendix-contents"><h2 class="anchored quarto-appendix-heading">Reuse</h2><div quarto-reuse="quarto-reuse" class="quarto-appendix-contents"><a rel="license" href="https://creativecommons.org/licenses/by-sa/4.0/">https://creativecommons.org/licenses/by-sa/4.0/</a></div></section></div> ]]></description>
+  <category>LaTeX</category>
+  <guid>https://enrico.spinielli.net/posts/2012-01-20-latex-on-blogger-again/index.html</guid>
+  <pubDate>Thu, 19 Jan 2012 23:00:00 GMT</pubDate>
+</item>
+</channel>
+</rss>

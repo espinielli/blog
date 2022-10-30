@@ -1,0 +1,46 @@
+execute:
+  freeze: auto
+project:
+  type: website
+  output-dir: _site
+
+website:
+  title: "Enrico Spinielli"
+  image: "enrico.png"
+  favicon: "favicon.png"
+  open-graph: true
+  twitter-card: true
+  site-url: https://enrico.spinielli.net
+  repo-url: https://github.com/espinielli/enrico.spinielli.net
+  repo-actions: [issue]
+  page-navigation: true
+  page-footer:
+    right:
+    - icon: twitter
+      href: https://twitter.com/espinielli
+      aria-label: Enrico on Twitter
+    - icon: github
+      href: https://github.com/espinielli
+      aria-label: Enrico on GitHub
+    - icon: linkedin
+      href: https://www.linkedin.com/in/espinielli/
+      aria-label: Enrico on LinkedIn
+  navbar:
+    left:
+    - href: posts/index.qmd
+      text: Blog
+    - href: projects/index.qmd
+      text: Projects
+    - href: publications/index.qmd
+      text: Publications
+    right:
+    - about.qmd
+
+format:
+  html:
+    theme: solar
+    css: styles.css
+    toc: true
+
+
+

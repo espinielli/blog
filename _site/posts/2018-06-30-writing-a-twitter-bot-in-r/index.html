@@ -1,0 +1,586 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en"><head>
+
+<meta charset="utf-8">
+<meta name="generator" content="quarto-1.2.198">
+
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+
+<meta name="author" content="Enrico Spinielli">
+<meta name="dcterms.date" content="2018-06-30">
+
+<title>Enrico Spinielli - Writing a Twitter Bot in R</title>
+<style>
+code{white-space: pre-wrap;}
+span.smallcaps{font-variant: small-caps;}
+div.columns{display: flex; gap: min(4vw, 1.5em);}
+div.column{flex: auto; overflow-x: auto;}
+div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+ul.task-list{list-style: none;}
+ul.task-list li input[type="checkbox"] {
+  width: 0.8em;
+  margin: 0 0.8em 0.2em -1.6em;
+  vertical-align: middle;
+}
+pre > code.sourceCode { white-space: pre; position: relative; }
+pre > code.sourceCode > span { display: inline-block; line-height: 1.25; }
+pre > code.sourceCode > span:empty { height: 1.2em; }
+.sourceCode { overflow: visible; }
+code.sourceCode > span { color: inherit; text-decoration: inherit; }
+div.sourceCode { margin: 1em 0; }
+pre.sourceCode { margin: 0; }
+@media screen {
+div.sourceCode { overflow: auto; }
+}
+@media print {
+pre > code.sourceCode { white-space: pre-wrap; }
+pre > code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
+}
+pre.numberSource code
+  { counter-reset: source-line 0; }
+pre.numberSource code > span
+  { position: relative; left: -4em; counter-increment: source-line; }
+pre.numberSource code > span > a:first-child::before
+  { content: counter(source-line);
+    position: relative; left: -1em; text-align: right; vertical-align: baseline;
+    border: none; display: inline-block;
+    -webkit-touch-callout: none; -webkit-user-select: none;
+    -khtml-user-select: none; -moz-user-select: none;
+    -ms-user-select: none; user-select: none;
+    padding: 0 4px; width: 4em;
+    color: #aaaaaa;
+  }
+pre.numberSource { margin-left: 3em; border-left: 1px solid #aaaaaa;  padding-left: 4px; }
+div.sourceCode
+  {   }
+@media screen {
+pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
+}
+code span.al { color: #ff0000; font-weight: bold; } /* Alert */
+code span.an { color: #60a0b0; font-weight: bold; font-style: italic; } /* Annotation */
+code span.at { color: #7d9029; } /* Attribute */
+code span.bn { color: #40a070; } /* BaseN */
+code span.bu { color: #008000; } /* BuiltIn */
+code span.cf { color: #007020; font-weight: bold; } /* ControlFlow */
+code span.ch { color: #4070a0; } /* Char */
+code span.cn { color: #880000; } /* Constant */
+code span.co { color: #60a0b0; font-style: italic; } /* Comment */
+code span.cv { color: #60a0b0; font-weight: bold; font-style: italic; } /* CommentVar */
+code span.do { color: #ba2121; font-style: italic; } /* Documentation */
+code span.dt { color: #902000; } /* DataType */
+code span.dv { color: #40a070; } /* DecVal */
+code span.er { color: #ff0000; font-weight: bold; } /* Error */
+code span.ex { } /* Extension */
+code span.fl { color: #40a070; } /* Float */
+code span.fu { color: #06287e; } /* Function */
+code span.im { color: #008000; font-weight: bold; } /* Import */
+code span.in { color: #60a0b0; font-weight: bold; font-style: italic; } /* Information */
+code span.kw { color: #007020; font-weight: bold; } /* Keyword */
+code span.op { color: #666666; } /* Operator */
+code span.ot { color: #007020; } /* Other */
+code span.pp { color: #bc7a00; } /* Preprocessor */
+code span.sc { color: #4070a0; } /* SpecialChar */
+code span.ss { color: #bb6688; } /* SpecialString */
+code span.st { color: #4070a0; } /* String */
+code span.va { color: #19177c; } /* Variable */
+code span.vs { color: #4070a0; } /* VerbatimString */
+code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warning */
+</style>
+
+
+<script src="../../site_libs/quarto-nav/quarto-nav.js"></script>
+<script src="../../site_libs/quarto-nav/headroom.min.js"></script>
+<script src="../../site_libs/clipboard/clipboard.min.js"></script>
+<script src="../../site_libs/quarto-search/autocomplete.umd.js"></script>
+<script src="../../site_libs/quarto-search/fuse.min.js"></script>
+<script src="../../site_libs/quarto-search/quarto-search.js"></script>
+<meta name="quarto:offset" content="../../">
+<link href="../../favicon.png" rel="icon" type="image/png">
+<script src="../../site_libs/quarto-html/quarto.js"></script>
+<script src="../../site_libs/quarto-html/popper.min.js"></script>
+<script src="../../site_libs/quarto-html/tippy.umd.min.js"></script>
+<script src="../../site_libs/quarto-html/anchor.min.js"></script>
+<link href="../../site_libs/quarto-html/tippy.css" rel="stylesheet">
+<link href="../../site_libs/quarto-html/quarto-syntax-highlighting-dark.css" rel="stylesheet" id="quarto-text-highlighting-styles">
+<script src="../../site_libs/bootstrap/bootstrap.min.js"></script>
+<link href="../../site_libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
+<link href="../../site_libs/bootstrap/bootstrap.min.css" rel="stylesheet" id="quarto-bootstrap" data-mode="dark">
+<script id="quarto-search-options" type="application/json">{
+  "location": "navbar",
+  "copy-button": false,
+  "collapse-after": 3,
+  "panel-placement": "end",
+  "type": "overlay",
+  "limit": 20,
+  "language": {
+    "search-no-results-text": "No results",
+    "search-matching-documents-text": "matching documents",
+    "search-copy-link-title": "Copy link to search",
+    "search-hide-matches-text": "Hide additional matches",
+    "search-more-match-text": "more match in this document",
+    "search-more-matches-text": "more matches in this document",
+    "search-clear-button-title": "Clear",
+    "search-detached-cancel-button-title": "Cancel",
+    "search-submit-button-title": "Submit"
+  }
+}</script>
+
+
+<link rel="stylesheet" href="../../styles.css">
+<meta property="og:title" content="Enrico Spinielli - Writing a Twitter Bot in R">
+<meta property="og:description" content="Since a while I am contemplating the possibility of automatically publishing on social media some stats and data visualisations from work.">
+<meta property="og:site-name" content="Enrico Spinielli">
+<meta name="twitter:title" content="Enrico Spinielli - Writing a Twitter Bot in R">
+<meta name="twitter:description" content="Since a while I am contemplating the possibility of automatically publishing on social media some stats and data visualisations from work.">
+<meta name="twitter:card" content="summary">
+</head>
+
+<body class="nav-fixed">
+
+<div id="quarto-search-results"></div>
+  <header id="quarto-header" class="headroom fixed-top">
+    <nav class="navbar navbar-expand-lg navbar-dark ">
+      <div class="navbar-container container-fluid">
+      <div class="navbar-brand-container">
+    <a class="navbar-brand" href="../../index.html">
+    <span class="navbar-title">Enrico Spinielli</span>
+    </a>
+  </div>
+          <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarCollapse" aria-controls="navbarCollapse" aria-expanded="false" aria-label="Toggle navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">
+  <span class="navbar-toggler-icon"></span>
+</button>
+          <div class="collapse navbar-collapse" id="navbarCollapse">
+            <ul class="navbar-nav navbar-nav-scroll me-auto">
+  <li class="nav-item">
+    <a class="nav-link" href="../../posts/index.html">
+ <span class="menu-text">Blog</span></a>
+  </li>  
+  <li class="nav-item">
+    <a class="nav-link" href="../../projects/index.html">
+ <span class="menu-text">Projects</span></a>
+  </li>  
+  <li class="nav-item">
+    <a class="nav-link" href="../../publications/index.html">
+ <span class="menu-text">Publications</span></a>
+  </li>  
+</ul>
+            <ul class="navbar-nav navbar-nav-scroll ms-auto">
+  <li class="nav-item">
+    <a class="nav-link" href="../../about.html">
+ <span class="menu-text">About</span></a>
+  </li>  
+</ul>
+              <div id="quarto-search" class="" title="Search"></div>
+          </div> <!-- /navcollapse -->
+      </div> <!-- /container-fluid -->
+    </nav>
+</header>
+<!-- content -->
+<div id="quarto-content" class="quarto-container page-columns page-rows-contents page-layout-article page-navbar">
+<!-- sidebar -->
+<!-- margin-sidebar -->
+    <div id="quarto-margin-sidebar" class="sidebar margin-sidebar">
+        <nav id="TOC" role="doc-toc" class="toc-active">
+    <h2 id="toc-title">On this page</h2>
+   
+  <ul>
+  <li><a href="#the-data" id="toc-the-data" class="nav-link active" data-scroll-target="#the-data">The Data</a></li>
+  <li><a href="#r-packages-to-the-rescue" id="toc-r-packages-to-the-rescue" class="nav-link" data-scroll-target="#r-packages-to-the-rescue">R packages to the Rescue</a></li>
+  <li><a href="#maps" id="toc-maps" class="nav-link" data-scroll-target="#maps">Maps</a>
+  <ul class="collapse">
+  <li><a href="#first-attempt" id="toc-first-attempt" class="nav-link" data-scroll-target="#first-attempt">First attempt</a></li>
+  <li><a href="#automatic-zoom-calculation" id="toc-automatic-zoom-calculation" class="nav-link" data-scroll-target="#automatic-zoom-calculation">Automatic Zoom Calculation</a></li>
+  <li><a href="#crop-map-to-polygon" id="toc-crop-map-to-polygon" class="nav-link" data-scroll-target="#crop-map-to-polygon">Crop Map to Polygon</a></li>
+  </ul></li>
+  <li><a href="#tweet-it" id="toc-tweet-it" class="nav-link" data-scroll-target="#tweet-it">Tweet It!</a></li>
+  <li><a href="#todos" id="toc-todos" class="nav-link" data-scroll-target="#todos">ToDo’s</a></li>
+  </ul>
+<div class="toc-actions"><div><i class="bi bi-github"></i></div><div class="action-links"><p><a href="https://github.com/espinielli/enrico.spinielli.net/issues/new" class="toc-action">Report an issue</a></p></div></div></nav>
+    </div>
+<!-- main -->
+<main class="content" id="quarto-document-content">
+
+<header id="title-block-header" class="quarto-title-block default">
+<div class="quarto-title">
+<h1 class="title">Writing a Twitter Bot in R</h1>
+  <div class="quarto-categories">
+    <div class="quarto-category">R</div>
+    <div class="quarto-category">Maps</div>
+  </div>
+  </div>
+
+
+
+<div class="quarto-title-meta">
+
+    <div>
+    <div class="quarto-title-meta-heading">Author</div>
+    <div class="quarto-title-meta-contents">
+             <p>Enrico Spinielli </p>
+          </div>
+  </div>
+    
+    <div>
+    <div class="quarto-title-meta-heading">Published</div>
+    <div class="quarto-title-meta-contents">
+      <p class="date">June 30, 2018</p>
+    </div>
+  </div>
+  
+    
+  </div>
+  
+
+</header>
+
+<p>Since a while I am contemplating the possibility of automatically publishing on social media some stats and data visualisations from work.</p>
+<p>When I discovered the nice bot <a href="https://twitter.com/everytract">@everytract</a> by <a href="https://twitter.com/fitnr">@fitnr</a> (and a little later the <a href="https://twitter.com/GVAcartografic">@GVAcartografic</a>’s <a href="https://twitter.com/hashtag/Secci%C3%B3censal?src=hash">#Secciócensal</a> tweets) I decided to try and do a Twitter bot myself in order to see what is possible and how difficult it is.</p>
+<p>I thought that combining maps and some Italian data would be a good recipe for having fun and so I did set out to use some GIS data from the <a href="https://www.istat.it/en/">Italian National Institute of Statistics (ISTAT)</a>(<a href="https://twitter.com/istat_en">@istat_en</a>) in order to publish a map for every Italian <a href="https://en.wikipedia.org/wiki/Comune">comune</a> (the basic administrative division in Italy).</p>
+<section id="the-data" class="level2">
+<h2 class="anchored" data-anchor-id="the-data">The Data</h2>
+<p>The relevant GIS data in the form of Shapefiles can be found on ISTAT’s web site, https://www.istat.it/it/archivio/124086. I took the most <a href="gis2016wsg84">detailed polygons as for 2016 with WSG84 datum</a>.</p>
+<p>I combined the info from ISTAT in an <code>sf</code> dataframe which looks like the following:</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb1"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="sc">&gt;</span> coms <span class="sc">%&gt;%</span> <span class="fu">as_tibble</span>()</span>
+<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a><span class="co"># A tibble: 7,998 x 6</span></span>
+<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a>   PRO_COM COMUNE          bb         REGIONE  DEN_CMPRO geometry                               </span>
+<span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a>     <span class="sc">&lt;</span>dbl<span class="sc">&gt;</span> <span class="er">&lt;</span>fct<span class="sc">&gt;</span>           <span class="er">&lt;</span>list<span class="sc">&gt;</span>     <span class="er">&lt;</span>fct<span class="sc">&gt;</span>    <span class="er">&lt;</span>fct<span class="sc">&gt;</span>     <span class="er">&lt;</span>S3<span class="sc">:</span> sfc_MULTIPOLYGON<span class="sc">&gt;</span>                 </span>
+<span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a> <span class="dv">1</span>    <span class="dv">1001</span> Agliè           <span class="sc">&lt;</span>S3<span class="sc">:</span> bbox<span class="sc">&gt;</span> Piemonte Torino    <span class="st">"list(list(c(7.7826615064871, 7.783045…</span></span>
+<span id="cb1-6"><a href="#cb1-6" aria-hidden="true" tabindex="-1"></a><span class="st"> 2    1002 Airasca         &lt;S3: bbox&gt; Piemonte Torino    "</span><span class="fu">list</span>(<span class="fu">list</span>(<span class="fu">c</span>(<span class="fl">7.48794557658868</span>, <span class="fl">7.48797</span>…</span>
+<span id="cb1-7"><a href="#cb1-7" aria-hidden="true" tabindex="-1"></a> <span class="dv">3</span>    <span class="dv">1003</span> Ala di Stura    <span class="sc">&lt;</span>S3<span class="sc">:</span> bbox<span class="sc">&gt;</span> Piemonte Torino    <span class="st">"list(list(c(7.27324227448866, 7.27359…</span></span>
+<span id="cb1-8"><a href="#cb1-8" aria-hidden="true" tabindex="-1"></a><span class="st"> 4    1004 Albiano d'Ivrea &lt;S3: bbox&gt; Piemonte Torino    "</span><span class="fu">list</span>(<span class="fu">list</span>(<span class="fu">c</span>(<span class="fl">7.92507300912979</span>, <span class="fl">7.92533</span>…</span>
+<span id="cb1-9"><a href="#cb1-9" aria-hidden="true" tabindex="-1"></a> <span class="dv">5</span>    <span class="dv">1005</span> Alice Superiore <span class="sc">&lt;</span>S3<span class="sc">:</span> bbox<span class="sc">&gt;</span> Piemonte Torino    <span class="st">"list(list(c(7.79782897832822, 7.79843…</span></span>
+<span id="cb1-10"><a href="#cb1-10" aria-hidden="true" tabindex="-1"></a><span class="st"> 6    1006 Almese          &lt;S3: bbox&gt; Piemonte Torino    "</span><span class="fu">list</span>(<span class="fu">list</span>(<span class="fu">c</span>(<span class="fl">7.4348997124695</span>, <span class="fl">7.435239</span>…</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<p><code>PRO_COM</code> is the unique numerical code identifying each Italian comune, <code>COMUNE</code> is the name of the comune, <code>DEN_CMPRO</code> is the name of the relevant super-entity the comune belongs to (either Metropolitan City or a Province), <code>REGIONE</code> is the name of the region and <code>geometry</code> is the simple feature describing the boundary of the comune. <code>bb</code> is the axis aligned bounding box of the comune’s polygon and is used to to extract the right portion (at the right zoom) of the satellite map.</p>
+<p>All data preparation is documented in <a href="https://github.com/espinielli/italian-comuni-bot/blob/master/prepare-data.R"><code>prepare-data.R</code></a> file in the <a href="https://github.com/espinielli/italian-comuni-bot/">Italian Comuni Twitter bot</a> repository.</p>
+</section>
+<section id="r-packages-to-the-rescue" class="level2">
+<h2 class="anchored" data-anchor-id="r-packages-to-the-rescue">R packages to the Rescue</h2>
+<p>I found a lot of examples for developing Twitter bots in Python but I wanted to write it in R which we are starting to use more and more at work.</p>
+<p>Of course we all stand on the shoulder of Giants, and there is always somebody who has already done bits and pieces of what you need: <a href="https://rtweet.info/">rtweet</a> does all you need as a client for accessing Twitter API, while the usual suspects <a href="https://ggplot2.tidyverse.org/">ggplot2</a>, <a href="https://r-spatial.github.io/sf/">sf</a> and <a href="https://cran.r-project.org/package=ggmap">ggmap</a> cover the maps aspects.</p>
+<p>The setup for Twitter was smooth and I only executed the steps as described in <code>rtweet</code> package, so no need to repeat them here.</p>
+</section>
+<section id="maps" class="level1">
+<h1>Maps</h1>
+<section id="first-attempt" class="level2">
+<h2 class="anchored" data-anchor-id="first-attempt">First attempt</h2>
+<p>The first map I produced was a simple ggmap/ggplot map:</p>
+<div class="cell">
+<div class="cell-output-display">
+<p><img src="comune_ggmap.jpg" class="img-fluid" width="1050"></p>
+</div>
+</div>
+<p>This is produced by code similar to this:</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb2"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(tidyverse)</span>
+<span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(sf)</span>
+<span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(ggmap)</span>
+<span id="cb2-4"><a href="#cb2-4" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(rgdal)</span>
+<span id="cb2-5"><a href="#cb2-5" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-6"><a href="#cb2-6" aria-hidden="true" tabindex="-1"></a><span class="co"># get the data as per Italian Comuni Twitter Bot repo</span></span>
+<span id="cb2-7"><a href="#cb2-7" aria-hidden="true" tabindex="-1"></a><span class="co"># https://github.com/espinielli/italian-comuni-bot/</span></span>
+<span id="cb2-8"><a href="#cb2-8" aria-hidden="true" tabindex="-1"></a>coms <span class="ot">&lt;-</span> <span class="fu">readRDS</span>(<span class="st">"data/coms.rds"</span>)</span>
+<span id="cb2-9"><a href="#cb2-9" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-10"><a href="#cb2-10" aria-hidden="true" tabindex="-1"></a><span class="co"># just get the first one</span></span>
+<span id="cb2-11"><a href="#cb2-11" aria-hidden="true" tabindex="-1"></a>com <span class="ot">&lt;-</span> coms <span class="sc">%&gt;%</span></span>
+<span id="cb2-12"><a href="#cb2-12" aria-hidden="true" tabindex="-1"></a>  dplyr<span class="sc">::</span><span class="fu">filter</span>(<span class="fu">row_number</span>() <span class="sc">==</span> <span class="dv">1</span>) <span class="sc">%&gt;%</span></span>
+<span id="cb2-13"><a href="#cb2-13" aria-hidden="true" tabindex="-1"></a>  dplyr<span class="sc">::</span><span class="fu">slice</span>(<span class="dv">1</span>)</span>
+<span id="cb2-14"><a href="#cb2-14" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-15"><a href="#cb2-15" aria-hidden="true" tabindex="-1"></a>com.sp <span class="ot">&lt;-</span> <span class="fu">as</span>(com, <span class="st">"Spatial"</span>)</span>
+<span id="cb2-16"><a href="#cb2-16" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-17"><a href="#cb2-17" aria-hidden="true" tabindex="-1"></a><span class="co"># extract its bounding box</span></span>
+<span id="cb2-18"><a href="#cb2-18" aria-hidden="true" tabindex="-1"></a>bb <span class="ot">&lt;-</span> com<span class="sc">$</span>bb[[<span class="dv">1</span>]]</span>
+<span id="cb2-19"><a href="#cb2-19" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-20"><a href="#cb2-20" aria-hidden="true" tabindex="-1"></a><span class="co"># centroid</span></span>
+<span id="cb2-21"><a href="#cb2-21" aria-hidden="true" tabindex="-1"></a>centroid <span class="ot">&lt;-</span> com <span class="sc">%&gt;%</span></span>
+<span id="cb2-22"><a href="#cb2-22" aria-hidden="true" tabindex="-1"></a>  <span class="fu">st_transform</span>(<span class="dv">23032</span>) <span class="sc">%&gt;%</span></span>
+<span id="cb2-23"><a href="#cb2-23" aria-hidden="true" tabindex="-1"></a>  <span class="fu">st_centroid</span>() <span class="sc">%&gt;%</span></span>
+<span id="cb2-24"><a href="#cb2-24" aria-hidden="true" tabindex="-1"></a>  <span class="fu">st_transform</span>(<span class="dv">4326</span>) <span class="sc">%&gt;%</span></span>
+<span id="cb2-25"><a href="#cb2-25" aria-hidden="true" tabindex="-1"></a>  <span class="fu">st_coordinates</span>() <span class="sc">%&gt;%</span></span>
+<span id="cb2-26"><a href="#cb2-26" aria-hidden="true" tabindex="-1"></a>  <span class="fu">as_data_frame</span>() <span class="sc">%&gt;%</span></span>
+<span id="cb2-27"><a href="#cb2-27" aria-hidden="true" tabindex="-1"></a>  <span class="st">`</span><span class="at">names&lt;-</span><span class="st">`</span>(<span class="fu">c</span>(<span class="st">"lon"</span>, <span class="st">"lat"</span>))</span>
+<span id="cb2-28"><a href="#cb2-28" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-29"><a href="#cb2-29" aria-hidden="true" tabindex="-1"></a><span class="co"># get Google Map (note: hardcoded zoom level)</span></span>
+<span id="cb2-30"><a href="#cb2-30" aria-hidden="true" tabindex="-1"></a>m <span class="ot">&lt;-</span> <span class="fu">get_map</span>(<span class="at">location =</span> centroid, <span class="at">zoom =</span> <span class="dv">12</span>, <span class="at">maptype =</span> <span class="st">"satellite"</span>)</span>
+<span id="cb2-31"><a href="#cb2-31" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-32"><a href="#cb2-32" aria-hidden="true" tabindex="-1"></a>terrain <span class="ot">&lt;-</span> <span class="fu">ggmap</span>(m)</span>
+<span id="cb2-33"><a href="#cb2-33" aria-hidden="true" tabindex="-1"></a>com.sp.df <span class="ot">&lt;-</span> com.sp <span class="sc">%&gt;%</span> fortify</span>
+<span id="cb2-34"><a href="#cb2-34" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-35"><a href="#cb2-35" aria-hidden="true" tabindex="-1"></a><span class="co">#----------------------------------------------------------------</span></span>
+<span id="cb2-36"><a href="#cb2-36" aria-hidden="true" tabindex="-1"></a><span class="co"># inspired by</span></span>
+<span id="cb2-37"><a href="#cb2-37" aria-hidden="true" tabindex="-1"></a><span class="co"># https://ryanpeek.github.io/2017-11-21-mapping-with-sf-part-3/</span></span>
+<span id="cb2-38"><a href="#cb2-38" aria-hidden="true" tabindex="-1"></a><span class="co">#----------------------------------------------------------------</span></span>
+<span id="cb2-39"><a href="#cb2-39" aria-hidden="true" tabindex="-1"></a>pg <span class="ot">&lt;-</span> terrain <span class="sc">+</span></span>
+<span id="cb2-40"><a href="#cb2-40" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_polygon</span>(</span>
+<span id="cb2-41"><a href="#cb2-41" aria-hidden="true" tabindex="-1"></a>    <span class="at">data =</span> com.sp.df,</span>
+<span id="cb2-42"><a href="#cb2-42" aria-hidden="true" tabindex="-1"></a>    <span class="fu">aes</span>(<span class="at">x =</span> long, <span class="at">y =</span> lat),</span>
+<span id="cb2-43"><a href="#cb2-43" aria-hidden="true" tabindex="-1"></a>    <span class="at">fill=</span><span class="cn">NA</span>,</span>
+<span id="cb2-44"><a href="#cb2-44" aria-hidden="true" tabindex="-1"></a>    <span class="at">color=</span><span class="st">"yellow"</span>,</span>
+<span id="cb2-45"><a href="#cb2-45" aria-hidden="true" tabindex="-1"></a>    <span class="at">lwd =</span> <span class="fl">0.4</span>, <span class="at">alpha=</span><span class="fl">0.5</span>) <span class="sc">+</span></span>
+<span id="cb2-46"><a href="#cb2-46" aria-hidden="true" tabindex="-1"></a>  <span class="fu">labs</span>(<span class="at">x =</span> <span class="st">"Longitude (WGS84)"</span>,</span>
+<span id="cb2-47"><a href="#cb2-47" aria-hidden="true" tabindex="-1"></a>       <span class="at">y =</span> <span class="st">"Latitude"</span>,</span>
+<span id="cb2-48"><a href="#cb2-48" aria-hidden="true" tabindex="-1"></a>       <span class="at">caption =</span> <span class="st">"Sources: ISTAT (comuni), Google Maps (satellite)"</span>) <span class="sc">+</span></span>
+<span id="cb2-49"><a href="#cb2-49" aria-hidden="true" tabindex="-1"></a>  <span class="fu">ggtitle</span>(</span>
+<span id="cb2-50"><a href="#cb2-50" aria-hidden="true" tabindex="-1"></a>    <span class="at">label =</span> <span class="fu">str_glue</span>(<span class="st">"{comune} ({id})"</span>,</span>
+<span id="cb2-51"><a href="#cb2-51" aria-hidden="true" tabindex="-1"></a>                     <span class="at">comune =</span> com<span class="sc">$</span>COMUNE,</span>
+<span id="cb2-52"><a href="#cb2-52" aria-hidden="true" tabindex="-1"></a>                     <span class="at">id =</span> <span class="fu">str_pad</span>(com<span class="sc">$</span>PRO_COM, <span class="dv">6</span>, <span class="at">pad =</span> <span class="st">"0"</span>)),</span>
+<span id="cb2-53"><a href="#cb2-53" aria-hidden="true" tabindex="-1"></a>    <span class="at">subtitle =</span> <span class="fu">str_c</span>(com<span class="sc">$</span>DEN_CMPRO, com<span class="sc">$</span>REGIONE, <span class="at">sep =</span> <span class="st">", "</span>))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<p>There are few “smelly” things in the code above:</p>
+<ul>
+<li>the zoom level is hardcoded to 12</li>
+<li>the map is not cropped to the boundary</li>
+</ul>
+<p>The solution above is wrapped (with fix to first bullet, see below) in the function <code>generate_google_map</code> in the <a href="https://github.com/espinielli/italian-comuni-bot/blob/master/tweet-comune.R"><code>tweet-comune.R</code></a> file in the <a href="https://github.com/espinielli/italian-comuni-bot/">Italian Comuni Twitter bot</a> repository.</p>
+</section>
+<section id="automatic-zoom-calculation" class="level2">
+<h2 class="anchored" data-anchor-id="automatic-zoom-calculation">Automatic Zoom Calculation</h2>
+<p>I was surprised to always see examples with hardcoded zoom levels, but in fact the <code>ggmap</code> package has a helper function <code>calc_zoom</code> just for that. The only problem is that it is buggy, but <a href="https://github.com/dkahle/ggmap/pull/141">pull request #141</a> has a proposed fix which I just saved in a local <code>calc_zoom</code> in the repo.</p>
+<p>It is about taking the <em>minimum</em> instead of the maximun of the zoom levels in the longitude and latitude direction.</p>
+</section>
+<section id="crop-map-to-polygon" class="level2">
+<h2 class="anchored" data-anchor-id="crop-map-to-polygon">Crop Map to Polygon</h2>
+<p>I had no idea how to crop the Google Map to the comune’s boundary, but Giants exist and I have found a nice solution (by <a href="https://www.robinlovelace.net/">Robin Lovelace</a>) <a href="https://gis.stackexchange.com/a/155495/7617">posted on GIS SO</a>.</p>
+<p>It boils down to transforming the Google Map to raster and <code>mask</code>ing it with the comune’s boundary:</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb3"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a>  m.rast <span class="ot">&lt;-</span> <span class="fu">ggmap_rast</span>(<span class="at">map =</span> m)</span>
+<span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a>  com.only <span class="ot">&lt;-</span> <span class="fu">mask</span>(m.rast, com.sp)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<div class="cell">
+<div class="cell-output-display">
+<p><img src="comune_raster.jpg" class="img-fluid" width="1050"></p>
+</div>
+</div>
+<p>This (and bells and whistles) is now wrapped in a function <code>generate_cropped_map</code> in the <a href="https://github.com/espinielli/italian-comuni-bot/blob/master/tweet-comune.R"><code>tweet-comune.R</code></a> file in the <a href="https://github.com/espinielli/italian-comuni-bot/">Italian Comuni Twitter bot</a> repository.</p>
+</section>
+</section>
+<section id="tweet-it" class="level1">
+<h1>Tweet It!</h1>
+<p>The logic to tweet the comunes’ maps one by one is as follows:</p>
+<ol type="1">
+<li>find out what was sent last</li>
+<li>get the new comune</li>
+<li>decide whether to embelish the tweet with refs &amp; Co.</li>
+<li>tweet and save some sort of proof of which comune has been dealt with</li>
+</ol>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb4"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a><span class="co"># set things up for Twitter</span></span>
+<span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a><span class="fu">tweet_authorize</span>()</span>
+<span id="cb4-3"><a href="#cb4-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-4"><a href="#cb4-4" aria-hidden="true" tabindex="-1"></a><span class="co"># this is the core of the process:</span></span>
+<span id="cb4-5"><a href="#cb4-5" aria-hidden="true" tabindex="-1"></a><span class="co"># 1. find out what was sent last</span></span>
+<span id="cb4-6"><a href="#cb4-6" aria-hidden="true" tabindex="-1"></a><span class="co"># 2. get the new comune</span></span>
+<span id="cb4-7"><a href="#cb4-7" aria-hidden="true" tabindex="-1"></a><span class="co"># 3. decide whether to embelish the tweet with refs &amp; Co.</span></span>
+<span id="cb4-8"><a href="#cb4-8" aria-hidden="true" tabindex="-1"></a><span class="co"># 4. tweet and save some sort of proof of which comune has been dealt with</span></span>
+<span id="cb4-9"><a href="#cb4-9" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-10"><a href="#cb4-10" aria-hidden="true" tabindex="-1"></a><span class="co"># 1. find out what was sent last</span></span>
+<span id="cb4-11"><a href="#cb4-11" aria-hidden="true" tabindex="-1"></a>l <span class="ot">&lt;-</span> <span class="fu">read_file</span>(<span class="st">"last-tweeted.txt"</span>) <span class="sc">%&gt;%</span> <span class="fu">as.integer</span>()</span>
+<span id="cb4-12"><a href="#cb4-12" aria-hidden="true" tabindex="-1"></a>n <span class="ot">&lt;-</span> (l <span class="sc">+</span> <span class="dv">1</span>) <span class="sc">%%</span> lc</span>
+<span id="cb4-13"><a href="#cb4-13" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-14"><a href="#cb4-14" aria-hidden="true" tabindex="-1"></a><span class="co"># 2. get the new comune</span></span>
+<span id="cb4-15"><a href="#cb4-15" aria-hidden="true" tabindex="-1"></a>com <span class="ot">&lt;-</span> coms <span class="sc">%&gt;%</span></span>
+<span id="cb4-16"><a href="#cb4-16" aria-hidden="true" tabindex="-1"></a>  dplyr<span class="sc">::</span><span class="fu">filter</span>(<span class="fu">row_number</span>() <span class="sc">==</span> n) <span class="sc">%&gt;%</span></span>
+<span id="cb4-17"><a href="#cb4-17" aria-hidden="true" tabindex="-1"></a>  dplyr<span class="sc">::</span><span class="fu">slice</span>(<span class="dv">1</span>)</span>
+<span id="cb4-18"><a href="#cb4-18" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-19"><a href="#cb4-19" aria-hidden="true" tabindex="-1"></a><span class="co"># 3. decide whether to embelish the tweet with refs &amp; Co.</span></span>
+<span id="cb4-20"><a href="#cb4-20" aria-hidden="true" tabindex="-1"></a>msg <span class="ot">&lt;-</span> <span class="fu">ifelse</span>((n <span class="sc">%%</span> <span class="dv">19</span>) <span class="sc">==</span> <span class="dv">0</span>,</span>
+<span id="cb4-21"><a href="#cb4-21" aria-hidden="true" tabindex="-1"></a>              <span class="st">"Done in #rstats using #ggplot2, #rspatial, #ggmap and #rtweet."</span>,</span>
+<span id="cb4-22"><a href="#cb4-22" aria-hidden="true" tabindex="-1"></a>              <span class="st">""</span>)</span>
+<span id="cb4-23"><a href="#cb4-23" aria-hidden="true" tabindex="-1"></a>credits <span class="ot">&lt;-</span> <span class="fu">ifelse</span>((n <span class="sc">%%</span> <span class="dv">67</span>) <span class="sc">==</span> <span class="dv">0</span>,</span>
+<span id="cb4-24"><a href="#cb4-24" aria-hidden="true" tabindex="-1"></a>                  <span class="st">"Sources @istat_it, @istat_en, @googlemaps."</span>,</span>
+<span id="cb4-25"><a href="#cb4-25" aria-hidden="true" tabindex="-1"></a>                  <span class="st">""</span>)</span>
+<span id="cb4-26"><a href="#cb4-26" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-27"><a href="#cb4-27" aria-hidden="true" tabindex="-1"></a><span class="co"># 3. decide whether to embelish the tweet with refs &amp; Co.</span></span>
+<span id="cb4-28"><a href="#cb4-28" aria-hidden="true" tabindex="-1"></a><span class="fu">tweet_comune</span>(com, n, <span class="at">msg =</span> msg, <span class="at">credits =</span> credits)</span>
+<span id="cb4-29"><a href="#cb4-29" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-30"><a href="#cb4-30" aria-hidden="true" tabindex="-1"></a><span class="co"># 4. tweet and save some sort of proof of which comune has been dealt with</span></span>
+<span id="cb4-31"><a href="#cb4-31" aria-hidden="true" tabindex="-1"></a><span class="fu">writeLines</span>(<span class="at">text =</span> <span class="fu">as.character</span>(n) , <span class="st">"last-tweeted.txt"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<p>For step 1. I decided to store the <code>index</code> of the last tweeted comune in a file named <code>last-tweeted.txt</code>. So this is the file read at the beginning in order to know where to continue from, step 2., or eventually start over again.</p>
+<p>Step 3. is about setting some message and credits, but sparingly so as not to annoy (i.e.&nbsp;spam) too much the relevant communities.</p>
+<p>Finally step 4 is about posting the tweet, followed by writing out the index of the comune.</p>
+</section>
+<section id="todos" class="level1">
+<h1>ToDo’s</h1>
+<p>I am now at the stage where I can execute the 4 steps above and tweet a new map. I can execute all the steps on the command line by issuing</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb5"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a><span class="ex">$</span> Rscript tweet-bot.R</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<p>This can easily put into a cron job and, for example, tweet a map every hour (so completing the job in 333 days and 6 hours). But to be frank the code is not robust enough to run without supervision.</p>
+<p>What I would really like would be to</p>
+<ul>
+<li>use some serverless service like AWS Lambda to trigger the tweeting every hour</li>
+<li>a robust way to keep state (i.e.&nbsp;what can I use to know what was last tweeted comune’s index?)</li>
+<li>a robust way to cope with failures to post the tweet (i.e.&nbsp;what to do in case of no WIFI/Internet connection)</li>
+</ul>
+<p>If you have any suggestions or comments on the above, feel free to get in touch with me!</p>
+
+
+</section>
+
+<div id="quarto-appendix" class="default"><section class="quarto-appendix-contents"><h2 class="anchored quarto-appendix-heading">Reuse</h2><div quarto-reuse="quarto-reuse" class="quarto-appendix-contents"><a rel="license" href="https://creativecommons.org/licenses/by-sa/4.0/">https://creativecommons.org/licenses/by-sa/4.0/</a></div></section></div></main> <!-- /main -->
+<script id="quarto-html-after-body" type="application/javascript">
+window.document.addEventListener("DOMContentLoaded", function (event) {
+  const toggleBodyColorMode = (bsSheetEl) => {
+    const mode = bsSheetEl.getAttribute("data-mode");
+    const bodyEl = window.document.querySelector("body");
+    if (mode === "dark") {
+      bodyEl.classList.add("quarto-dark");
+      bodyEl.classList.remove("quarto-light");
+    } else {
+      bodyEl.classList.add("quarto-light");
+      bodyEl.classList.remove("quarto-dark");
+    }
+  }
+  const toggleBodyColorPrimary = () => {
+    const bsSheetEl = window.document.querySelector("link#quarto-bootstrap");
+    if (bsSheetEl) {
+      toggleBodyColorMode(bsSheetEl);
+    }
+  }
+  toggleBodyColorPrimary();  
+  const icon = "";
+  const anchorJS = new window.AnchorJS();
+  anchorJS.options = {
+    placement: 'right',
+    icon: icon
+  };
+  anchorJS.add('.anchored');
+  const clipboard = new window.ClipboardJS('.code-copy-button', {
+    target: function(trigger) {
+      return trigger.previousElementSibling;
+    }
+  });
+  clipboard.on('success', function(e) {
+    // button target
+    const button = e.trigger;
+    // don't keep focus
+    button.blur();
+    // flash "checked"
+    button.classList.add('code-copy-button-checked');
+    var currentTitle = button.getAttribute("title");
+    button.setAttribute("title", "Copied!");
+    let tooltip;
+    if (window.bootstrap) {
+      button.setAttribute("data-bs-toggle", "tooltip");
+      button.setAttribute("data-bs-placement", "left");
+      button.setAttribute("data-bs-title", "Copied!");
+      tooltip = new bootstrap.Tooltip(button, 
+        { trigger: "manual", 
+          customClass: "code-copy-button-tooltip",
+          offset: [0, -8]});
+      tooltip.show();    
+    }
+    setTimeout(function() {
+      if (tooltip) {
+        tooltip.hide();
+        button.removeAttribute("data-bs-title");
+        button.removeAttribute("data-bs-toggle");
+        button.removeAttribute("data-bs-placement");
+      }
+      button.setAttribute("title", currentTitle);
+      button.classList.remove('code-copy-button-checked');
+    }, 1000);
+    // clear code selection
+    e.clearSelection();
+  });
+  function tippyHover(el, contentFn) {
+    const config = {
+      allowHTML: true,
+      content: contentFn,
+      maxWidth: 500,
+      delay: 100,
+      arrow: false,
+      appendTo: function(el) {
+          return el.parentElement;
+      },
+      interactive: true,
+      interactiveBorder: 10,
+      theme: 'quarto',
+      placement: 'bottom-start'
+    };
+    window.tippy(el, config); 
+  }
+  const noterefs = window.document.querySelectorAll('a[role="doc-noteref"]');
+  for (var i=0; i<noterefs.length; i++) {
+    const ref = noterefs[i];
+    tippyHover(ref, function() {
+      // use id or data attribute instead here
+      let href = ref.getAttribute('data-footnote-href') || ref.getAttribute('href');
+      try { href = new URL(href).hash; } catch {}
+      const id = href.replace(/^#\/?/, "");
+      const note = window.document.getElementById(id);
+      return note.innerHTML;
+    });
+  }
+  const findCites = (el) => {
+    const parentEl = el.parentElement;
+    if (parentEl) {
+      const cites = parentEl.dataset.cites;
+      if (cites) {
+        return {
+          el,
+          cites: cites.split(' ')
+        };
+      } else {
+        return findCites(el.parentElement)
+      }
+    } else {
+      return undefined;
+    }
+  };
+  var bibliorefs = window.document.querySelectorAll('a[role="doc-biblioref"]');
+  for (var i=0; i<bibliorefs.length; i++) {
+    const ref = bibliorefs[i];
+    const citeInfo = findCites(ref);
+    if (citeInfo) {
+      tippyHover(citeInfo.el, function() {
+        var popup = window.document.createElement('div');
+        citeInfo.cites.forEach(function(cite) {
+          var citeDiv = window.document.createElement('div');
+          citeDiv.classList.add('hanging-indent');
+          citeDiv.classList.add('csl-entry');
+          var biblioDiv = window.document.getElementById('ref-' + cite);
+          if (biblioDiv) {
+            citeDiv.innerHTML = biblioDiv.innerHTML;
+          }
+          popup.appendChild(citeDiv);
+        });
+        return popup.innerHTML;
+      });
+    }
+  }
+});
+</script>
+</div> <!-- /content -->
+<footer class="footer">
+  <div class="nav-footer">
+    <div class="nav-footer-right">
+      <ul class="footer-items list-unstyled">
+    <li class="nav-item compact">
+    <a class="nav-link" href="https://twitter.com/espinielli">
+      <i class="bi bi-twitter" role="img" aria-label="Enrico on Twitter">
+</i> 
+    </a>
+  </li>  
+    <li class="nav-item compact">
+    <a class="nav-link" href="https://github.com/espinielli">
+      <i class="bi bi-github" role="img" aria-label="Enrico on GitHub">
+</i> 
+    </a>
+  </li>  
+    <li class="nav-item compact">
+    <a class="nav-link" href="https://www.linkedin.com/in/espinielli/">
+      <i class="bi bi-linkedin" role="img" aria-label="Enrico on LinkedIn">
+</i> 
+    </a>
+  </li>  
+</ul>
+    </div>
+  </div>
+</footer>
+
+
+
+</body></html>

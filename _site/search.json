@@ -1,0 +1,576 @@
+[
+  {
+    "objectID": "posts/2010-10-31-investigating-pier/index.html",
+    "href": "posts/2010-10-31-investigating-pier/index.html",
+    "title": "Investigating Pier",
+    "section": "",
+    "text": "I have been playing around with Pier.\nIt is fun, especially when you can extend it to show LaTeX formulae (this is still work in progress given I am using the js from MathJax [even if forbidden], but hey I wanted a proof of concept!)\nI will try to complete it: whatch out ‘Beautiful Math for Pier’ on squeaksource.\n\n\n\nReusehttps://creativecommons.org/licenses/by-sa/4.0/"
+  },
+  {
+    "objectID": "posts/2018-06-30-writing-a-twitter-bot-in-r/index.html",
+    "href": "posts/2018-06-30-writing-a-twitter-bot-in-r/index.html",
+    "title": "Writing a Twitter Bot in R",
+    "section": "",
+    "text": "Since a while I am contemplating the possibility of automatically publishing on social media some stats and data visualisations from work.\nWhen I discovered the nice bot @everytract by @fitnr (and a little later the @GVAcartografic’s #Secciócensal tweets) I decided to try and do a Twitter bot myself in order to see what is possible and how difficult it is.\nI thought that combining maps and some Italian data would be a good recipe for having fun and so I did set out to use some GIS data from the Italian National Institute of Statistics (ISTAT)(@istat_en) in order to publish a map for every Italian comune (the basic administrative division in Italy)."
+  },
+  {
+    "objectID": "posts/2018-06-30-writing-a-twitter-bot-in-r/index.html#the-data",
+    "href": "posts/2018-06-30-writing-a-twitter-bot-in-r/index.html#the-data",
+    "title": "Writing a Twitter Bot in R",
+    "section": "The Data",
+    "text": "The Data\nThe relevant GIS data in the form of Shapefiles can be found on ISTAT’s web site, https://www.istat.it/it/archivio/124086. I took the most detailed polygons as for 2016 with WSG84 datum.\nI combined the info from ISTAT in an sf dataframe which looks like the following:\n\n> coms %>% as_tibble()\n# A tibble: 7,998 x 6\n   PRO_COM COMUNE          bb         REGIONE  DEN_CMPRO geometry                               \n     <dbl> <fct>           <list>     <fct>    <fct>     <S3: sfc_MULTIPOLYGON>                 \n 1    1001 Agliè           <S3: bbox> Piemonte Torino    \"list(list(c(7.7826615064871, 7.783045…\n 2    1002 Airasca         <S3: bbox> Piemonte Torino    \"list(list(c(7.48794557658868, 7.48797…\n 3    1003 Ala di Stura    <S3: bbox> Piemonte Torino    \"list(list(c(7.27324227448866, 7.27359…\n 4    1004 Albiano d'Ivrea <S3: bbox> Piemonte Torino    \"list(list(c(7.92507300912979, 7.92533…\n 5    1005 Alice Superiore <S3: bbox> Piemonte Torino    \"list(list(c(7.79782897832822, 7.79843…\n 6    1006 Almese          <S3: bbox> Piemonte Torino    \"list(list(c(7.4348997124695, 7.435239…\n\nPRO_COM is the unique numerical code identifying each Italian comune, COMUNE is the name of the comune, DEN_CMPRO is the name of the relevant super-entity the comune belongs to (either Metropolitan City or a Province), REGIONE is the name of the region and geometry is the simple feature describing the boundary of the comune. bb is the axis aligned bounding box of the comune’s polygon and is used to to extract the right portion (at the right zoom) of the satellite map.\nAll data preparation is documented in prepare-data.R file in the Italian Comuni Twitter bot repository."
+  },
+  {
+    "objectID": "posts/2018-06-30-writing-a-twitter-bot-in-r/index.html#r-packages-to-the-rescue",
+    "href": "posts/2018-06-30-writing-a-twitter-bot-in-r/index.html#r-packages-to-the-rescue",
+    "title": "Writing a Twitter Bot in R",
+    "section": "R packages to the Rescue",
+    "text": "R packages to the Rescue\nI found a lot of examples for developing Twitter bots in Python but I wanted to write it in R which we are starting to use more and more at work.\nOf course we all stand on the shoulder of Giants, and there is always somebody who has already done bits and pieces of what you need: rtweet does all you need as a client for accessing Twitter API, while the usual suspects ggplot2, sf and ggmap cover the maps aspects.\nThe setup for Twitter was smooth and I only executed the steps as described in rtweet package, so no need to repeat them here."
+  },
+  {
+    "objectID": "posts/2018-06-30-writing-a-twitter-bot-in-r/index.html#first-attempt",
+    "href": "posts/2018-06-30-writing-a-twitter-bot-in-r/index.html#first-attempt",
+    "title": "Writing a Twitter Bot in R",
+    "section": "First attempt",
+    "text": "First attempt\nThe first map I produced was a simple ggmap/ggplot map:\n\n\n\n\n\nThis is produced by code similar to this:\n\nlibrary(tidyverse)\nlibrary(sf)\nlibrary(ggmap)\nlibrary(rgdal)\n\n# get the data as per Italian Comuni Twitter Bot repo\n# https://github.com/espinielli/italian-comuni-bot/\ncoms <- readRDS(\"data/coms.rds\")\n\n# just get the first one\ncom <- coms %>%\n  dplyr::filter(row_number() == 1) %>%\n  dplyr::slice(1)\n\ncom.sp <- as(com, \"Spatial\")\n\n# extract its bounding box\nbb <- com$bb[[1]]\n\n# centroid\ncentroid <- com %>%\n  st_transform(23032) %>%\n  st_centroid() %>%\n  st_transform(4326) %>%\n  st_coordinates() %>%\n  as_data_frame() %>%\n  `names<-`(c(\"lon\", \"lat\"))\n\n# get Google Map (note: hardcoded zoom level)\nm <- get_map(location = centroid, zoom = 12, maptype = \"satellite\")\n\nterrain <- ggmap(m)\ncom.sp.df <- com.sp %>% fortify\n\n#----------------------------------------------------------------\n# inspired by\n# https://ryanpeek.github.io/2017-11-21-mapping-with-sf-part-3/\n#----------------------------------------------------------------\npg <- terrain +\n  geom_polygon(\n    data = com.sp.df,\n    aes(x = long, y = lat),\n    fill=NA,\n    color=\"yellow\",\n    lwd = 0.4, alpha=0.5) +\n  labs(x = \"Longitude (WGS84)\",\n       y = \"Latitude\",\n       caption = \"Sources: ISTAT (comuni), Google Maps (satellite)\") +\n  ggtitle(\n    label = str_glue(\"{comune} ({id})\",\n                     comune = com$COMUNE,\n                     id = str_pad(com$PRO_COM, 6, pad = \"0\")),\n    subtitle = str_c(com$DEN_CMPRO, com$REGIONE, sep = \", \"))\n\nThere are few “smelly” things in the code above:\n\nthe zoom level is hardcoded to 12\nthe map is not cropped to the boundary\n\nThe solution above is wrapped (with fix to first bullet, see below) in the function generate_google_map in the tweet-comune.R file in the Italian Comuni Twitter bot repository."
+  },
+  {
+    "objectID": "posts/2018-06-30-writing-a-twitter-bot-in-r/index.html#automatic-zoom-calculation",
+    "href": "posts/2018-06-30-writing-a-twitter-bot-in-r/index.html#automatic-zoom-calculation",
+    "title": "Writing a Twitter Bot in R",
+    "section": "Automatic Zoom Calculation",
+    "text": "Automatic Zoom Calculation\nI was surprised to always see examples with hardcoded zoom levels, but in fact the ggmap package has a helper function calc_zoom just for that. The only problem is that it is buggy, but pull request #141 has a proposed fix which I just saved in a local calc_zoom in the repo.\nIt is about taking the minimum instead of the maximun of the zoom levels in the longitude and latitude direction."
+  },
+  {
+    "objectID": "posts/2018-06-30-writing-a-twitter-bot-in-r/index.html#crop-map-to-polygon",
+    "href": "posts/2018-06-30-writing-a-twitter-bot-in-r/index.html#crop-map-to-polygon",
+    "title": "Writing a Twitter Bot in R",
+    "section": "Crop Map to Polygon",
+    "text": "Crop Map to Polygon\nI had no idea how to crop the Google Map to the comune’s boundary, but Giants exist and I have found a nice solution (by Robin Lovelace) posted on GIS SO.\nIt boils down to transforming the Google Map to raster and masking it with the comune’s boundary:\n\n  m.rast <- ggmap_rast(map = m)\n  com.only <- mask(m.rast, com.sp)\n\n\n\n\n\n\nThis (and bells and whistles) is now wrapped in a function generate_cropped_map in the tweet-comune.R file in the Italian Comuni Twitter bot repository."
+  },
+  {
+    "objectID": "posts/2015-02-07-html-scraping/index.html",
+    "href": "posts/2015-02-07-html-scraping/index.html",
+    "title": "HTML Scraping or Surviving Orrible Corporate Tools",
+    "section": "",
+    "text": "At work I have to fill my weekly timesheet. We use Planisware’s Timecard to record time spent on the various projects we are assigned to work on.\nSo you need to known what the total working time is for the day. For that our badging in and out is recorded and passed to Chronogestor which does sums them up and provides both a sexagesimal and decimal format.\nWhen there is an anomaly the sums are blocked till the request you submitted to fix it is implemented… So I thought I could do some web scraping and extract my clockings from the relevant CG’s page, make the total for the day (in decimal form: in Timecard we record time in decimal form, i.e. 3.5 is 3 hours and 30 minutes.) and fill Timecard."
+  },
+  {
+    "objectID": "posts/2015-02-07-html-scraping/index.html#html-scrapingws-to-the-rescue",
+    "href": "posts/2015-02-07-html-scraping/index.html#html-scrapingws-to-the-rescue",
+    "title": "HTML Scraping or Surviving Orrible Corporate Tools",
+    "section": "HTML Scraping to the rescue",
+    "text": "HTML Scraping to the rescue\nLet’s take the page for the weekly clockings (in case of anomalies the rows like “Temps pointe” / “Temps valide” are empty):\n\n\n\n“clockings”\n\n\nI initially tried with some Python examples using lxml but got stuck. CG complaines if you are using Google Chrome (and the tools above use Webkit, the web browser engine, behind the scene).\nAlso I soon realized CG does a lot of rendering via Javascript while I initially assumed it would have been a simple HTML page with a static table for the clockings. (This would have been to simple to implement! What a mess!)\nI decided to go for SlimerJS the scriptable browser that runs on top of Gecko, the web engine of Mozilla Firefox. (PhantomJS is the equivalent for Blink/WebKit used in Google Chrome.)\nNothing strange about using Javascript of course but CG sucks at it: it is a last millenium tool which has been hastily brought to this century without any knowledge of the web technologies (and any taste for usability and beauty.) Just check the generated DOM elements and you will see that the uniqueness (within a page) of id is not at all respected.\nFrom the page for the weekly clockings shown above, using Firefox Developer Tools you can see that the table for the clockings (“Entrées/Sorties” row) can be selected via the following CSS path (line 58):\n\n\nRun it!\nThe scraping is run as follows:\nC:\\goodies\\cg>cg usr:pwd 03/02/2015\nWhere usr is the userid and pwd is the password for both the internet proxy and ChronoGestor.\ncg is a simple (stupid?) .bat script\n\n\n\nLoggin in\nThe relevant lines from the cg.js script 6-16,47,54,61-63 (see the code above.)\nHere we reuse the proxy user and account values which, as per company policy, are the same as our login name and password. And to do that I had to hack an implementation detail whereby slimer.js sets an environment variable __SLIMER_ARGS with the options passed on the command line. (Lines 6-16)\n\n\nExtract the clockings\nIn order to extract the right cells for the clocking, I inject JQuery and use webpage.evaluate() function from the API in order to execute extractClockings (sel will be passed as argument to extractClockings, it is the CSS path shown above). Lines 74-76.\n extractClockings reads a list of <a> elements for each day. Lines 18-42.\n\n\nCount the minutes\nThe rest is a matter of summing up the minutes and printing the values. Lines 78-114."
+  },
+  {
+    "objectID": "posts/2012-02-06-git-and-rsa-identities/index.html",
+    "href": "posts/2012-02-06-git-and-rsa-identities/index.html",
+    "title": "Git and RSA identities",
+    "section": "",
+    "text": "Here is the solution I found to be able to use git with a different RSA identity than the rsa_id default one.\nMy repo on github is logback-android and my user account is espinielli.\nI did generate an SSH key as per github help and named it github_rsa:\n$ ssh-keygen -t rsa -C \"your_email@youremail.com\" -f github_rsa\nI then added the following section in ~/.ssh/config\n# github for espinielli\nHost github\nHostName github.com\nUser espinielli\nIdentityFile /Users/espin/.ssh/github_rsa\nFrom within the repo directory (I cloned it before via http):\n$ git remote add gh ssh://git@github.com/espinielli/logback-android.git\nAnd finally I am able to use it like this:\n$ git push gh master\n\n\n\nReusehttps://creativecommons.org/licenses/by-sa/4.0/"
+  },
+  {
+    "objectID": "posts/2012-01-20-latex-on-blogger-again/index.html",
+    "href": "posts/2012-01-20-latex-on-blogger-again/index.html",
+    "title": "LaTeX on Blogger again",
+    "section": "",
+    "text": "Revisited in 2022 to make it work wit Quarto…where things are so easy!\nMy previous post about LaTeX  on Blogger reported that the solution described there did not work anymore…Now I found a new solution based on mathjax.So let’s try it straight away with inline math, like the great equation \\(e^{-2\\pi}\\), and with displayed math like the following:\n\\[\n\\left [ - \\frac{\\hbar^2}{2 m} \\frac{\\partial^2}{\\partial x^2} + V \\right ] \\Psi<br />= i \\hbar \\frac{\\partial}{\\partial t} \\Psi\n\\]\n\n\n\nReusehttps://creativecommons.org/licenses/by-sa/4.0/"
+  },
+  {
+    "objectID": "posts/2009-02-23-my-giants/index.html",
+    "href": "posts/2009-02-23-my-giants/index.html",
+    "title": "My Giants",
+    "section": "",
+    "text": "I am probably too selective, anyway my models for computer science/software engineering (one of them would disagree on both definitions) are just two: Donald E. Knuth and Alan Kay.\nThe first one continues to surprise me with the depth, clarity and joy of his works: from TeX (well, I use LaTex but it does not exist without TeX) to The Art of Computer Programming to Literate Programming.\nAbout the latter, I was one of the blessed to be present to his Turing Award Lecture: he shocked me to the point I had two sleepless nights so angry I was about having wasted so much time in useless (computer) matters! After that I have been studying and using a lot of what he wrote and presented from Squeak to Croquet to the Burroughs B5000 and stack computers to his recent line of exploration and the proposal to NSF about reinventing programming (PDF).\n\n\n\nReusehttps://creativecommons.org/licenses/by-sa/4.0/"
+  },
+  {
+    "objectID": "posts/2009-06-14-scons-and-noweb/index.html",
+    "href": "posts/2009-06-14-scons-and-noweb/index.html",
+    "title": "Scons and noweb",
+    "section": "",
+    "text": "I was curious to see how I could integrate noweb and Scons.\nYou can download my little Sconstruct for this, Sconstruct.example. It defines two builders. NoWeave is used to produce TeX or LaTeX documents, while NoTangle extracts the non-document artefacts, i.e. programs, config files, scripts … It also includes productions for generating a sample program about Ackermann function:\n\nackdoc  = env.NoWeave('ack.tex', 'ack.nw')\nackcode = env.NoTangle('ack.py', 'ack.nw')\nacktest = env.NoTangle('ackTest.py', 'ack.nw')\n\nThe noweb source is ack.nw and the companion BibTeX file is ack.bib\nIt contains the doc chunks describing the function, the source code chunck for the relevant Python code and the code chunk for the unit test.\nYou can try it out executing\n\n$ scons -f Sconstruct.example\n\nYou will get the following artefacts, ack.py, ack.tex, ackTest.py and ack.pdf\nRemember to run BibTeX first…\n\n\n\nReusehttps://creativecommons.org/licenses/by-sa/4.0/"
+  },
+  {
+    "objectID": "posts/2018-01-02-ergodox-keyboard/index.html",
+    "href": "posts/2018-01-02-ergodox-keyboard/index.html",
+    "title": "ErgoDox keyboard",
+    "section": "",
+    "text": "Now that I have a new blog setup, I can more quickly post what has been since long time in the making: my ErgoDox keyboard.\nIt all started with me reading Steve Yegge’s blog on touch typing and being convinced I should give it a try with a proper keyboard.\nSo on 2014-03-24 I joined a Massdrop purchase for an DIY ErgoDox split keyboard. It completed a week later and delivery was done somewhat end of May.\nThe kit contained:\n\n2 x PCB\n10 x Acrylic case Plates\n1 x Teensy USB Board, Version 2\n1 x MCP23018 I/O expander\n2 x 3.5mm TRRS connector\n1 x USB mini B plug\n1 x 0.1uF ceramic capacitor\n76 x 1N4148W-7-F diode (surface-mount)\n1 x 2.2k ohm resistor\n3 x 3mm T1 LED\n2 x 220 ohm resistor\n76 x Cherry MX switch\n2 x USB cable Male A to male mini B\n1 x TRRS cable\n14 x Case screws/nuts\n\n\n\n\n\n\nOn 2014-05-30 I also joined a keycaps drop and ordered the day later:\n\nClear Ergodox DCS Keycaps (76 keys)\n\n\n\n\n\n\nFinally on 2014-08-20 I joined a Grifiti ErgoDox Wrist Rest drop.\n\n\n\n\n\nI followed the instructions at Massdrop (now in the archive, see these too to have an idea)\nInitially progress has been very slow at the beginning on my side. I had to dig out of some boxes my old soldering iron…\nI started with the USB connector.\nIt has been immediately evident that soldering SMD diodes is a pain in the neck: they are so tiny (3 mm long, 1.5 mm wide) and my tools/eyes not really up to the task.\nSo I went to the VUB University Fablab: on Wednesdays it is open to the public. I did some ten/twenty SMD diodes.\nThen I continued with my little iron but soon after it failed miserably of old age. So I could not solder any more. My Eurocontrol collegue “Tasso” to the rescue: he provided with a new iron and then work could continue.\nBut kids’ summer holidays were now over so no more time for me to tinker! It’ll all have to wait 2015.\nNow in July 2015 all started again, the pain continued thanks to those little tiny SMD diodes and them being 76! Pain, pain, pain.\nI did a small test completing first a column on the left side and a few keys on the right half, loaded the firmaware: it all worked. So now just a matter of finishing up. But again time was up…completion had to wait for next summer holidays.\nSummer 2016 was great: I finished everything up and was ready to try it.\nBuuuum! Some keys were not working.\nSoon I noticed that it was a full column and then I inspected my soldering and found that on one of the keys it was really a mess. A quick fix made it all work correctly!!!!\nSUCCESS\nI decided to keep a QWERTY layout, but I have not yet really execised for touch typing. That seems to need so much commitment!\n\n\n\nReusehttps://creativecommons.org/licenses/by-sa/4.0/"
+  },
+  {
+    "objectID": "posts/2012-05-19-automatically-extracting-bomb-drops/index.html",
+    "href": "posts/2012-05-19-automatically-extracting-bomb-drops/index.html",
+    "title": "Automatically extracting bomb drops from the Blitz Bomb Census maps",
+    "section": "",
+    "text": "I just finished Blackout by Connie Willis and I was wondering where she did get all the exact times when the air raids of The Blitz were happening.I am curious because I was thinking that a timeline map would give a visual effect of the huge destruction and hard times the Londoners had to go through…so I googled for it and found the following:\n\n\na nice research blog which uses the Blitz Bomb Census from The National Archives\n\n\na blog entry from the Guardian about the first day - and data - of the Blitz over London. Here the source of info is the London Metropolitan Archives\n\n\nBoth examples show nice data visualization opportunities, but they both show how difficult it is to obtain data. Digital access to historical data could triggers a blossoming of applications!Anyway I experimented with the little map from the first blog and wrote a little program using SimpleCV.This is were I started from:\n\n\n\nand this is what I got (without too much work, I must admit):\n\n\n\nThe code is quite simple and the parameters could be changed to get higher accuracy.\nblz = Image(\"./sampleimages/the_blitz.png\")img = blz.copy()dist = img.colorDistance(SimpleCV.Color.WHITE)dist.dilate(2)segmented = dist.stretch(240, 255)blobs = segmented.findBlobs()if blobs: circles = blobs.filter([b.isCircle(0.6) for b in blobs]) for c in circles:  img.drawCircle((c.x, c.y),                 c.radius(),                 SimpleCV.Color.YELLOW,                 2) img.show()\n\n\n\n\n\n\n\n\n\n\n\n\n\n\nReusehttps://creativecommons.org/licenses/by-sa/4.0/"
+  },
+  {
+    "objectID": "posts/2018-01-02-new-blog-engine/index.html",
+    "href": "posts/2018-01-02-new-blog-engine/index.html",
+    "title": "New Blog Engine",
+    "section": "",
+    "text": "I finally decided to give it a try and then switched to blogdown (here the free book.)\nI sort of followed the migration suggestions in the book, but when I tried to switch to Netlify I got everyting messed up with my OVH setup so I am still with Github Pages…one step at a time…\nI hope this setup will lower the barrier and allow me to blog and share more.\nI am already looking forward to using the amazing features provided by Hugo, e.g. shortcodes. So if I want to cite one of my tweets I simply use blogdown::shortcode(...)\n\n\n\n\nReusehttps://creativecommons.org/licenses/by-sa/4.0/"
+  },
+  {
+    "objectID": "posts/2016-04-02-dvd2tablet/index.html",
+    "href": "posts/2016-04-02-dvd2tablet/index.html",
+    "title": "DVD to Android Tablet",
+    "section": "",
+    "text": "How to transfer your DVDs to your Android Tablet\nSuppose your kids want to watch their DVDs in the car on their Android tablet…\nHere is what you can do (on a Mac OSX 10.9.5):\n\ninstall Handbrake and its CLI\n$ brew cask install handbrake\n$ brew cask install handbrakecli\ninstall libdvdcss (thanks to lifehacker’s article) in order to bypass copy protection\n$ brew install libdvdcss\ngo to the place where you will place the ripped DVD:\n$ cd ~/Movies\nconvert your DVDs:\n$ HandBrakeCLI -i /Volumes/'my DVD' -o /Volumes/Untitled/Movies/my_dvd.mp4 \\\n               --native-language=\"ita\" --native-dub \\\n               --preset=\"Android Tablet\"\nThe first two options define the input and output (I save the converted movie on the microSD card /Volumes/Untitled in the Movies directory)\nThe --native-language=\"ita\" --native-dub options set Italian as the selected language (if you omit the --native-dub you will get the first audio track language and subtitles in Italian.)\nThe last option --preset=\"Android Tablet\" selected the predefined settings that work best for viewing the converted movie on an Android tablet.\n(be prepared to wait for some time…it took 1h 8min 5s for an 87min movie on my old MacBook Pro mid-2009)\n\nThere are other preset configurations…Should you need to copy to a different device, use HandBrakeCLI --preset-list to select the one that best fits your needs. Otherwise you can delve into the many settings…!\nNote: after the conversion I get my DVD driver completely blocked/unable to read disks and ejecting them all. Sometimes “Repair Disk Permissions” via Disk Utility as described here make it work again… some other times not!\nI do the repair via command line as follows (eventually prefix it with sudo):\n$ diskutil repairPermissions /\nEventually I succeeded using “System Information”, selecting ‘Disk Burning’ and then hitting File -> Refresh Information. Don’t ask me why or how, I just did it and the driver worked again! (You can do it via the command line by running system_profiler -detailLevel full SPDiscBurningDataType)\n\n\n\n\nReusehttps://creativecommons.org/licenses/by-sa/4.0/"
+  },
+  {
+    "objectID": "posts/2015-04-21-how-to-add-a-new-chart-type-to-dcjs/index.html",
+    "href": "posts/2015-04-21-how-to-add-a-new-chart-type-to-dcjs/index.html",
+    "title": "How to add a new chart type to dc.js",
+    "section": "",
+    "text": "This is a step by step description of how I extended dc.js with a new chart type. It is inspired by a wiki page by Thomas Robert."
+  },
+  {
+    "objectID": "posts/2015-04-21-how-to-add-a-new-chart-type-to-dcjs/index.html#a-bullet-chart",
+    "href": "posts/2015-04-21-how-to-add-a-new-chart-type-to-dcjs/index.html#a-bullet-chart",
+    "title": "How to add a new chart type to dc.js",
+    "section": "A Bullet chart",
+    "text": "A Bullet chart\nMike Bostock already implemented a bullet chart in D3.js. The vertical version from Jason Davies uses the official code which is available as a d3-plugin. (I have submitted a proposal for a bug fix and will use it instead.)\nSo how can I make it available in dc.js?\n  Below you can see what I did and here what is still in the todo list.\n\n\nThe result is not too bad."
+  },
+  {
+    "objectID": "posts/2015-04-21-how-to-add-a-new-chart-type-to-dcjs/index.html#scaffolding",
+    "href": "posts/2015-04-21-how-to-add-a-new-chart-type-to-dcjs/index.html#scaffolding",
+    "title": "How to add a new chart type to dc.js",
+    "section": "Scaffolding",
+    "text": "Scaffolding\nStarting from dc.js directory\n\nadd a file named src\\bullet-chart.js\ncopy bullet.js (with the fix proposed here) from the d3-plugin to in src\\d3.bullet.js\nadd the two files above in the module.exports.jsFiles array in `Gruntfile.js\n\n    module.exports.jsFiles = [\n      ...\n      'src/d3.bullet.js',\n      'src/bullet-chart.js',\n      'src/footer.js'  // NOTE: keep this last\n    ];\n\nadd the example file examples\\web\\bullet.html, a copy of ord.html for example, and update examples\\web\\index.html accordingly"
+  },
+  {
+    "objectID": "posts/2015-04-21-how-to-add-a-new-chart-type-to-dcjs/index.html#stub-your-chart",
+    "href": "posts/2015-04-21-how-to-add-a-new-chart-type-to-dcjs/index.html#stub-your-chart",
+    "title": "How to add a new chart type to dc.js",
+    "section": "Stub your chart",
+    "text": "Stub your chart\nbullet-chart.js can initially be something like\n    /**\n    ## Bullet Chart\n    Includes: [Margin Mixin](#margin-mixin), [Color Mixin](#color-mixin),\n              [Base Mixin](#base-mixin)\n    \n    Bullet chart implementation.\n    #### dc.bulletChart(parent[, chartGroup])\n    Create a bullet chart instance and attach it to the given parent element.\n    \n    #### Example of usage\n    \n    ```javascript\n    var chart = dc.bulletCloudChart()\n     .dimension(department)\n     .group(salesPerDepartment)\n     .colors(d3.scale.quantize().range([\"#E2F2FF\", \"#C4E4FF\", \"#9ED2FF\", \n     \"#81C5FF\", \"#6BBAFF\", \"#51AEFF\",  \"#36A2FF\", \"#1E96FF\", \"#0089FF\", \"#0061B5\"]))\n     .colorDomain([0, 200])\n     .label(function (d) { return labels[d.key]; })\n     .title(function (d) { return d.value+\" $\"; })\n    ```\n    \n    \n    Parameters:\n    \n    * parent : string | node | selection - any valid\n    [d3 single selector](https://github.com/mbostock/d3/wiki/Selections#selecting-elements)\n    specifying a dom block element such as a div; or a dom element or d3 selection.\n    \n    * chartGroup : string (optional) - name of the chart group this chart instance should\n    be placed in.\n    Interaction with a chart will only trigger events and redraws within the chart's group.\n    \n    Returns:\n    A newly created bullet chart instance\n    \n    ```javascript\n    // create a bullet chart under #chart-container1 element using the default global chart group\n    var chart1 = dc.bulletChart('#chart-container1');\n    // create a bullet chart under #chart-container2 element using chart group A\n    var chart2 = dc.bulletChart('#chart-container2', 'chartGroupA');\n    ```\n    \n    **/\n    dc.bulletChart = function (parent, chartGroup) {\n    \n        var _chart = dc.marginMixin(dc.colorMixin(dc.baseMixin({}))));\n    \n        //--- specifics ---\n    \n        //-----------------\n    \n     return _chart.anchor(parent, chartGroup);\n    };\nThe rationale for the mixin used is:\n\nBase: you cannot really get away from it\nMargin: useful to get proper spacing around\nColor: allows for selecting the bullet colors\n\nThe rendering for the new chart is to be coded in the //--- specifics --- part.\nThe source code (yes! It should be better documented, hence this post) of Base Mixin specifies that _doRender and _doRedraw are the functions to be implemented in the concrete charts."
+  },
+  {
+    "objectID": "posts/2015-04-21-how-to-add-a-new-chart-type-to-dcjs/index.html#rendering-the-chart",
+    "href": "posts/2015-04-21-how-to-add-a-new-chart-type-to-dcjs/index.html#rendering-the-chart",
+    "title": "How to add a new chart type to dc.js",
+    "section": "Rendering the chart",
+    "text": "Rendering the chart\nLuckily for bullet charts there are examples to get inspired from both for the horizontal and the vertical layout.\nThe _doRender function is mimicking what done by Mike Bostock in his horizontal layout with the parametrization of the title transform.\n  var _bulletMargin = {top: 5, right: 40, bottom: 20, left:120},\n      _bulletWidth = 960 - _bulletMargin.left - _bulletMargin.right,\n      _bulletHeight = 50 - _bulletMargin.top  - _bulletMargin.bottom,\n      _bulletOrient = \"left\",\n      _titleTranslate = titleTranslate(_bulletOrient);\n\n\n  _chart._doRender = function () {\n    var _bullet = d3.bullet()\n      .width(_bulletWidth)\n      .height(_bulletHeight)\n      .orient(_bulletOrient);\n\n    var svg = _chart.root().selectAll(\"svg\")\n        .data(_chart.data())\n      .enter().append(\"svg\")\n        .attr(\"class\", \"bullet\")\n        .attr(\"width\", _bulletWidth + _bulletMargin.left + _bulletMargin.right)\n        .attr(\"height\", _bulletHeight + _bulletMargin.top  + _bulletMargin.bottom)\n      .append(\"g\")\n        .attr(\"transform\", \"translate(\" + _bulletMargin.left + \",\" + _bulletMargin.top + \")\")\n        .call(_bullet);\n\n\n    var title = svg.append(\"g\")\n        .style(\"text-anchor\", \"end\")\n        .attr(\"transform\", \"translate(\" + _titleTranslate[0] + \",\" + _titleTranslate[1] + \")\");\n\n    title.append(\"text\")\n        .attr(\"class\", \"title\")\n        .text(function(d) {\n          return d.title;\n        })\n\n    title.append(\"text\")\n        .attr(\"class\", \"subtitle\")\n        .attr(\"dy\", \"1em\")\n        .text(function(d) {\n          return d.subtitle;\n        })\n\n    return _chart;\n  };\nThe proper positioning of the title is taken care by the titleTranslate function. Titles will either be on the left of the bullet bar in the horizontal layout or at the bottom in the vertical one."
+  },
+  {
+    "objectID": "posts/2015-04-21-how-to-add-a-new-chart-type-to-dcjs/index.html#chart-options",
+    "href": "posts/2015-04-21-how-to-add-a-new-chart-type-to-dcjs/index.html#chart-options",
+    "title": "How to add a new chart type to dc.js",
+    "section": "Chart options",
+    "text": "Chart options\nThe bullet chart can be customized in order to produce the desired graph via the getter/setter methods described in the following sections.\nThese are quite low level customizations, see the To Do section for a better approach.\n\n.bulletWidth\n/**\n  #### .bulletWidth([value])\n  Set or get the bullet width.\n\n  **/\n  _chart.bulletWidth = function (_) {\n      if (!arguments.length) {\n          return _bulletWidth;\n      }\n      _bulletWidth = +_;\n      return _chart;\n  };\n\n\n.bulletHeight\n  /**\n  #### .bulletHeight([value])\n  Set or get the bullet height.\n\n  **/\n  _chart.bulletHeight = function (_) {\n      if (!arguments.length) {\n          return _bulletHeight;\n      }\n      _bulletHeight = +_;\n      return _chart;\n  };\n\n\n.bulletMargin\n  /**\n  #### .bulletMargin([value])\n  Set or get the bullet margin, i.e. `{top: 5, right: 40, bottom: 50, left:120}`.\n\n  **/\n  _chart.bulletMargin = function (_) {\n      if (!arguments.length) {\n          return _bulletMargin;\n      }\n      _bulletMargin = _;\n      return _chart;\n  };\n\n\n.orient\nThis method defines the starting point for the bullet.\nNote that it influences where the title/subtitle will be positioned: the current implementation of bullet.js allows for title to either be on the left or at the bottom in the horizontal and vertical layout respectively.\nThe internal function titleTranslate sets sensible values for the title position.\n  /**\n  #### .orient([value])\n  Set or get the bullet orientation (one of `\"left\"`, `\"right\"`, `\"top\"` or `\"bottom\"`).\n\n  **/\n  _chart.orient = function (_) {\n      if (!arguments.length) {\n          return _bulletOrient;\n      }\n      _bulletOrient = _;\n      _titleTranslate = titleTranslate(_bulletOrient);\n      return _chart;\n  };\n\n\ntitleTranslate (internal)\nThis internal function sets the right parameters for the positioning of the title/subtitle for the vertical and horizontal layout.\n  function titleTranslate(orient) {\n    if (!arguments.length) {\n      return _titleTranslate;\n    }\n    \n    if (_bulletOrient == \"left\" || _bulletOrient == \"right\") {\n      return [-6, _bulletHeight / 2];\n    }\n    else if (_bulletOrient == \"bottom\" || _bulletOrient == \"top\") {\n      return [_bulletWidth, _bulletHeight + 20]\n    }\n\n    return [-6, _bulletHeight / 2];\n  }"
+  },
+  {
+    "objectID": "posts/2015-04-21-how-to-add-a-new-chart-type-to-dcjs/index.html#example",
+    "href": "posts/2015-04-21-how-to-add-a-new-chart-type-to-dcjs/index.html#example",
+    "title": "How to add a new chart type to dc.js",
+    "section": "Example",
+    "text": "Example\nThe bullet.html file is structured pretty much the same as the other examples:\n\nthe head part,\nthe libraries,\nthe style part\nthe <div>’s for the charts\nthe code for the chart instantiation and rendering\n\n<!DOCTYPE html>\n<html lang=\"en\">\n<head>\n<title>dc.js - Bullet Chart Example</title>\n    <meta charset=\"UTF-8\">\n    <link rel=\"stylesheet\" type=\"text/css\" href=\"../css/dc.css\"/>\n</head>\n<script type=\"text/javascript\" src=\"../js/d3.js\"></script>\n<script type=\"text/javascript\" src=\"../js/crossfilter.js\"></script>\n<script type=\"text/javascript\" src=\"../js/dc.js\"></script>\n\n<style>\n  /* see \"A Matter of Style\" section */\n</style>\n\n\n<div id=\"test-horizontal\"></div>\n<div id=\"test-vertical\"></div>\n\n<script type=\"text/javascript\">\n  // see \"The Two Layouts\" section\n</script>\n</html>\n\nThe Two Layouts\nThe example mimics charts in the gists from Mike Bostock and Jason Davies.\nThere is the usual binding to the <div>’s, the crossfilter bits and the chart definition and rendering.\nNote the trick about how statusGroup has been defined in order to comply with dc.js way to pass the data to the underlying d3.js: this is based on the knowledge that the default implementation of .data() is returning group.all().\nvar chart1 = dc.bulletChart(\"#test-horizontal\");\nvar chart2 = dc.bulletChart(\"#test-vertical\");\n\nvar data = [\n  {\"title\":\"Revenue\",\"subtitle\":\"US$, in thousands\",\"ranges\":[150,225,300],\"measures\":[220,270],\"markers\":[250]},\n  {\"title\":\"Profit\",\"subtitle\":\"%\",\"ranges\":[20,25,30],\"measures\":[21,23],\"markers\":[26]},\n  {\"title\":\"Order Size\",\"subtitle\":\"US$, average\",\"ranges\":[350,500,600],\"measures\":[100,320],\"markers\":[550]},\n  {\"title\":\"New Customers\",\"subtitle\":\"count\",\"ranges\":[1400,2000,2500],\"measures\":[1000,1650],\"markers\":[2100]},\n  {\"title\":\"Satisfaction\",\"subtitle\":\"out of 5\",\"ranges\":[3.5,4.25,5],\"measures\":[3.2,4.7],\"markers\":[4.4]}\n];\n\nvar ndx        = crossfilter(data),\n    titleDimension = ndx.dimension(function(d) {return d.title;}),\n    statusGroup    = {\n      all: function(){\n        return data;\n    }};\n\n// dims from Mike Bostock's bl.ock, https://bl.ocks.org/mbostock/4061961\nchart1\n  .width(960)\n  .height(450)\n  .bulletMargin({top: 5, right: 40, bottom: 20, left: 120})\n  .bulletWidth(960 - 120 - 40)\n  .bulletHeight(50 - 5 - 20)\n  .orient(\"left\")\n  .dimension(titleDimension)\n  .group(statusGroup);\n\nchart1.render();\n\n// dims from Jason Davies's bl.ock, https://bl.ocks.org/jasondavies/5452290\nchart2\n  .width(185)\n  .height(450)\n  .bulletMargin({top: 5, right: 40, bottom: 50, left: 120})\n  .bulletWidth(185 - 120 - 40)\n  .bulletHeight(450 - 5 - 50)\n  .orient(\"top\")\n  .dimension(titleDimension)\n  .group(statusGroup);\n\nchart2.render();\n\n\nA Matter of Style\nIn the best tradition of the web, everything in the chart can be customized via CSS\nbody {\n  font-family: \"Helvetica Neue\", Helvetica, Arial, sans-serif;\n  margin: auto;\n  padding-top: 40px;\n  position: relative;\n  width: 960px;\n}\n\nbutton {\n  position: absolute;\n  right: 10px;\n  top: 10px;\n}\n\n.bullet { font: 10px sans-serif; }\n.bullet .marker { stroke: #000; stroke-width: 2px; }\n.bullet .tick line { stroke: #666; stroke-width: .5px;}\n.bullet .range.s0 { fill: #eee; }\n.bullet .range.s1 { fill: #ddd; }\n.bullet .range.s2 { fill: #ccc; }\n.bullet .measure.s0 { fill: lightsteelblue; }\n.bullet .measure.s1 { fill: steelblue; }\n.bullet .title { font-size: 14px; font-weight: bold; }\n.bullet .subtitle { fill: #999; }\n\n.bullet .axis line, .bullet .axis path { opacity: 0.5; }\n</style>"
+  },
+  {
+    "objectID": "posts/2015-04-21-how-to-add-a-new-chart-type-to-dcjs/index.html#to-do",
+    "href": "posts/2015-04-21-how-to-add-a-new-chart-type-to-dcjs/index.html#to-do",
+    "title": "How to add a new chart type to dc.js",
+    "section": " To Do",
+    "text": "To Do\nThe current implementation lacks few feature and refinements.\n\nTests\nI am studying the existing ones and will add them!\n\n\nAutomatic Layout\nFrom a user perspective I would like to just say:\n  chart\n    .width(960)\n    .height(450)\n    .orient(\"left\")\n    .dimension(titleDimension)\n    .group(statusGroup);\nand have sensible width/height/margins being calculated by the internals of the implementation, with the above methods available for fine-tuning.\n\n\nColors selection\nEven if I made bulletChart include the Color Mixin, I haven’t really tackled colors customization.\nWith code like the following\n  chart\n    .width(960)\n    .height(450)\n    .orient(\"left\")\n    .dimension(titleDimension)\n    .group(statusGroup)\n    .colors(d3.scale.ordinal().range(['red','green','blue']));\nyou would be able to define the three colors for the bad, satisfactory and good ranges.\n\n\nChart Margins\nEven if included, the Margin Mixin hasn’t been handled.\nThese will be the margins for the whole chart, not the ones for the bullets as described above."
+  },
+  {
+    "objectID": "posts/2015-01-30-how-internet-long-tail-helped-me-fixing-my-smartphone/index.html",
+    "href": "posts/2015-01-30-how-internet-long-tail-helped-me-fixing-my-smartphone/index.html",
+    "title": "How Internet Long Tail Helped Me Fixing My Smartphone",
+    "section": "",
+    "text": "I am just more and more amazed by the opportunities offered by the current Internet connectivity: they call it the long tail.\nIt strikes me that just few years ago what I have done would have been extreemely difficult or very expensive … or both.\nSo here is the story of how I was able to fix my Samsung Galaxy S2, the steps I followed and the resources that helped me."
+  },
+  {
+    "objectID": "posts/2015-01-30-how-internet-long-tail-helped-me-fixing-my-smartphone/index.html#erratic-malfunctioning",
+    "href": "posts/2015-01-30-how-internet-long-tail-helped-me-fixing-my-smartphone/index.html#erratic-malfunctioning",
+    "title": "How Internet Long Tail Helped Me Fixing My Smartphone",
+    "section": "Erratic Malfunctioning",
+    "text": "Erratic Malfunctioning\nDuring summer 2014 my S2 started behaving erratically: it was suddenly switching off and back on, charging was giving sings of malfunctioning.\nI initially thought this was due to the battery.\nAndy, a friend and collegue of mine, gave me one of his spare batteries but the symptoms didn’t disappear. The situation was annoying but, to be frank, not frequent enough to push me to immediate action.\nThen in November I decided to investigate whether anybody else had experienced similar problems."
+  },
+  {
+    "objectID": "posts/2015-01-30-how-internet-long-tail-helped-me-fixing-my-smartphone/index.html#you-are-not-alone",
+    "href": "posts/2015-01-30-how-internet-long-tail-helped-me-fixing-my-smartphone/index.html#you-are-not-alone",
+    "title": "How Internet Long Tail Helped Me Fixing My Smartphone",
+    "section": "You are not alone",
+    "text": "You are not alone\nA few searches showed that USB charging port could be the culprit and many youtube videos showed how to repair it\n\n\n{{% youtube \"sBtEz6sWzZY\" %}}"
+  },
+  {
+    "objectID": "posts/2015-01-30-how-internet-long-tail-helped-me-fixing-my-smartphone/index.html#go-for-the-fun-fix-it",
+    "href": "posts/2015-01-30-how-internet-long-tail-helped-me-fixing-my-smartphone/index.html#go-for-the-fun-fix-it",
+    "title": "How Internet Long Tail Helped Me Fixing My Smartphone",
+    "section": "Go for the fun: fix it",
+    "text": "Go for the fun: fix it\nThen the next decision point was: do I try to fix it with the risk of destroying the phone or do I just hand it over to a repair shop?\nNo way to find a repair shop who is close enough and competent enough.\nSo I decided to give it a go and try to fix it: it is all about taking some screws away and unplug some connectors; no surface mounting soldering or the likes!"
+  },
+  {
+    "objectID": "posts/2015-01-30-how-internet-long-tail-helped-me-fixing-my-smartphone/index.html#where-to-buy-the-parts",
+    "href": "posts/2015-01-30-how-internet-long-tail-helped-me-fixing-my-smartphone/index.html#where-to-buy-the-parts",
+    "title": "How Internet Long Tail Helped Me Fixing My Smartphone",
+    "section": "Where to buy the parts",
+    "text": "Where to buy the parts\nSo once I decided to repair, where to find the parts? Brussels is not the paradise for electronics hobbists.\nEBay to the rescue: one piece can cost as little as 0.30 EUR if bought in lots of thousands (but I need just one!), then I found a single piece at 3.29 CAD (shipping included), still a cheap enough option. The order date is Nov 27, 2014, shipped the day after."
+  },
+  {
+    "objectID": "posts/2015-01-30-how-internet-long-tail-helped-me-fixing-my-smartphone/index.html#a-long-wait",
+    "href": "posts/2015-01-30-how-internet-long-tail-helped-me-fixing-my-smartphone/index.html#a-long-wait",
+    "title": "How Internet Long Tail Helped Me Fixing My Smartphone",
+    "section": "A long wait",
+    "text": "A long wait\nHere we are! On 29th Dec 2015 I come home from holidays and it arrived! And the evening after while the kids play with Legos, Daddy repairs (and has fun with) the phone\n\n\n\nrepairing\n\n\n All is good: USB is charging again, no shortcuts, no erratic shutdowns…Victory!\n\n\n\nfixed"
+  },
+  {
+    "objectID": "posts/2015-01-30-how-internet-long-tail-helped-me-fixing-my-smartphone/index.html#mayday-mayday",
+    "href": "posts/2015-01-30-how-internet-long-tail-helped-me-fixing-my-smartphone/index.html#mayday-mayday",
+    "title": "How Internet Long Tail Helped Me Fixing My Smartphone",
+    "section": "Mayday, Mayday!",
+    "text": "Mayday, Mayday!\nAll seemed good, but the radio signal is very, very weak!\nSo weak that at times I have no gsm/data connection!\nHhuumm, maybe that is due to the fact that the replacement piece I bought was revision 2.3 …\n\n\n\nthe new piece\n\n\n… while the original one was 2.2 …\n\n\n\nthe new piece\n\n\n Back to basics, google search to the rescue: I found an article by Rich O’Neil citing a post on xda-developers from a certain Serathian who simply cut the PCB in two.\nHere is what he did:\n\n\n\ncut the pcb in two\n\n\nThe left part is responsible for the radio while the right part is the USB.\n Ok, few days later I take a scissor and use the radio part from the old piece (rev 2.2) and the USB part from the new (rev 2.3): VICTORY !\nPhone is now fixed! (It is 6th Jan 2015.)  Thanks all for sharing (and some huge company to let me find it)!"
+  },
+  {
+    "objectID": "posts/2009-10-27-geomapping-what-wonderful-world/index.html",
+    "href": "posts/2009-10-27-geomapping-what-wonderful-world/index.html",
+    "title": "Geomapping: what a wonderful world!",
+    "section": "",
+    "text": "Suppose you have a set of lat/lon points, where do you find out their elevation?\nSimple, let say you have the following coordinates (a cross in concrete on the top of the hill in front of my parents’ place):\n    45.469678, 10.970527\n(I got these from ‘Get Directions from here’ in google maps)\nThen call the relevant USGS’ web service\nIt says\n    getElevation\n       for Latitude 45.46                   --> Y_Value=45.469678\n       for Longitude 10.97                --> X_Value=10.970527\n       return result in meters            --&gt; Elevation_Units=METERS\n       use the best survey available --&gt; Source_Layer=-1\n       not other additional info        --&gt; Elevation_Only=true\nWhy would you want elevations?\nTo plot an elevation chart of a bike or hiking tour.\nAmazing what you can find around…\n(This was inspired by https://econym.org.uk/gmap/altitude.htm)"
+  },
+  {
+    "objectID": "posts/2009-07-28-giants-shoulders-in-music/index.html",
+    "href": "posts/2009-07-28-giants-shoulders-in-music/index.html",
+    "title": "Giants’ Shoulders in music",
+    "section": "",
+    "text": "A nice song about a great Giant, Galileo, by the Chromatics.\nRead text and listen to music, here.\n\n\n\nReusehttps://creativecommons.org/licenses/by-sa/4.0/"
+  },
+  {
+    "objectID": "posts/2012-04-18-this-code-shows-how-to-syntax-highligh/index.html",
+    "href": "posts/2012-04-18-this-code-shows-how-to-syntax-highligh/index.html",
+    "title": "syntax highlight",
+    "section": "",
+    "text": "The following example shows how to syntax highlight some snippet of code in a very minimalistic way.I used it by symlinking to a file in the version control repo and name it in as the argument of$(‘#code-area’).load() and here it is: \n  code higlighted with minimal javascript        Metacircular code highlightingThe following code is an highlighted version of this very page usingSyntaxHighlighter.You need a decent modern browser to enjoy it.     \n\n \n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\nReusehttps://creativecommons.org/licenses/by-sa/4.0/"
+  },
+  {
+    "objectID": "posts/2009-11-11-text-on-latex-snippet-in-blogger-from/index.html",
+    "href": "posts/2009-11-11-text-on-latex-snippet-in-blogger-from/index.html",
+    "title": "LaTeX on Blogger",
+    "section": "",
+    "text": "Revisited in 2022 where Quarto makes everything easy.\nAn inline snippet of LaTeX \\\\(e^{\\pi i}+1=0\\\\) in blogger (from https://watchmath.com/vlog/?p=438 but it now, Oct 2010, shows crap!).\nYou can as well have it in display style $$e^{\\pi i}+1=0$$.\n\n\n\nReusehttps://creativecommons.org/licenses/by-sa/4.0/"
+  },
+  {
+    "objectID": "posts/2009-02-24-latex-python-and-literate-programming/index.html",
+    "href": "posts/2009-02-24-latex-python-and-literate-programming/index.html",
+    "title": "LaTeX, Python and Literate Programming",
+    "section": "",
+    "text": "In my spare time (a couple of hours per weekend…!) I am implementing calcal, a Python version of calendrica-3.0.cl, the Common Lisp implementation of the calendars from N. Dershowitz, E. M. Reingold Calendrical Calculations, 3rd Edition. (In case you are interested you can find a preview in my github repo.)\nAt some point I decided to go Literate Programming using noweb. This is an experiment in the experiment but so far it has been a good choice because I can define all I need in the same place and generate documentation, source code (Python, shell scripts …) from the same source.\nI also found something interesting (on a now disappeared blog https://usefreetools.blogspot.com): executing Python from within LaTex! I could use it to avoid to hardcode results in my doc and just calculate them on the fly…\nThe same blog was showing how to build LaTeX docs using SCons: I will defenitly use it; my Makefile isn’t that great nor easy to mantain.\n\n\n\nReusehttps://creativecommons.org/licenses/by-sa/4.0/"
+  },
+  {
+    "objectID": "posts/2015-08-08-learning-reactive-vega/index.html",
+    "href": "posts/2015-08-08-learning-reactive-vega/index.html",
+    "title": "Learning Vega 2.0 a.k.a. Reactive Vega",
+    "section": "",
+    "text": "Vega 2.0 adds a grammar of interaction to the grammar of graphics implemented in Vega 1.0.\nWhen you say grammar of graphics all roads bring you to\n\nLeland Wilkinson The Grammar of Graphics Springer Science & Business Media, Jul 15, 2005\n\nBut given the price of 100+ USD, I am not even thinking of getting my hands on it.\nSo the next thing you can look at is who has build upon this conceptual framework. And then we bump into\n\nHadley Wickham. A layered grammar of graphics. Journal of Computational and Graphical Statistics, vol. 19, no. 1, pp. 3–28, 2010. https://vita.had.co.nz/papers/layered-grammar.html\n\nwhich implements a (layered) grammar of graphics as a package for the excellent R language. The article in the “Conclusions” section raises the question of how to add interaction to the ggplot2 framework."
+  },
+  {
+    "objectID": "posts/2015-08-08-learning-reactive-vega/index.html#and-a-grammar-of-interaction",
+    "href": "posts/2015-08-08-learning-reactive-vega/index.html#and-a-grammar-of-interaction",
+    "title": "Learning Vega 2.0 a.k.a. Reactive Vega",
+    "section": "… and a Grammar of Interaction",
+    "text": "… and a Grammar of Interaction\nMoving to Vega, from its own site\n\nVega is a visualization grammar, a declarative format for creating, saving, and sharing interactive visualization designs\n\nThe interactive was not present in the first implementation as of Apr 2014, it has been added and publicly described in\n\nArvind Satyanarayan, Kanit Wongsuphasawat, Jeffrey Heer Declarative Interaction Design for Data Visualization ACM User Interface Software & Technology (UIST), 2014, https://idl.cs.washington.edu/papers/reactive-vega\n\nThe companion video explains things further:"
+  },
+  {
+    "objectID": "posts/2015-08-08-learning-reactive-vega/index.html#and-now-lets-use-it",
+    "href": "posts/2015-08-08-learning-reactive-vega/index.html#and-now-lets-use-it",
+    "title": "Learning Vega 2.0 a.k.a. Reactive Vega",
+    "section": "And now let’s use it",
+    "text": "And now let’s use it\nAll that reading is ok but without doing I do not fully get it (and even then … ;-) I need examples\nSo the Vega tutorial is a very good starting point (and like all tutorials it can be perfected by inspirational minds), as well as the interactive and non examples in the Vega Editor.\nHere of course you have less textual description about the what’s and why’s.\nThe tutorial shows you how to build a (vertical) bar chart. Here it is:\n\n\nSo as my homework I implemented what requested as en exercise at the end of the tutorial. That is\n“convert the (vertical) bar plot to an horizontal one”\nHere it is:\n\n\nThe interactive bit in both blocks is evident when you hover your mouse on the bars and the relevant amount is textually shown. Simple and it renders the concept.\nAnd finally a little example with yearly number of flight in Europe:\n\n\nThe following questions remain for me:\n\nHow to I pad the graph so that my boundary point are not so close to the axes? This issue calls for an offset to be added to the spec.\nHow do I link events from widgets external to the graph to interactions in the graph? (Here I think the Reactive Vega supplemental material, i.e. ex_jobs.json, watch at min 3:19 of reactive vega video above, will help, as well as CSS selector for Signals in the Vega documentation)\n\nIf you want to daydream and see the potentials of Vega, watch the recent conference presentation from Prof. Jeffrey Heer:\nRaising the Bar (Chart): The Next Generation of Visualization Tools, OpenVis Conference 2015 keynote talk by Jeffrey Heer."
+  },
+  {
+    "objectID": "posts/2012-04-18-metacircularity/index.html",
+    "href": "posts/2012-04-18-metacircularity/index.html",
+    "title": "metacircularity",
+    "section": "",
+    "text": "I found and liked a very good summary of the ‘Maxwell Equations of software’ motto from Alan Kay in this post from Michael Nielsen.\nIt is nice also because it has running code inspired by all the gurus and books I like: Alan Kay, Peter Norvig, John McCarthy, SICP, Paul Graham.\n\n\n\nReusehttps://creativecommons.org/licenses/by-sa/4.0/"
+  },
+  {
+    "objectID": "posts/2009-10-26-pycalcal-is-out/index.html",
+    "href": "posts/2009-10-26-pycalcal-is-out/index.html",
+    "title": "PyCalCal is out!",
+    "section": "",
+    "text": "I finally set to put PyCalCal out in the open.\nI will need to finalize and perfect it but that is a good starting point.\nI also added a demo web app using it.\nMy idea is for PyCalCal to be used as a Python library and as such use it to provide calendrica calculations as web services.\nStay tuned if you are interested."
+  },
+  {
+    "objectID": "posts/2014-08-29-impressions-about-selection-process-of/index.html",
+    "href": "posts/2014-08-29-impressions-about-selection-process-of/index.html",
+    "title": "Failing to be recruited…",
+    "section": "",
+    "text": "This post title to be frank should have been “Impressions about the selection process of a big Internet company (and my failure to go to the next steps after initial engagement),” but that is obviously too long.\nSo I only kept the failure part with the aim to bring home some lessons from it ! :smirk:\n\nChronology, more or less\nIt all started with an email at the end of July 2014 from the company’s recruiter, let’s call her Alice.\nMy first reaction was: SPAM!!!! :scream:\nWell, no. It was a genuine ping with too many realistic references about me (not that difficult given my CV is public on LinkedIn) and about her…but I could only reply when back home from my first slot of holidays: the family still at the beach, I am home alone, with tons of projects accumulated throughout the year (yes, year) since last summer…and this email!\nNow, I am not at all looking for changing job: I know for sure my current employment conditions and benefits are extremely difficult to match. Even by big Internet companies.\nBut I am definitely piqued by the technical side of it! (Good job Alice!)\nSo we exchange few email with various links to job/site descriptions/videos from Alice and few replies from me with links (web presence/open source/tinkering around) and attachments to describe myself.\nI am delighted when Alice tells me the position she is selecting for is about managing a team but it involves coding (“Good” I think, “I love that”…and say I do it too, even if just in my limited free time – 4hr per weekend; hey I have 4 kids! –). Once she mentioned people in the position spend 30 plus % of time coding, then later she mentioned few times 20%…anyway much much better than 0% I am currently stuck with at work.\nThen we come to fix a video conf with the following declaration of intents:\n\nOur chat will be more of an open discussion than a formal interview - we will discuss your current situation, the roles at XYZZY and if at that point there is a mutual interest, we can proceed to a technical chat.\n\nTo prepare for it I am handed a self evaluation form with scales from 0 (unfamiliar with the subject area) to 10 (Wrote the book in the subject area or similar expertise.) and subject areas from TCP/IP to People and Project Management going through C/Java/Go/SQL.\nGood, I can fill a form and, as suggested, keep modest: for sure I know I know nothing but there are good search engines around and lots of people to ask and collaborate with ;-)\nA week later we set for the video conf and start the business chat, things like whether I had to recruit or fire people, team size, sort of chit-chatting ;-)\nAnd then the technical questions starts: and frankly it has been a disaster!\nEven on questions (Unix file system and inode [4.14 of Advance Programming in the UNIX Environment {yes, I still have the 1992 edition!}]) I used to ask to people I was recruiting some 12 years ago!\n\n\nLessons learnt for when I am recruiting\n\nMake sure the context of the interview is clear: subject, what is expected, timing, steps, process. I usually do this but we all tend to forget. This is a reminder for myself.\n\n\n\nLessons learnt (for when I want to be recruited ;-)\n\nI should have clearly asked to separate the chat on current/future position from the technical chat as in the declaration of intents above. Maybe I assumed it would have been in 2 separate sessions but I was taken off balance by it happening in the same video conf. \nI should have asked more about the technical interview, i.e. examples of questions\nI should have asked more time to prepare if I felt I was too rusty on the subjects\n\n\n\nObservations about the specific recruiting techniques\n\nI was positively impressed by the fact I follow similar steps as in big Internet companies: we have a phone interview to assess the minimum level of technical competencies before we proceed with deeper hands-on assessments.\nThe post and place descriptions and the videos were good. We should prepare more material (web based and videos) to describe the consultants positions we look for. But here we are limited by our IT infrastructure, the framework contract we have for recruiting…\nI liked the video conf (Skype and the likes): I have used it only when interviewing a Canadian (and even then he had the support from his university to use their video conference) but we should do it more…if only our IT infrastructure/policies would permit it (we have WebEx but I have never seen it used for recruiting…can we?)\nI really disliked the narrowness of some of the questions I have been asked, things like the signature of certain Unix sys calls. This, I hope, was probably suited for the very specific needs of the job at hand, but in general IMHO they do not show anything about the capabilities of the person you are selecting. When I select people I prefer to watch/discuss about their journey to the destination/solution: the destination itself doesn’t tell me anything about how they do reason/think. (That is why I am usually happy with – and I also ask about – a book they would pick up to find some inspiration or the kind of web search they would use to start tackling a problem…)\n\n\n\nFeedback from friends\nFew friends working at the same big Internet company (both in USA and Europe) told me that they were not surprised of the outcome because, even if they think I could have made it, the whole selection process is skewed towards the negative: it only takes one no from the interview panel to get a negative feedback.\nWell, I am sure I got more than one no!\n\n\n\n\nReusehttps://creativecommons.org/licenses/by-sa/4.0/"
+  },
+  {
+    "objectID": "posts/2016-10-31-oracle-docker-image/index.html",
+    "href": "posts/2016-10-31-oracle-docker-image/index.html",
+    "title": "Docker image for locally testing Oracle",
+    "section": "",
+    "text": "This post describes my journey to building and using a docker image for Oracle.\nIt all started as usual searching the web for hints and many results led to the Oracle docker Github repository.\nThis repository under OracleDatabase provides (almost) all the informations needed.\nMy target machine: MacBook Pro (13-inch, Mid 2009), OS X Yosemite 10.10.5.\n\n\nI decided to use Oracle XE 11.2.0.2 because my use case just needed an Oracle DB, so no need to go for bigger and fancier versions.\n\n\n\nSo without further ado here is what I tried and what did not work and which solutions I found:\n\n:thumbsup: clone the relevant github repo:\n$ git clone https://github.com/oracle/docker-images oracle-docker-images\n$ cd oracle-docker-images/OracleDatabase/dockerfiles\n:disappointed: download the relevant file from Oracle, in my case, oracle-xe-11.2.0-1.0.x86_64.rpm.zip. Put it in the 11.2.0.2 directory (DO NOT UNZIP). (Of course Oracle makes this step a pain in the neck, i.e. no simple curl or any other possibility to just download it…yes with the implicit acknowledgement that you agree with their terms…)\n:thumbsup: run you docker daemon. I am on an old MBP, so no native docker… Remember to note down the docker machine IP, docker startup spits something like: docker is configured to use the default machine with IP 192.168.99.100\nI discovered this later on once I had built a docker image…for non native docker you need to increase the swap memory of your VM:\n$ docker-machine stop default\n$ VBoxManage modifyvm default --memory 8192\n$ docker-machine start default\n:thumbsdown: as per README, execute the build script (make sure your docker daemon is running):\n$ ./buildDockerImage.sh -v 11.2.0.2 -x\nChecking if required packages are present and valid...\nusage: md5sum [file...]\nMD5 for required packages to build this image did not match!\nMake sure to download missing files in folder 11.2.0.2.\n:thumbsup: So…maybe that is why the -i flag has been added…\n$ ./buildDockerImage.sh -v 11.2.0.2 -x -i\n  Ignored MD5 checksum.\n  =====================\n  Building image 'oracle/database:11.2.0.2-xe' ...\n  Sending build context to Docker daemon 315.9 MB\n  Step 1 : FROM oraclelinux:latest\n  ...\n  Step 2 : MAINTAINER Gerald Venzl <gerald.venzl@oracle.com>\n  ...\n  Step 3 : ...\n  ...\n  Step 4 : ENV PATH $ORACLE_HOME/bin:$PATH\n  ...\n  Step 5 : COPY $INSTALL_FILE_1 $CONFIG_RSP $RUN_FILE $PWD_FILE $INSTALL_DIR/\n  ...\n  Step 6 : RUN yum -y install ...\n  ...\n  Step 7 : VOLUME $ORACLE_BASE/oradata\n  ...\n  Step 8 : EXPOSE 1521 8080\n  ...\n  Step 9 : CMD $ORACLE_BASE/$RUN_FILE\n  ...\n  Oracle Database Docker Image for 'xe' version 11.2.0.2 is ready to be extended:\n  --> oracle/database:11.2.0.2-xe\n\n  Build completed in 301 seconds.\nCreate a place where the DB will be persisted between runs:\n$ mkdir -p ~/var/lib/docker/oracle/$USER\nRun it (and note down the automatically generated password):\n$ docker run --shm-size=1g \\\n    -p 1521:1521 -p 8080:8080 \\\n    -v $HOME/var/lib/docker/db/$USER:/u01/app/oracle/oradata \\\n    oracle/database:11.2.0.2-xe\nChange the default password:\n$ docker ps\nCONTAINER ID        IMAGE                         ...\n22088d2ed7a3        oracle/database:11.2.0.2-xe   ...\n\n$ docker exec 22088d2ed7a3 /u01/app/oracle/setPassword.sh cucu\nand connect to it (the IP 192.168.99.100 is the one from above; sql is new Oracle’s command line interface, see sqlcl):\n$ ~/tools/sqlcl/bin/sql system/cucu@//192.168.99.100:1521/XE"
+  },
+  {
+    "objectID": "posts/2020-04-19-expandig-kobo-s-clara-hd-microsd-card/index.html",
+    "href": "posts/2020-04-19-expandig-kobo-s-clara-hd-microsd-card/index.html",
+    "title": "Expandig Kobo Clara HD’s microSD Card",
+    "section": "",
+    "text": "The COVID-19 lockdown in Belgium was officially enforced on noon 18th Mar 2020 but at home we were already quarantined (kids since Carnival holidays, 24th Feb; me from EOB 13th Mar). So on my first official telework day, 16th Mar, I finally decided to buy an ebook reader, and selected Kobo Clara HD.\nI like it but still I was curious and looked around for how to hack it. I found that it is possible to change the original SD card (8 GB) with a bigger one and decided to give it a go. This blog post from Lee Yingtong Li got me started.\nI opened it, took the SD card out and copied on a bigger one of 128 GB.\n\n\n\n\n\nIt all went well apart from the last 2 lines of text:\n\nThen use a tool like gparted to resize the data partition (the large third partition) on the new microSD card to fill the remaining space.\n\nI tried all kind of things to have gparted running from a Mac (docker image, Virtual Box) but what finally worked for me was to have it on a bootable CD ROM (yes I still have an old machine with CD reader/writer): I burned the ISO image, booted from it and resized the SD card to all available space.\n\n\n\nReusehttps://creativecommons.org/licenses/by-sa/4.0/"
+  },
+  {
+    "objectID": "posts/2013-05-13-on-revising/index.html",
+    "href": "posts/2013-05-13-on-revising/index.html",
+    "title": "on revising",
+    "section": "",
+    "text": "Lately I found myself involved into writing.\nAnd I have been often cought into the vicious cycle of revising my (or other’s) text without really understanding how to do it properly and when to stop.\nI want to summarize some of the advise I found on the web.\nI put it here for me to find it again and share.\nLet’s first paraphrase the famous grook from Piet Hein:\n\nTHE ROAD TO WRITING?Well, it’s plainand simple to express.revise and revise and revise again,but less and less and less.\n\nI found an interesting post by Brian Marick. (And for now I reformat it here for my own use. But I will revise it later ;-)\n\n\nIf a sentence is unclear, do not fix it by adding more words. Fix it by splitting it into two sentences. Then maybe add a third.\n\n\nIf a paragraph is unclear, do not fix it by adding more sentences. First look earlier in the piece. Can you find a place to add a few sentences that will make the later idea clearer? Perhaps you can rule out an interpretation that will later cause confusion. Write text to head off the problem, then return to adjust the guilty paragraph.\n\n\nIf an idea or procedure is complicated, don’t add more words explaining it. Add an example. If the example is too complicated, don’t add more words explaining it. Precede it with a simpler example, then change the explanation of the complicated example to focus on what it adds to the simpler one.\n\n\nIf you use change tracking, turn display of changes off. You won’t be able to make the new text read well if it’s all mixed up with the old text.\n\n\nAfter you change a sentence, leave it aside for a while, then come back and reread at least the whole paragraph that contains it. Then tweak the sentence to make it fit better into its environment.\n\n\n How do you find what needs revision?\n\n\nCan you turn that bullet list into one or more paragraphs? Bullet lists are, on average, easier for writers but harder for readers. They’re easier for writers because you don’t have to worry about transitions between one idea and the next. They’re harder for readers because there are no transitions guiding them from one idea to the next. Will their eyes glaze over because you’re not providing them with a sense of flow?\n\n\nRead your text aloud. You don’t have to write like you speak, but reading aloud changes your perspective. Awkwardness will jump out at you. Reading aloud is one way to get some distance, to separate the piece from your memory of writing it.Putting it aside for a day or, better, a week does the same thing.I find that reading a printed copy helps me see things I don’t see on a screen.Can you find other tricks?Richard P. Gabriel tells the story of one writer who would tape his work to a wall, go to the other side of the room, and read it through binoculars.Print the piece with a wide margin on one side. Next to each paragraph, scribble a few words about the paragraph’s topic. Now read the scribbles. Do they form a progression of thought, a developing story of explanation? Or are they more like a bunch of thoughts hitched together in any old order? If so, shuffle them into a better order. (Some people cut the paragraphs out and move them around; I usually draw arrows from where the paragraph is to where it should go. I suspect the other people do better.) Sometimes you read a piece where a particular secondary idea or clever chunk of text seems to have undue importance. It’s almost as if the piece were distorted to find a way to make that gem fit. That’s usually because it was. The gem came first, the piece grew away from it, but the author forced it to stay. Ask what your favorite bit of the piece is, then throw it out - or at least consider how the piece would read if you dropped it. I find this useful to do when I get bogged down during writing.\n\n\n\n\n\nReusehttps://creativecommons.org/licenses/by-sa/4.0/"
+  },
+  {
+    "objectID": "posts/2014-10-19-understanding-great-circle-arcs/index.html",
+    "href": "posts/2014-10-19-understanding-great-circle-arcs/index.html",
+    "title": "Understanding Great Circle Arcs Intersection Algorithm",
+    "section": "",
+    "text": "The following material is the result of my attempt to understand the nice example from Jason Davies. I was puzzled about the origin of the algorithm used to find the intersection of two great circle arcs. Google helped and I discovered Roger Stafford’s post in Matlab newsgroup and the relevant Python’s implementation in the Spherical Geometry Toolkit."
+  },
+  {
+    "objectID": "posts/2014-10-19-understanding-great-circle-arcs/index.html#the-algorithm",
+    "href": "posts/2014-10-19-understanding-great-circle-arcs/index.html#the-algorithm",
+    "title": "Understanding Great Circle Arcs Intersection Algorithm",
+    "section": "The algorithm",
+    "text": "The algorithm\nYou have two great circle arcs on a sphere, \\(a\\) from point \\(a_0\\) to \\(a_1\\), and \\(b\\) from \\(b_0\\) to \\(b_1\\), whose coordinates are expressed as longitude \\(\\theta\\) (positive going East of Greenwich) and latitude \\(\\phi\\) (positive going North). Transform theses coordinates over to Cartesian coordinates using the equations:\n\n\\[\n\\begin{aligned}\nx  & = cos(\\theta) cos(\\phi) \\\\\ny  & = sin(\\theta) cos(\\phi) \\\\\nz  & = sin(\\phi)\n\\end{aligned}\n\\]\n\nwhere\n\n\\[\n\\begin{equation}\n-\\pi  \\le  \\theta  \\le \\pi \\\\\n-\\frac{\\pi}{2} \\le \\phi \\le \\frac{\\pi}{2}.\n\\end{equation}\n\\]\n\nThese Cartesian coordinates correspond to a hypothetical spherical “earth” of unit radius, but that does not interfere in the following computations.\nLet \\(\\mathbf{a_0}\\), \\(a_1\\), \\(\\mathbf{b_0}\\), and \\(\\mathbf{b_1}\\) be vectors of the Cartesian coordinate endpoints for the two arcs \\(a\\)(\\(\\mathbf{a_0} \\leftrightarrow \\mathbf{a_1}\\)) and \\(b\\)(\\(\\mathbf{b_0} \\leftrightarrow \\mathbf{b_1}\\)) obtained in this way. Carry out the following omputations:\n\\(\\mathbf{p} = \\mathbf{a_0} \\times \\mathbf{a_1}\\) is the vector normal to the plane going through the arc \\(a\\) and the center of the Earth.\n$ = $ is the vector normal to the plane going through the arc \\(b\\) and the center of the Earth.\n\\(\\mathbf{t} = \\mathrm{normalized}(\\mathbf{p} \\times \\mathbf{q})\\) is along the line of intersection of the planes above.\n(The normalization was not mentioned in Roger’s post but it is implemented in the Spherical Geometry Toolkit and by Jason’s example.)\nThen, let’s define the following quantities:\n\n\\[\n\\begin{aligned}\ns_1 & =  (\\mathbf{a_0} \\times \\mathbf{p})  \\cdot \\mathbf{t} \\\\\ns_2 & = (\\mathbf{a_1} \\times \\mathbf{p}) \\cdot \\mathbf{t} \\\\\ns_3 & = (\\mathbf{b_0} \\times \\mathbf{q}) \\cdot \\mathbf{t} \\\\\ns_4 & = (\\mathbf{b_1} \\times \\mathbf{q}) \\cdot \\mathbf{t}\n\\end{aligned}\n\\]\n\n(These quantities are crucial: they represent the projection of \\(\\mathbf{t}\\) along the arcs \\(a\\) and \\(b\\).)\nThe arcs \\(a\\) and \\(b\\) will intersect \\(\\iff\\) \\(-s_1\\), \\(s_2\\), \\(-s_3\\), and \\(s_4\\) are all of the same sign. In that case they intersect along \\(+\\mathbf{t}\\) if they are all positive or along \\(-\\mathbf{t}\\) if all are negative. (Jason tests against \\(\\epsilon = 10^{-6}\\), I implemented the test against the sign.)\nIf they do intersect, you can transform the corresponding vector, \\(\\mathbf{t}\\) or \\(-\\mathbf{t}\\) back into longitude and latitude (without worrying about its length.) Letting \\(x\\), \\(y\\), \\(z\\) be \\(\\mathbf{t}\\)’s Cartesian coordinates this reverse transformation can be accomplished this way:\n\n\\[\n\\begin{aligned}\n\\theta & = {\\mathrm arctan2} (y,x) \\\\\n\\phi    & = {\\mathrm arctan2}(z, \\sqrt{x^2+y^2})\n\\end{aligned}\n\\]\n\n\n\n\nReferences\n\nRoger Stafford’s post on Matlab newsgroup (but it lacks the normalization step which is instead used in Jason Davies code, and in Spherical Geometry Toolkit)\nimplementation in Python as part of the Spherical Geometry Toolkit\nJason Davies implementation in D3.js\n\n\nOriginally written and published with StackEdit, later moved to Jekyll and GitHub Pages"
+  },
+  {
+    "objectID": "posts/2011-03-26-what-was-croquet-is-maybe-still-alive/index.html",
+    "href": "posts/2011-03-26-what-was-croquet-is-maybe-still-alive/index.html",
+    "title": "(What was) Croquet is maybe still alive",
+    "section": "",
+    "text": "It seems there is still some hope to see Croquet (or, OpenCobalt which took off from where Croquet stopped) alive and based on latest Squeak and more importantly using Cog VM.\nMatthew Fulmer reports it here.\nThe potentials are magical as explained by Howard Stearns.\n\n\n\nReusehttps://creativecommons.org/licenses/by-sa/4.0/"
+  },
+  {
+    "objectID": "posts/2012-04-19-wiki-of-future/index.html",
+    "href": "posts/2012-04-19-wiki-of-future/index.html",
+    "title": "wiki of the future?",
+    "section": "",
+    "text": "Last weekend I have been watching, reading and playing around with Ward Cunningham’s Smallest Federated Wiki. As usual he is a great designer and aims to simple, effective, understandable and useful tools! I particularly like the plugins idea (not new of course) and how easy it seems to be to add new ones, like support for MathJax:  Get inspired you too!\n\n\n\nReusehttps://creativecommons.org/licenses/by-sa/4.0/"
+  },
+  {
+    "objectID": "posts/2016-08-07-setting-c-h-i-p-up/index.html",
+    "href": "posts/2016-08-07-setting-c-h-i-p-up/index.html",
+    "title": "Setting C.H.I.P. up",
+    "section": "",
+    "text": "Few weeks ago I finally received my C.H.I.P. and PocketC.H.I.P.\nC.H.I.P. is the famous $9 computer crowdfunded in May 2015 via Kickstarter and PowerC.H.I.P. combines a 4.3-inch screen and a button-style QWERTY keypad with it.\nHere they are in all their beauty:"
+  },
+  {
+    "objectID": "posts/2016-08-07-setting-c-h-i-p-up/index.html#setting-c.h.i.p.-up",
+    "href": "posts/2016-08-07-setting-c-h-i-p-up/index.html#setting-c.h.i.p.-up",
+    "title": "Setting C.H.I.P. up",
+    "section": "Setting C.H.I.P. up",
+    "text": "Setting C.H.I.P. up\nI am interested to play with both toys remotely, so I did follow Setting up CHIP as a headless server with minimal tools in order to install and configure ssh.\nHere is what I did for C.H.I.P.:\n\nconnect via USB to my laptop (a Mac) via screen and logon usr: chip, pwd: chip as per default settings (to be changed later ;-).\n$ screen /dev/tty.usbmodem1411\nfollow the WiFi Connection instructions in the docs, i.e. execute the command\n$ sudo nmcli device wifi connect 'homeSSID' password 'mypass' ifname wlan0\nupdate packages and install ssh\n$ sudo apt-get update\n$ sudo apt-get install ssh\noptional, upgrade packages and cleanup:\n$ sudo apt-get upgrade\n$ sudo apt-get autoremove\nfix locale (I use American setup, so in the GUI I did select the item en_US.UTF-8 UTF-8):\n$ sudo locale-gen en_US en_US.UTF-8\n$ sudo dpkg-reconfigure locales\n\nI also renamed the hosts biochip (the bare one) and chippie (the Pocket one). Although I found various posts on how to do it I tried w/ nmtui and selected the Set system hostname item then rebooted: all worked smoothly."
+  },
+  {
+    "objectID": "posts/2016-08-07-setting-c-h-i-p-up/index.html#todos",
+    "href": "posts/2016-08-07-setting-c-h-i-p-up/index.html#todos",
+    "title": "Setting C.H.I.P. up",
+    "section": "ToDo’s",
+    "text": "ToDo’s\n\ndisable root account (ssh and non) login.\nchange chip account password\nchange root account password"
+  },
+  {
+    "objectID": "publications/open-flight-trajectories/index.html",
+    "href": "publications/open-flight-trajectories/index.html",
+    "title": "Open Flight Trajectories for Reproducible ANS Performance Review",
+    "section": "",
+    "text": "SESAR Innovation Days 2018"
+  },
+  {
+    "objectID": "publications/open-flight-trajectories/index.html#abstract",
+    "href": "publications/open-flight-trajectories/index.html#abstract",
+    "title": "Open Flight Trajectories for Reproducible ANS Performance Review",
+    "section": "Abstract",
+    "text": "Abstract\nAir transportation is undergoing a fundamental transformation. On the political, strategic, and operational level work is directed to meet the future growth of air traffic. To meet this goal, operational concepts and technological enablers are deployed with the promises of distinct performance improvements. These improvements are typically widely marketed, however, the underlying evidence is not made available. From that respect Air Navigation System Performance faces varying levels of transparency as seen in other industries. This paper implements the reproducibility paradigm by providing data, code, and results openly to enable another researcher or analyst to reproduce - and potentially - improve or build on our work. This work is part of a wider thread to establish Open Data and Open Source based data analytical capabilities for Air Navigation System Performance in Europe. The implementation of the paradigm is demonstrated on the basis of the performance reference trajectory by replicating a classical performance measure, and then moving into investigating the application of trajectory based information for enhancing the current state of performance monitoring for the arrival phase. This paper applies the concept and approach as a use case analysis for 2 European airports with different strategies for sequencing arrival traffic (i.e. stack holding and point merge). The research reported demonstrates the feasibility of the reproducibility approach. This work introduces a novel workflow by making available a companion web repository that provides data, code, and instructions to fully reproduce the paper."
+  },
+  {
+    "objectID": "publications/open-flight-trajectories/index.html#venue",
+    "href": "publications/open-flight-trajectories/index.html#venue",
+    "title": "Open Flight Trajectories for Reproducible ANS Performance Review",
+    "section": "Venue",
+    "text": "Venue\n8th SESAR Innovation Days, 3-7 December 2018. Hosted by University of Salzburg, Salzburg , Austria."
+  },
+  {
+    "objectID": "publications/open-flight-trajectories/index.html#see-also",
+    "href": "publications/open-flight-trajectories/index.html#see-also",
+    "title": "Open Flight Trajectories for Reproducible ANS Performance Review",
+    "section": "See Also",
+    "text": "See Also\n\nPDF \nCompanion repository, https://github.com/euctrl-pru/reproducible-ans-performance-paper"
+  },
+  {
+    "objectID": "publications/towards-reproducibility-in-ans-performance/index.html",
+    "href": "publications/towards-reproducibility-in-ans-performance/index.html",
+    "title": "Towards Reproducibility in ANS Performance",
+    "section": "",
+    "text": "## Abstract\nAir transportation is undergoing a fundamental transformation. On the political, strategic, and operational level work is directed to meet the future growth of air traffic. To meet this goal, operational concepts and technological enablers are deployed with the promises of distinct performance improvements. These improvements are typically widely marketed, however, the underlying evidence is not made available. From that respect Air Navigation System Performance faces varying levels of transparency as seen in other industries. This paper implements the reproducibility paradigm by providing data, code, and results openly to enable another researcher or analyst to reproduce - and potentially - improve or build on our work. This work is part of a wider thread to establish Open Data and Open Source based data analytical capabilities for Air Navigation System Performance in Europe. The implementation of the paradigm is demonstrated on the basis of the performance reference trajectory by replicating a classical performance measure, and then moving into investigating the application of trajectory based information for enhancing the current state of performance monitoring for the arrival phase. This paper applies the concept and approach as a use case analysis for 2 European airports with different strategies for sequencing arrival traffic (i.e. stack holding and point merge). The research reported demonstrates the feasibility of the reproducibility approach. This work introduces a novel workflow by making available a companion web repository that provides data, code, and instructions to fully reproduce the paper."
+  },
+  {
+    "objectID": "publications/towards-reproducibility-in-ans-performance/index.html#venue",
+    "href": "publications/towards-reproducibility-in-ans-performance/index.html#venue",
+    "title": "Towards Reproducibility in ANS Performance",
+    "section": "Venue",
+    "text": "Venue\n9th SESAR Innovation Days, 2-5 December 2019. Hosted by the National Centre of Scientific Research (NCSR) “Demokritos”, Athens, Greece."
+  },
+  {
+    "objectID": "publications/towards-reproducibility-in-ans-performance/index.html#see-also",
+    "href": "publications/towards-reproducibility-in-ans-performance/index.html#see-also",
+    "title": "Towards Reproducibility in ANS Performance",
+    "section": "See Also",
+    "text": "See Also\n\nPDF \nCompanion repository, https://github.com/euctrl-pru/reftrj"
+  },
+  {
+    "objectID": "publications/democratizing-performance-monitoring/index.html",
+    "href": "publications/democratizing-performance-monitoring/index.html",
+    "title": "Building Back Better – Democratization of Performance Monitoring with Open Data",
+    "section": "",
+    "text": "DASC 2021"
+  },
+  {
+    "objectID": "publications/democratizing-performance-monitoring/index.html#abstract",
+    "href": "publications/democratizing-performance-monitoring/index.html#abstract",
+    "title": "Building Back Better – Democratization of Performance Monitoring with Open Data",
+    "section": "Abstract",
+    "text": "Abstract\nThe COVID-19 pandemic accelerated the use, sharing, and distribution of data on a global basis. Higher levels of transparency were achieved with continual updates of pandemic related information. The air transportation sector – while by definition an information rich industry – is a notable exception. While different organizations offered aggregated data on air traffic developments on national or airport level, complementary data on air traffic movements for further analysis are not available publicly. This creates a deadlock between addressing the societal needs of monitoring how aviation recovers from the COVID-19 pandemic and addresses the aspirational environmental goals. This paper investigates the feasibility of utilizing open data for the operational performance monitoring at airports. The exploratory work focusses on a subset of the indicators proposed under ICAO’s Global Air Navigation Plan used to assess the operational performance in the arrival phase. A novel approach to characterize and assess the arrival flow management and level of traffic synchronization is presented. This will allow to evaluate on-going air traffic recovery and identify operational bottlenecks. The study is performed as a use-case analysis for three major European airports by comparing the observed performance in the months of March and May for the successive years 2019, 2020, and 2021. The results demonstrate the general feasibility and utility of open data for operational performance monitoring. The classical performance measure for the arrival flow are determined based on the open trajectory data. A geospatial-temporal evaluation support the tracking of traffic synchronisation effort. A higher level of transparency therefore available to the interested public, policy decision-makers and strategic planners with direct feedback on the recovery and actual operational performance. The suitability of the traffic synchronization measure and its parameterization requires further validation across a wider set of airports and will be iteratively refined."
+  },
+  {
+    "objectID": "publications/democratizing-performance-monitoring/index.html#venue",
+    "href": "publications/democratizing-performance-monitoring/index.html#venue",
+    "title": "Building Back Better – Democratization of Performance Monitoring with Open Data",
+    "section": "Venue",
+    "text": "Venue\n2021 IEEE/AIAA 40th Digital Avionics Systems Conference (DASC), San Antonio, Texas, USA."
+  },
+  {
+    "objectID": "publications/reference-trajectories-osn/index.html",
+    "href": "publications/reference-trajectories-osn/index.html",
+    "title": "Reference Trajectories: The Dataset Enabling Gate-to-Gate Flight Analysis",
+    "section": "",
+    "text": "The 9th OpenSky Symposium"
+  },
+  {
+    "objectID": "publications/reference-trajectories-osn/index.html#abstract",
+    "href": "publications/reference-trajectories-osn/index.html#abstract",
+    "title": "Reference Trajectories: The Dataset Enabling Gate-to-Gate Flight Analysis",
+    "section": "Abstract",
+    "text": "Abstract\nWithout a doubt, a publicly verifiable data is required to ensure a strong, transparent and independent air traffic management performance review system. Community sourced data (such as ADS-B/Mode S provided by OpenSky Network and others alike) has been used to analyse different aspects of air traffic management. The main drawback of such ADS-B data is the lack of crucial pieces of information that need to be inferred. On the other hand, Eurocontrol has used correlated position reports (CPRs) gathered from European Air Navigation Service Providers (ANSP) to conduct some of its actual/flown trajectory oriented performance analysis. The availability and the granularity of the CPRs vary between Eurocontrol Member States, making it difficult to perform accurate wide-scale studies. Using the strengths of both data sources would obviously result in great benefits. This paper describes the first step in creating a pan-European Flight Table (FT) and its supporting reference trajectories (RT). It is expected that the resulting dataset will be made available for the general public and that the work will continue to improve in scope and accuracy."
+  },
+  {
+    "objectID": "publications/reference-trajectories-osn/index.html#venue",
+    "href": "publications/reference-trajectories-osn/index.html#venue",
+    "title": "Reference Trajectories: The Dataset Enabling Gate-to-Gate Flight Analysis",
+    "section": "Venue",
+    "text": "Venue\nThe 9th OpenSky Workshop, 18–19 November 2021. Hosted by EUROCONTROL in Brussels, Belgium."
+  },
+  {
+    "objectID": "publications/correlation-tecniques-for-airborne-ultrasonic-rangefinders/index.html",
+    "href": "publications/correlation-tecniques-for-airborne-ultrasonic-rangefinders/index.html",
+    "title": "Correlation techniques for digital time-of-flight measurement by airborne ultrasonic rangefinders",
+    "section": "",
+    "text": "Ultrasonic pulse-echo ranging systems based on threshold detection methods are popular devices in the robotic field, as a means for determining the proximity of objects in a cost-effective manner. Despite their widespread use, serious concerns are often raised regarding the accuracy of the sensed data, particularly when the return signals are received at low signal-to-noise ratios. In principle, correlation-based detection methods provide better performance for their outstanding capability of detecting and recovering weak signals buried in noise, so as to permit ranging at longer distances, or, the distance being the same, at higher frequencies, with resulting improvements in spatial resolution in spite of the increased attenuation. In this paper the authors describe a simple pulse-echo ranging system whose receiver signal processing is completely digital: the use of appropriate sampling techniques and signal processing algorithms allows one to benefit from the advantages of correlation-based detection methods for accurate ranging of multiple objects, without compromising the most prominent features of pulse-echo sonar systems, namely their relatively low cost and simplicity of operation. The experimental results presented concern the use of relatively high-frequency ultrasonic transducers."
+  },
+  {
+    "objectID": "publications/correlation-tecniques-for-airborne-ultrasonic-rangefinders/index.html#venue",
+    "href": "publications/correlation-tecniques-for-airborne-ultrasonic-rangefinders/index.html#venue",
+    "title": "Correlation techniques for digital time-of-flight measurement by airborne ultrasonic rangefinders",
+    "section": "Venue",
+    "text": "Venue\nInternational Conference on Intelligent Robots and Systems (IROS’94), 12-16 September 1994, Munich, Germany."
+  },
+  {
+    "objectID": "publications/air-traffic-and-contrail-covid19/index.html",
+    "href": "publications/air-traffic-and-contrail-covid19/index.html",
+    "title": "Air Traffic and Contrail Changes Over Europe During Covid 19 a Model Study",
+    "section": "",
+    "text": "contails and COVID19"
+  },
+  {
+    "objectID": "publications/air-traffic-and-contrail-covid19/index.html#abstract",
+    "href": "publications/air-traffic-and-contrail-covid19/index.html#abstract",
+    "title": "Air Traffic and Contrail Changes Over Europe During Covid 19 a Model Study",
+    "section": "Abstract",
+    "text": "Abstract\nThe strong reduction of air traffic during the COVID-19 pandemic provides a unique test case for the relationship between air traffic density, contrails, and their radiative forcing of climate change. Here, air traffic and contrail cirrus changes are quantified for a European domain for March to August 2020 and compared to the same period in 2019. Traffic data show a 72 % reduction in flight distance compared with 2019. This paper investigates the induced contrail changes in a model study. The contrail model results depend on various methodological details as discussed in parameter studies. In the reference case, the reduced traffic caused a reduction in contrail length. The reduction is slightly stronger than expected from the traffic change because the weather conditions in 2020 were less favorable for contrail formation than in 2019. Contrail coverage over Europe with an optical depth larger than 0.1 decreased from 4.6 % in 2019 to 1.4 % in 2020; the total cirrus cover amount changed by 28 % to 25 %. The reduced contrail coverage caused 70 % less longwave and 73 % less shortwave radiative forcing but, because of various nonlinearities, only 54 % less net forcing in this case. The methods include recently developed models for performance parameters and soot emissions. The overall propulsion efficiency of the aircraft is about 20 % smaller than estimated in earlier studies, resulting in 3 % fewer contrails. Considerable sensitivity to soot emissions is found, highlighting fuel and engine importance. The contrail model includes a new approximate method to account for water vapor exchange between contrails and background air and for radiative forcing changes due to contrail–contrail overlap. The water vapor exchange reduces available ice supersaturation in the atmosphere, which is critical for contrail formation. Contrail–contrail overlap changes the computed radiative forcing considerably. Comparisons to satellite observations are described and discussed in a parallel publication."
+  },
+  {
+    "objectID": "publications/investigating-ads-b-mops-compliance-using-open-data/index.html",
+    "href": "publications/investigating-ads-b-mops-compliance-using-open-data/index.html",
+    "title": "Investigating ADS-B MOPS Compliance using Open Data",
+    "section": "",
+    "text": "Flight milestones"
+  },
+  {
+    "objectID": "publications/investigating-ads-b-mops-compliance-using-open-data/index.html#abstract",
+    "href": "publications/investigating-ads-b-mops-compliance-using-open-data/index.html#abstract",
+    "title": "Investigating ADS-B MOPS Compliance using Open Data",
+    "section": "Abstract",
+    "text": "Abstract\nThe introduction of Automatic Dependent Surveillance-Broadcast (ADS-B) in Aviation as mandated in the US and in Europe rests on the (at least theoretical) benefits of the switch of paradigm in ATC surveillance from (continuously) active interrogation of aircraft positions by primary radars to (almost always) automatic broadcast of data by the aircraft. The cost/benefit analysis in favour of this shift weights on the 1) higher frequency and precision of the aircraft information (position, speed, . . . ) made available to ATC/neighbouring aircraft leading to increased safety and increased airspace capacity and 2) on the (at least one) order of magnitude reduction in ground infrastructure costs [5]. Infrastructure needs nontheless to be deployed both on the ground and in the air; and in the end it is the passenger who pays via taxes on tickets or airports services: so what is the status of deployment? This paper investigates, using only open and free data, the status of compliance of aircraft in the European airspace, i.e. how many aircraft flying in Europe comply to the EASA ADS-B mandate."
+  },
+  {
+    "objectID": "publications/investigating-ads-b-mops-compliance-using-open-data/index.html#venue",
+    "href": "publications/investigating-ads-b-mops-compliance-using-open-data/index.html#venue",
+    "title": "Investigating ADS-B MOPS Compliance using Open Data",
+    "section": "Venue",
+    "text": "Venue\nThe 7th OpenSky Workshop, 21/22 November 2019. Hosted by Swisscom’s WorkGym, Zurich, Switzerland."
+  },
+  {
+    "objectID": "publications/investigating-ads-b-mops-compliance-using-open-data/index.html#see-also",
+    "href": "publications/investigating-ads-b-mops-compliance-using-open-data/index.html#see-also",
+    "title": "Investigating ADS-B MOPS Compliance using Open Data",
+    "section": "See Also",
+    "text": "See Also\n\nPDF"
+  },
+  {
+    "objectID": "projects/maps/index.html",
+    "href": "projects/maps/index.html",
+    "title": "Maps and map projections",
+    "section": "",
+    "text": "The following are some maps I coded and of which I am very proud of.\nMaps in D3.js via my bl.ocks:\n\nBoetti \nFlags of the USA \nEarth in a Cube I, II and III \nCahill-Keyes map projection"
+  },
+  {
+    "objectID": "projects/learning/index.html",
+    "href": "projects/learning/index.html",
+    "title": "Learning: neither Deep nor Machine, just Human",
+    "section": "",
+    "text": "On one side I am intrigued by Data Analysis and Visualization (see some of my D3 [et al.] blocks, Observable notebooks or my R project) and on the other side by Machine Learning.\nFor ML I am very slowly going thru some MOOC:\n\nRichard McElreath’s Statistical Rethinking\nAndrew Ng’s Machine Learning.\nStatistical Learning by Stanford University Profs. Trevor Hastie and Rob Tibshirani.\nDaphne Koller’s Probabilistic Graphical Models.\n\nWish me luck."
+  },
+  {
+    "objectID": "projects/nvctr/index.html",
+    "href": "projects/nvctr/index.html",
+    "title": "nvctr",
+    "section": "",
+    "text": "nvctr\n\n\nThe nvctr R package implements the n-vector approach to geographical position calculations using an ellipsoidal model of Earth as described in (Gade 2010) (see also the n-vector project page (Navigation group at FFI 2010).)\n\n\n\n\nReferences\n\nGade, Kenneth. 2010. “A Non-singular Horizontal Position Representation.” Journal of Navigation 63 (03): 395–417. https://doi.org/10.1017/S0373463309990415.\n\n\nNavigation group at FFI. 2010. “The n-Vector Page.” https://www.navlab.net/nvector/."
+  },
+  {
+    "objectID": "projects/pycalcal/index.html",
+    "href": "projects/pycalcal/index.html",
+    "title": "PyCalCal",
+    "section": "",
+    "text": "Exploded computer reconstruction of the Antikythera Mechanism\n\n\nPyCalCal is a Python implementation of the algorithms from the reference Common Lisp of the book Calendrical Calculation (Dershowitz and Reingold 2008). You can read more at https://github.com/espinielli/pycalcal/\nThe picture above is an exploded computer reconstruction of the Antikythera Mechanism from Figure 3 in ‘Eclipse Prediction on the Ancient Greek Astronomical Calculating Machine Known as the Antikythera Mechanis’ by Tony Freeth”.\n\n\n\n\nReferences\n\nDershowitz, Nachum, and Edward M. Reingold. 2008. Calendrical Calculations. Cambridge University Press."
+  },
+  {
+    "objectID": "projects/r-and-co/index.html",
+    "href": "projects/r-and-co/index.html",
+    "title": "Data science and R",
+    "section": "",
+    "text": "R\n\n\nData Analysis is big part of my daily job and I am promoting the use of R for reproducibility, exploratory data analysis and for visualization too (using for example Hadley Wickham’s ggplot2 (Wickham 2016)!)\nSome of the R packages I have developed/am developing are:\n\ntrrrj: dealing with flight trajectories in R\nnvctr: n-vector approach to geographical position calculations using an ellipsoidal model of Earth\npruatlas: some maps facilities for aviation\n\n\n\n\n\nReferences\n\nWickham, Hadley. 2016. Ggplot2: Elegant Graphics for Data Analysis. Springer-Verlag New York."
+  },
+  {
+    "objectID": "index.html",
+    "href": "index.html",
+    "title": "Enrico Spinielli",
+    "section": "",
+    "text": "I am a curious person fascinated by the collective open knowledge available at our fingertips (well, at least if you are lucky enough so you can afford decent living conditions).\nI am a curious geek. I love map projections and calendrical algorithms a lot.\nI (sort of) like to tinker with electronics but software is much more malleable and faster to work with, so, due to lack of time, I mainly play with software…"
+  },
+  {
+    "objectID": "index.html#interests",
+    "href": "index.html#interests",
+    "title": "Enrico Spinielli",
+    "section": "Interests",
+    "text": "Interests\n\nAviation\nStatistical learning (mainly the learning ;-)\nMap projections\nCalendrical algorithms"
+  },
+  {
+    "objectID": "about.html",
+    "href": "about.html",
+    "title": "About",
+    "section": "",
+    "text": "I’m an Italian 🇮🇹 living in Brussels, Belgium.\nI work in the Aviation Intelligence Unit of the European Organisation for the Safety of Air Navigation (a.k.a. EUROCONTROL).\nI love open source software and am grateful to all the ones contributing to it. I, too, try to participate a little with bug fixes, typo corrections, some code of my own or just appreciation.\nDid I say I also love open data? No? Ok, so I love open data because I am convinced it is an instrument for citizens, and civil society to support democracy, i.e. transparency and accountability.\n M.Sc in Electronic Engineering ∙ University of Pisa, Italy ∙ 1994"
+  }
+]
