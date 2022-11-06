@@ -183,14 +183,14 @@ ul.task-list li input[type="checkbox"] {
 <p>I decided to go for <a href="https://slimerjs.org/">SlimerJS</a> the scriptable browser that runs on top of <a href="https://en.wikipedia.org/wiki/Gecko_(software)">Gecko</a>, the web engine of <a href="mozilla.org/firefox">Mozilla Firefox</a>. (<a href="https://phantomjs.org/">PhantomJS</a> is the equivalent for <a href="https://en.wikipedia.org/wiki/Blink_(layout_engine)">Blink/WebKit</a> used in <a href="https://www.google.com/chrome">Google Chrome</a>.)</p>
 <p>Nothing strange about using Javascript of course but <em>CG sucks at it</em>: it is a last millenium tool which has been hastily brought to this century without any knowledge of the web technologies (and any taste for usability and beauty.) Just check the generated DOM elements and you will see that the <a href="https://www.w3.org/TR/html5/dom.html#the-id-attribute">uniqueness (within a page) of <code>id</code></a> is not at all respected.</p>
 <p>From the page for the weekly clockings shown above, using <a href="https://developer.mozilla.org/en/docs/Tools">Firefox Developer Tools</a> you can see that the table for the clockings (“Entrées/Sorties” row) can be selected via the following CSS path (line 58):</p>
-<p></p>
+<p><script src="https://gist.github.com/espinielli/aa410dbe7ff9b05b9c8f.js?file=cg.js"></script></p>
 <section id="run-it" class="level3">
 <h3 class="anchored" data-anchor-id="run-it">Run it!</h3>
 <p>The scraping is run as follows:</p>
 <pre class="console"><code>C:\goodies\cg&gt;cg usr:pwd 03/02/2015</code></pre>
 <p>Where <code>usr</code> is the userid and <code>pwd</code> is the password for both the internet proxy and ChronoGestor.</p>
 <p><code>cg</code> is a simple (stupid?) <code>.bat</code> script</p>
-<p></p>
+<p><script src="https://gist.github.com/espinielli/aa410dbe7ff9b05b9c8f.js?file=cg.bat"></script></p>
 </section>
 <section id="loggin-in" class="level3">
 <h3 class="anchored" data-anchor-id="loggin-in">Loggin in</h3>
