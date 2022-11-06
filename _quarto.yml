@@ -1,3 +1,5 @@
+execute:
+  cache: true
 project:
   type: website
   output-dir: _site
@@ -10,7 +12,7 @@ website:
   twitter-card: true
   site-url: https://enrico.spinielli.net
   repo-url: https://github.com/espinielli/enrico.spinielli.net
-  repo-actions: [issue]
+  # repo-actions: [issue]
   page-navigation: true
   page-footer:
     right:
@@ -33,12 +35,13 @@ website:
       text: Publications
     right:
     - about.qmd
-
+    - icon: rss
+      href: index.xml
 format:
   html:
     theme: solar
     css: styles.css
-    toc: true
+    # toc: true
 
 
 

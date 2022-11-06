@@ -1,0 +1,7 @@
+# options apply to all posts in this folder
+# see https://quarto.org/docs/websites/website-blog.html#freezing-posts
+# see https://quarto.org/docs/projects/quarto-projects.html#shared-metadata
+
+# freeze computational output
+#freeze: true  # never re-render during project render
+freeze: auto  # re-render only when source changes
